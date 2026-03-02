@@ -22,7 +22,6 @@ schaduw. Sun-Dial toont zonvoorspelling vooruit in de tijd.
 -   Fotograaf: golden hour notificaties.
 
 # Voordelen
-
 -   Geen tijdverspilling met lopen.
 
 -   Comfortabele plek voor elk weertype.
