@@ -1,9 +1,9 @@
-import express from 'express';
-import { getAllTerrasen, getTerrasById } from '../controllers/terrasController';
+import express from "express";
+import { getAllTerrasen, getTerrasById } from "../controllers/terrasController";
 
 const router = express.Router();
 
-router.get('/terrasen', getAllTerrasen);
-router.get('/terrasen/:id', getTerrasById);
+router.get("/", getAllTerrasen);
+router.get("/:id", getTerrasById);
 
 export default router;

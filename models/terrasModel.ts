@@ -41,8 +41,6 @@ TerrasSchema.index({ location: "2dsphere" }); // create a geospatial index on th
 
 TerrasSchema.index({ intensity: -1 }); // create an index on the intensity field for faster queries when sorting by intensity
 
-TerrasSchema.index({ identifier: 1 }); // create an index on the identifier field for faster queries when searching by identifier
-
 const Terras = mongoose.model<TerrasDocument>("Terras", TerrasSchema);
 
 export default Terras;
