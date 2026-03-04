@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dbTestRoutes from './routes/dbTests.js';
+import terrasRoutes from './routes/terrasRoutes.js';
 
 dotenv.config();
 
