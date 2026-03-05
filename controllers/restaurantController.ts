@@ -77,3 +77,13 @@ export const getRestaurantsInArea = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Error fetching restaurants in area", error });
     }
 };
+
+export const getRestaurantsByIntensity = async (req: Request, res: Response) => {
+    try {
+        const intensity = req.query.intensity ? Number(req.query.intensity) : 0;
+        const restaurants = await Restaurant.find({ intensity: { $gte: intensity } });
+        res.status(200).json(restaurants);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching restaurants by intensity", error });
+    }
+};
