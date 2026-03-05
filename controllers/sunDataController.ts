@@ -179,6 +179,21 @@ export const getSunForRestaurant = async (req: Request, res: Response) => {
 };
 
 /**
+ * GET /api/sun/event/:eventId
+ * Get sun data for a specific event.
+ * Optionally accepts ?time= query param (defaults to now).
+ */
+export const getSunForEvent = async (req: Request, res: Response) => {
+  try {
+    // For simplicity, we'll just return a 501 Not Implemented for events
+    res.status(501).json({ message: "Sun data for events is not implemented yet" });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching sun data for event", error });
+  }
+};
+
+
+/**
  * GET /api/sun/cache/:locationType/:locationId
  * Get all cached sun data entries for a location.
  */
