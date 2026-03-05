@@ -215,3 +215,50 @@ export const getCachedSunData = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching cached sun data", error });
   }
 };
+
+
+/** * GET /api/sun/batch
+ * Get sun data for multiple locations in a single request.
+ * Expects JSON body with array of { lat, lng, time } objects.
+ * 
+ * Example request body:
+ * {
+ *   "locations": [
+ *     { "lat": 51.05, "lng": 3.73, "time": "2024-06-01T12:00:00Z" },
+ *     { "lat": 51.05, "lng": 3.73, "time": "now" }
+ *   ]
+ * }
+ */
+export const getSunBatch = async (req: Request, res: Response) => {
+  try {
+    const locations = req.body.locations as { lat: number; lng: number; time: string }[];
+    if (!Array.isArray(locations)) {
+      return res.status(400).json({ message: "Invalid request body. Expected { locations: [{ lat, lng, time }] }" });
+    }
+
+    const results = locations.map(loc => {
+      const dateTime = new Date(loc.time);
+      if (isNaN(dateTime.getTime())) {
+        return { error: `Invalid time format for location (${loc.lat}, ${loc.lng})` };
+      }
+      const sun = calculateSunData(dateTime, loc.lat, loc.lng);
+      return {
+        latitude: loc.lat,
+        longitude: loc.lng,
+        dateTime: dateTime.toISOString(),
+        position: {
+          azimuth: sun.position.azimuth,
+          altitude: sun.position.altitude,
+          azimuthDegrees: sun.position.azimuth * (180 / Math.PI),
+          altitudeDegrees: sun.position.altitude * (180 / Math.PI),
+        },
+        intensity: sun.intensity,
+        goldenHour: sun.goldenHour,
+      };
+    });
+
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ message: "Error processing batch sun data request", error });
+  }
+};
