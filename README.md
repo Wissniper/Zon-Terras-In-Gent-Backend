@@ -24,7 +24,9 @@ Kaart met lichtintensiteit of kleurcodes: geel voor zon, blauw voor schaduw. Sun
 
 De API maakt het mogelijk om data-updates dynamisch en schaalbaar te beheren.
 
-- **Endpoints** voor real-time zondata per terras, met parameters zoals locatie, tijdstip en lichtintensiteit (bijv. `GET /api/sun/:lat/:lng/:time`).
+- **Endpoints** voor real-time zondata per locatie (terras, restaurant, event), met parameters zoals locatie, tijdstip en lichtintensiteit (bijv. `GET /api/sun/:lat/:lng/:time`).
+- **Golden Hour** data per locatie: dawn/dusk start- en eindtijden, ideaal voor fotografen en terrasgangers.
+- **Zondata per entiteit**: `GET /api/sun/terras/:id`, `GET /api/sun/restaurant/:id` — met caching in MongoDB per uur.
 - **Weerdata-integratie** via externe bronnen zoals Open-Meteo (geen key nodig, gratis voor non-commercial).
 - **Event listeners** via WebSockets (Socket.io) voor automatische updates bij zonpositie- of bewolkingswijzigingen.
 
@@ -33,29 +35,14 @@ De API maakt het mogelijk om data-updates dynamisch en schaalbaar te beheren.
 1. `npx tsc --init; npm i express typescript @types/express @types/node ts-node nodemon mongoose socket.io @types/socket.io suncalc3`
 2. Maak `.env`: `MONGODB_URI=mongodb://localhost:27017/terras`, `OPENMETEO_URL=https://api.open-meteo.com`
 
-### Voorbeeld Express router (app.ts)
+### Sun API endpoints
 
-```typescript
-import express from 'express';
-import SunCalc from 'suncalc3';
-import mongoose from 'mongoose';
-
-interface SunData { lat: number; lng: number; time: Date; intensity: number; }
-
-const router = express.Router();
-
-mongoose.connect(process.env.MONGODB_URI!);
-
-router.get('/sun/:lat/:lng/:time', async (req, res) => {
-  const { lat, lng, time } = req.params;
-  const date = new Date(time);
-  const sunPos = SunCalc.getPosition(date, +lat, +lng);
-  const intensity = sunPos.altitude > 0 ? Math.sin(sunPos.altitude) * 100 : 0;
-  res.json({ intensity, azimuth: sunPos.azimuth });
-});
-
-export default router;
-```
+| Endpoint | Beschrijving |
+|---|---|
+| `GET /api/sun/:lat/:lng/:time` | Zonpositie + golden hour voor coördinaten (`time` = ISO 8601 of `now`) |
+| `GET /api/sun/terras/:terrasId` | Zondata voor een terras (optioneel `?time=`) |
+| `GET /api/sun/restaurant/:restaurantId` | Zondata voor een restaurant (optioneel `?time=`) |
+| `GET /api/sun/cache/:locationType/:locationId` | Gecachte zondata (locationType: `Terras`, `Restaurant`, `Event`) |
 
 ### Suncalc libraries (3 alternatieven)
 
