@@ -39,5 +39,8 @@ const EventSchema = new Schema(
 
 EventSchema.index({ location: '2dsphere' });
 
+EventSchema.index({ date_start: 1 });
+EventSchema.index({ date_end: 1 });
+
 const Event = mongoose.model<EventDocument>('Event', EventSchema);
 export default Event;
