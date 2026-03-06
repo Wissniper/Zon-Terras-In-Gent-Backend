@@ -3,6 +3,7 @@ import SunCalc from "suncalc3";
 import SunData from "../models/sunDataModel.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
+import Event from "../models/eventModel.js"
 import { Request, Response } from "express";
 
 /** Helper: calculate sun data for given coordinates and time */
@@ -185,8 +186,30 @@ export const getSunForRestaurant = async (req: Request, res: Response) => {
  */
 export const getSunForEvent = async (req: Request, res: Response) => {
   try {
-    // For simplicity, we'll just return a 501 Not Implemented for events
-    res.status(501).json({ message: "Sun data for events is not implemented yet" });
+    const event = await Event.findById(req.params.eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    const [lng, lat] = event.location.coordinates;
+    const timeParam = req.query.time as string;
+    const dateTime = timeParam ? new Date(timeParam) : new Date();
+
+    if (isNaN(dateTime.getTime())) {
+      return res.status(400).json({ message: "Invalid time format" });
+    }
+
+    const cached = await getOrCreateCache(event._id, "Event", lat, lng, dateTime);
+
+    res.status(200).json({
+      event: { id: event._id, name: event.title, address: event.address },
+      sunData: cached,
+      links: [
+        { rel: "self", href: `/api/sun/event/${event._id}` },
+        { rel: "event", href: `/api/events/${event._id}` },
+      ],
+    });
+
   } catch (error) {
     res.status(500).json({ message: "Error fetching sun data for event", error });
   }
