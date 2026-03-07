@@ -33,7 +33,7 @@ const EventSchema = new Schema(
                 type: [Number],
                 required: true,
             },
-        },
+        }
 
 })
 
