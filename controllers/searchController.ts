@@ -81,7 +81,7 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     // Sort by intensity descending
     pipeline.push({ $sort: { intensity: -1 } });
 
-    // If we have any filters, use the aggregation pipeline. Otherwise, just find all and sort.
+    // If we have any filters, use the aggregation pipeline. Otherwise, just find all and sort
     const terrasen = pipeline.length > 0
       ? await Terras.aggregate(pipeline)
       : await Terras.find().sort({ intensity: -1 });
