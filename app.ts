@@ -6,6 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dbTestRoutes from "./routes/dbTests.js";
 import terrasRoutes from "./routes/terrasRoutes.js";
+import restaurantRoutes from "./routes/restaurantRoutes.js";
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.get("/api", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api/terrasen", terrasRoutes);
+app.use("/api/restaurants", restaurantRoutes);
 
 // Database test routes
 app.use(dbTestRoutes);
