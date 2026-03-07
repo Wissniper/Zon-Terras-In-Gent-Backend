@@ -5,10 +5,12 @@ import {
   getSunForRestaurant,
   getCachedSunData,
   getSunForEvent,
+  getSunBatch,
 } from "../controllers/sunDataController";
 
 const router = express.Router();
 
+router.get("/batch", getSunBatch);
 router.get("/:lat/:lng/:time", getSunPosition);
 router.get("/terras/:terrasId", getSunForTerras);
 router.get("/restaurant/:restaurantId", getSunForRestaurant);
