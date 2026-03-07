@@ -8,6 +8,7 @@ import dbTestRoutes from "./routes/dbTests.js";
 import terrasRoutes from "./routes/terrasRoutes.js";
 import restaurantRoutes from "./routes/restaurantRoutes.js";
 import sunDataRoutes from "./routes/sunDataRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.get("/api", (req: Request, res: Response) => {
 app.use("/api/terrasen", terrasRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/sun", sunDataRoutes);
+app.use("/api/events", eventRoutes);
 
 // Database test routes
 app.use(dbTestRoutes);
