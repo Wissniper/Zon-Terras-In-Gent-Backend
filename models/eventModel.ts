@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface EventDocument extends Document {
+    id: string;
     title: string;
     address: string;
     date_start: Date;
     date_end: Date;
-    description?: string; 
+    description?: string;
     url?: string;
     location: {
         type: string;
@@ -15,6 +16,7 @@ export interface EventDocument extends Document {
 
 const EventSchema = new Schema(
     {
+        id: {type: String, required: true, unique: true},
         title: {type: String, required: true},
         address: {type: String, required: true},
         date_start: {type: Date, required: true},
@@ -35,7 +37,9 @@ const EventSchema = new Schema(
             },
         },
 
-})
+},
+    { timestamps: true }
+)
 
 EventSchema.index({ location: '2dsphere' });
 
