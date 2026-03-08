@@ -4,8 +4,8 @@ import { getAllTerrasen, getTerrasById, getTerrasInArea, getTerrasByIntensity } 
 const router = express.Router();
 
 router.get("/", getAllTerrasen);
-router.get("/:id", getTerrasById);
 router.get("/search/area/:area", getTerrasInArea);
 router.get("/search/intensity/:intensity", getTerrasByIntensity);
+router.get("/:id", getTerrasById);
 
 export default router;

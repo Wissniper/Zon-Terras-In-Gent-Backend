@@ -1,0 +1,662 @@
+<main>
+
+<h2>Web-API’s volgens de REST architecturale stijl</h2>
+<p>
+  In deze opgave ontwerp je een web-API
+  die kan gebruikt worden als <em>webtoepassing</em> in een browser
+  en tegelijkertijd ook als <em>interface</em> voor andere toepassingen.
+  Voor we hieraan beginnen, moeten we ons eerst afvragen
+  wat een web-API precies is en hoe die verschilt van andere soorten API’s.
+  We bespreken hier in het bijzonder web-API’s
+  volgens de <strong>Representational State Transfer (REST)</strong> architecturale stijl,
+  waarover je meer zal leren in <a href="http://rubenverborgh.github.io/WebFundamentals/web-apis/">de les over Web-API’s</a>.
+</p>
+
+<h3>Web-API’s bestaan uit resources</h3>
+<p>
+  Een Application Programming Interface of API biedt –
+  zoals de naam zegt –
+  elementen aan waarmee een toepassing kan ontwikkeld worden.
+  In de Java-context ben je dit al verschillende keren tegengekomen.
+  Bijvoorbeeld, de Swing-bibliotheek laat toe om grafische toepassingen te ontwikkelen
+  en biedt daarvoor een interface aan die bestaat uit klassen
+  zoals <code>JButton</code> en <code>JLabel</code>.
+  Het woord “klasse” toont aan dat een API sterk verweven is
+  met de onderliggende omgeving.
+  Als we bijvoorbeeld kijken naar de Linux kernel-API,
+  zullen we zien dat deze is opgedeeld in functies,
+  aangezien de functiegebaseerde programmeertaal&nbsp;C daar domineert.
+</p>
+
+<p>
+  Ook het web heeft een eigen type API’s.
+  De essentiële bouwstenen van web-API’s zijn <strong>resources</strong>.
+  Een resource is een constante, <em>conceptuele</em> relatie
+  waarvan de waarde mogelijk varieert met de tijd.
+  Hieronder vind je voorbeelden van dergelijke resources:
+</p>
+
+<ul>
+  <li>de voorpagina van de krant <em>De Standaard</em></li>
+  <li>het weer van vandaag in Gent</li>
+  <li>het weer op 14&nbsp;februari in Gent</li>
+  <li><em>iTunes</em> versie&nbsp;11.1.3</li>
+  <li>de laatste versie van <em>iTunes</em></li>
+</ul>
+
+<p>
+  Merk op dat al deze resources <em>verschillend</em> zijn.
+  Zelfs al zou het vandaag 14&nbsp;februari zijn,
+  dan nog is “het weer van vandaag” een andere resource
+  dan “het weer op 14&nbsp;februari”.
+  Dat komt omdat een resource gedefinieerd is door haar conceptuele relatie,
+  niet door de waarde van die relatie op een bepaald moment.
+</p>
+
+<p>
+  Resources op het web worden <strong>uniek geïdentificeerd</strong> door HTTP-URL’s.
+  Dit wil zeggen dat één URL ten hoogste één resource identificeert,
+  maar meerdere URL’s kunnen dezelfde resource identificeren.
+  Hieronder vind je enkele voorbeelden van URL’s
+  die “het weer van vandaag in Gent” zouden kunnen identificeren:
+</p>
+<ul>
+  <li><code>http://example.org/weather/ghent/today</code></li>
+  <li><code>http://gent.be/weer/vandaag</code></li>
+  <li><code>https://weather.com/forecasts?city=Ghent&amp;date=today</code></li>
+</ul>
+
+<p>
+  Essentieel is het inzicht dat web-API’s
+  <em>niet</em> bestaan uit methodes of klassen;
+  het is dan ook <em>niet</em> de bedoeling om methodes of klassen na te bootsen over het web.
+  In de praktijk gebeurt dit echter nog vaak:
+  je kan deze API’s herkennen aan URL’s die methodenamen bevatten
+  zoals <code>showProduct</code> of <code>addComment</code>.
+  Dergelijke API’s noemen we “HTTP&nbsp;API’s”
+  omdat ze wel HTTP als protocol gebruiken,
+  maar niet de informatie-architectuur van het web.
+  De&nbsp;API die we in deze opgave zullen bouwen,
+  is een web-API volgens de REST architecturale stijl.
+</p>
+
+<h3>Resources worden voorgesteld als representaties</h3>
+<p>
+  De conceptuele aard van resources zorgt meteen voor een probleem:
+  hoe kunnen we iets abstracts als “het weer van vandaag in Gent”
+  doorsturen over een internetverbinding?
+  Uiteraard is dit onmogelijk;
+  in plaats daarvan stellen we het weer voor als een HTML- of JSON-document,
+  die we <strong>representaties</strong> van de resource noemen.
+  Dit is een mogelijke HTML-representatie van het weer van vandaag:
+</p>
+
+<pre id="html-representation"><code>&lt;div id="main"&gt;
+  &lt;h1&gt;The weather in Ghent&lt;/h1&gt;
+  &lt;h2&gt;Today&lt;/h2&gt;
+  &lt;dl&gt;
+    &lt;dt&gt;temperature&lt;/dt&gt;
+    &lt;dd&gt;20&amp;deg;C&lt;/dd&gt;
+    &lt;dt&gt;wind speed&lt;/dt&gt;
+    &lt;dd&gt;5km/h&lt;/dd&gt;
+  &lt;/dl&gt;
+  &lt;p&gt;&lt;a href="/weather/ghent/tomorrow"&gt;Tomorrow's weather&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>
+  Dit is een JSON-representatie van diezelfde resource:
+</p>
+
+<pre id="json-representation"><code>{
+  "weather": {
+    "title": "Today",
+    "temp": 20,
+    "wind": 5
+  },
+  "related": [{
+    "title": "Tomorrow",
+    "href": "http://example.org/weather/ghent/tomorrow"
+  }]
+}
+</code></pre>
+
+<p>
+  De reden dat één resource meerdere representaties kan hebben,
+  is dat verschillende cliënten hierdoor van dezelfde resource gebruik kunnen maken.
+  Als mensen in hun browser de URL <code>http://example.org/weather/ghent/today</code> intikken,
+  krijgen ze een gerenderde versie van de HTML-representatie,
+  waarmee ze dan kunnen interageren.
+  Als een webtoepassing in JavaScript <em>dezelfde</em> URL opvraagt,
+  krijgt deze een JSON-versie terug voor verder gebruik.
+  De tekstuele representatie kan bijvoorbeeld handig zijn
+  voor gebruik in de opdrachtprompt, die geen grafische capaciteiten heeft.
+  Opnieuw is <em>dezelfde</em> URL geschikt om deze representatie op te vragen.
+  Het mechanisme dat dit mogelijk maakt heet <strong>content negotiation</strong>:
+  iedere cliënt geeft aan welke representaties het beste geschikt zijn,
+  en de server probeert deze voorkeur te respecteren
+  door te antwoorden met de best passende representatie die ondersteund wordt.
+  Dit is een belangrijk verschil tussen web-API’s en andere API’s,
+  waarbij het uitgewisselde formaat typisch onveranderlijk blijft.
+</p>
+
+<p>
+  Het is cruciaal om te begrijpen dat een web-API <em>niet</em> verschilt
+  van de “website” die je bezoekt in een browser.
+  Met andere woorden: de website <em>is</em> de API.
+  Hoewel we in de praktijk vaak gescheiden toegang zien
+  voor mensen en geautomatiseerde cliënten,
+  bestaat hiervoor geen enkele technische noodzaak.
+  In deze opgave zullen we daarom een web-API ontwerpen
+  met één enkele interface
+  die werkt voor zowel mensen (via HTML) als geautomatiseerde cliënten (via JSON).
+</p>
+
+<h3>Resources worden bewerkt met zelf-beschrijvende boodschappen</h3>
+<p>
+  Web-API’s volgens de REST architecturale stijl
+  gebruiken het HTTP-protocol op een manier
+  waardoor iedere boodschap op zichzelf kan geïnterpreteerd worden.
+  Langs de ene kant betekent dit dat we HTTP <strong>stateless</strong> gebruiken:
+  iedere boodschap is onafhankelijk van de vorige.
+  Neem bijvoorbeeld het klassieke scenario
+  waarin we zoekresultaten opvragen voor het sleutelwoord “technologie”.
+  We sturen dan een verzoek naar de server:
+  “geef me de eerste pagina zoekresultaten voor ‘technologie’”.
+  Als we ook de tweede pagina willen bekijken,
+  dan sturen we <em>niet</em>
+  “geef me pagina&nbsp;2”,
+  want deze boodschap is betekenisloos zonder de vorige.
+  In plaats daarvan sturen we
+  “geef me de tweede pagina zoekresultaten voor ‘technologie’”.
+  Hierdoor hoeft de server niet te onthouden wat onze vorige zoekopdracht was
+  of kan zelfs een andere server ons tweede verzoek behandelen.
+</p>
+
+<p>
+  Langs de andere kant betekenen zelf-beschrijvende boodschappen
+  dat we enkel <strong>vooraf gedefinieerde methodes</strong> gebruiken.
+  In Java ben je vrij om zelf methodenamen en hun semantiek te kiezen,
+  bijvoorbeeld <code>calculateHeight</code> of <code>createField</code>.
+  Deze namen hebben echter enkel betekenis voor mensen;
+  voor machines zijn dit gewoon tekenreeksen
+  die variëren per toepassing.
+  Het HTTP-protocol definieert een beperkte set methodes
+  zoals <code>GET</code>, <code>PUT</code>, <code>POST</code> en <code>DELETE</code>,
+  waarvan de betekenis vastligt.
+  Elk van deze methoden neemt een URL als argument,
+  en sommigen ook een representatie van een resource.
+  Hun betekenis is als volgt.
+</p>
+
+<dl>
+  <dt><code>GET</code>    <code>/books/23</code></dt>
+  <dd>ontvang een representatie van de resource met URL <code>/books/23</code></dd>
+  <dt><code>DELETE</code> <code>/books/23</code></dt>
+  <dd>verwijder de resource met URL <code>/books/23</code></dd>
+  <dt><code>PUT</code>    <code>/books/23</code></dt>
+  <dd>plaats de gegeven resource op de URL <code>/books/23</code></dd>
+  <dt><code>POST</code>   <code>/books</code></dt>
+  <dd>voer een actie uit met de gegeven resource op de resource met URL <code>/books</code>, bijvoorbeeld een nieuw boek toevoegen aan de verzameling <code>books</code> </dd>
+</dl>
+
+<p>
+  Zoals je merkt, is de <code>POST</code>-methode het vaagst gedefinieerd,
+  en dit laat toe om alle acties te voorzien die niet onder de andere methodes vallen.
+  Het is jouw taak als web-API-ontwerper
+  om te definiëren wat de <code>POST</code>-methode betekent voor iedere resource.
+  Buiten het maken van nieuwe resources in de collectie <code>books</code>, kan <code>POST</code> ook worden gebruikt om gerelateerde acties uit te voeren op een bestaande resource.  
+  Bijvoorbeeld, een <code>POST</code>-verzoek naar <code>/books/23</code> kan worden gebruikt om een reactie toe te voegen aan het boek of om het boek aan een favorietenlijst toe te voegen.  
+  In zulke gevallen wordt <code>POST</code> gebruikt om een subresource of gerelateerde actie te creëren, terwijl <code>PUT</code> en <code>PATCH</code> worden gebruikt om een bestaande resource direct te wijzigen.
+</p>
+
+<p>
+  Het is van het grootste belang dat je steeds de HTTP-methodes correct gebruikt,
+  en dat heeft alles te maken met correct resource-ontwerp.
+  Denk niet “<code>viewBook</code>” maar denk “<code>GET /books/23</code>”.
+  Dat geldt ook voor resources die je meestuurt als argument met <code>POST</code> of <code>PUT</code>.
+  Denk niet “<code>POST /users/stefan</code> met body <code>addFriend</code>”
+  maar denk “<code>POST /users/stefan/friendships</code> met body <code>/users/sara</code>”.
+  Dit toont het verschil tussen methode-georiënteerd <em>(een vriend toevoegen)</em>
+  en resource-geörienteerd ontwerp <em>(een vriendschap-resource aanmaken)</em>.
+</p>
+
+<h3>De toepassing wordt bestuurd via hypermedia</h3>
+<p>
+  De laatste unieke eigenschap van de REST architecturale stijl
+  is het gebruik van hypermediabesturingselementen
+  om de staat van de toepassing te veranderen.
+  HTML is de HyperText Markup Language,
+  en bijzonder aan hypermedia is dat hyperlinks en formulieren gebruikt worden
+  om van één resource naar een andere te navigeren.
+  Dankzij dit mechanisme is het inderdaad mogelijk om <em>stateless</em> boodschappen te versturen:
+  als de server de resource “zoekresultaten voor ‘technologie’” genereert,
+  zal deze in de HTML-representatie al de links plaatsen naar de tweede en derde pagina.
+  Op die manier hoef jij als gebruiker niet telkens het volledige verzoek op te stellen,
+  aangezien je gewoon deze links kan activeren.
+  Dat betekent ook dat je als cliënt niet op de hoogte hoeft te zijn
+  van hoe de URL- of resource-structuur van de server eruit ziet.
+  De server hoeft ook niet te onthouden op welke pagina je gebleven bent.
+  Op geen enkel moment hoef je de URL in de adresbalk manueel aan te passen –
+  tenzij je uiteraard naar een andere website wil springen.
+</p>
+
+<p>
+  Vermits eenzelfde resource verschillende representaties kan aannemen
+  voor verschillende cliënten,
+  is het noodzakelijk om voor elk representatieformaat na te gaan
+  wat de hypermediamogelijkheden zijn.
+  Momenteel is het vaak zo dat enkel in de representaties voor mensen (HTML)
+  hypermediabesturingselementen voorzien worden.
+  Dat betekent dat de URL’s in automatische toepassingen hardgecodeerd moeten zijn.
+  Meer flexibele toepassingen worden echter mogelijk
+  als we ook hyperlinks aanbieden aan deze automatische toepassingen:
+  op die manier kunnen deze gewoon links volgen zoals wij dit doen,
+  in plaats van ieder verzoek opnieuw te construeren.
+  Je ziet dit in het <a href="#json-representation">JSON-voorbeeld</a>,
+  waar links opgenomen werden in de JSON-representatie.
+  Een toepassing die deze representatie ontvangt,
+  kan de link naar het weer van morgen volgen,
+  zonder dat kennis nodig is over de URL-structuur van de server.
+  Dit is opnieuw typisch aan REST&nbsp;web-API’s.
+</p>
+
+<h2>Een raamwerk voor webontwikkeling</h2>
+<p>
+  Voor ontwikkeling van een webtoepassing
+  zullen we gebruikmaken van een raamwerk
+  voor de programmeertaal JavaScript in de Node.js-omgeving.
+  Dit laat toe om op een efficiënte manier webtoepassingen aan te maken en uit te breiden,
+  en maakt het makkelijker om de REST architecturale stijl te volgen.
+</p>
+
+<h3>Node.js en MVC-raamwerken</h3>
+<p>
+  Node.js is een omgeving die toelaat van JavaScript code uit te voeren op een server.
+  Express en fastify zijn <strong>raamwerken om webtoepassingen te ontwikkelen</strong> in Node.js.
+</p>
+
+<p>
+  Er bestaan veel verschillende raamwerken om web-API’s te bouwen.
+  In verschillende situaties kunnen verschillende raamwerken aangewezen zijn vanwege de verschillende architecturale eigenschappen van deze raamwerken.
+  In deze opgave ben je vrij om een raamwerk te kiezen dat gebruik maakt van JavaScript/TypeScript in de Node.js-omgeving.
+  We geven enkele mogelijkheden mee, maar je bent vrij om een ander raamwerk te kiezen,
+  zolang het een volwaardig MVC-raamwerk is die toelaat om REST API’s te bouwen.
+  Als je niet zeker bent over de keuze van een raamwerk, bespreek dit met de begeleiders.
+  Het belangrijkste van dit practicum is namelijk dat je de principes van REST web-API’s begrijpt en kan toepassen,
+  die van toepassing zijn overheen verschillende MVC-raamwerken.
+</p>
+
+<p>
+  Als je gebruik maakt van de <a href="https://expressjs.com/en/starter/generator.html">Express generator</a>
+  (of bijvoorbeeld <a href="https://github.com/fastify/fastify-cli">fastify-cli</a> en <a href="https://github.com/fastify/point-of-view">@fastify/view</a> voor fastify)
+  is het eenvoudig om een applicatie te maken
+  volgens het Model-View-Controller-patroon (MVC),
+  zoals je dit ook kent in de context van grafische gebruikerstoepassingen.
+  Dit ziet er meestal uit als volgt.
+</p>
+
+<p>
+  Een <strong>model</strong> bestaat uit een combinatie
+  van een datatype-definitie (een lijst met velden en types)
+  en een klasse die het gedrag in programmacode bevat.
+  In REST-termen zou je kunnen stellen
+  dat een model overeenkomt met een resource-type;
+  een instantiatie van een model is een resource.
+</p>
+
+<p class="example">
+  Een blogpost kan gedefinieerd worden
+  door de velden <code>title</code> (<code>string</code>),
+  <code>body</code> (<code>text</code>),
+  en <code>published</code> (<code>boolean</code>),
+  en een klasse die vereist dat <code>body</code> tenminste 300&nbsp;woorden moet bevatten
+  voor de blogpost gepubliceerd mag worden.
+</p>
+
+<p>
+  Een <strong>view</strong> zet één of meerdere modellen om
+  in een serializeerbaar formaat, zoals HTML of JSON.
+  Views worden gegenereerd aan de hand van sjablonen en/of programmacode.
+  Dit komt overeen met een representatie in de REST-terminologie.
+</p>
+
+<p class="example">
+  Een HTML-representatie van een lijst van blogposts
+  wordt gegenereerd door alle titels op te vragen
+  en deze vervolgens in een HTML-sjabloon te plaatsen.
+</p>
+
+<p>
+  Een <strong>controller</strong> voert bewerkingen uit op modellen
+  als antwoord op een HTTP-verzoek.
+  Controllers zorgen ervoor dat de HTTP-methodes
+  het gewenste effect hebben voor een bepaald resource-type.
+</p>
+
+<p class="example">
+  Als antwoord op een verzoek “<code>POST /articles</code>”
+  maakt een controller een nieuwe blogpost aan
+  en plaatst een statusbericht op de pagina van de auteur.
+</p>
+
+<p>
+  Een uitgebreidere beschrijving van Node.js en het raamwerk <strong>Express</strong> kan je vinden in de eerste 2 secties van deze
+  <a href="https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs">handleiding</a>.
+  Tijdens de ontwikkeling van een MVC-project
+  wissel je doorgaans in hoog tempo af
+  tussen programmeren aan modellen en controllers,
+  en het ontwerpen van views.
+  Hierdoor zal je snel de voordelen merken van een dynamische programmeertaal.
+  Indien je kiest voor een ander MVC-raamwerk (zoals <strong>fastify</strong>, <strong>Koa</strong>, <strong>NestJS</strong>, <strong>Hono</strong>, ...)
+  kan je de Express-specifieke zaken overslaan,
+  en in de plaats de handleiding van jouw gekozen raamwerk raadplegen (zoals bijvoorbeeld <a href="https://fastify.dev/docs/latest/Guides/Getting-Started/">fastify's Getting Started handleiding</a>)
+</p>
+
+<p>
+  Er zijn veel manieren om te programmeren in Node.js,
+  gaande van een standaard tekst verwerker tot uitgebreide IDEs.
+  Een vrij goede IDE is <a href="http://www.jetbrains.com/WebStorm">WebStorm</a> van JetBrains.
+  Die is betalend, maar als student kan je
+  <a href="https://www.jetbrains.com/shop/eform/students">gratis</a>
+  gebruik maken van de volledige Jetbrains catalogus via je UGent-adres. Een andere veelgebruikte optie is <a href="https://code.visualstudio.com/">VS Code</a>,
+  een gratis IDE van Microsoft.
+  Het is geen verplichting om deze te gebruiken, je bent vrij om je eigen ontwikkelomgeving te kiezen.
+</p>
+<p>
+  IDE's zoals Webstorm en VS Code bieden uitgebreide debuggers aan (<a href="https://blog.jetbrains.com/webstorm/2018/01/how-to-debug-with-webstorm/">Webstorm</a>,
+  <a href="https://code.visualstudio.com/docs/editor/debugging">VS Code</a>)
+  Deze debuggers zijn nuttig om stap-voor-stap door je code te lopen tijdens uitvoeringstijd,
+  om te zien hoe de logica in de praktijk loopt, en wat effectieve waarden zijn van je variabelen.
+  Bij het uitvoeren van JavaScript in je browser, kunnen <a href="https://developer.chrome.com/docs/devtools/javascript/">debuggers in browsers zoals Chrome</a>
+  ook nuttig zijn.
+</p>
+
+<h2>Taken</h2>
+
+<h3>Kennismaking met het gekozen raamwerk</h3>
+<p>
+  Voor deze taak bouw je een voorbeeld met de handleiding
+  <cite><a href="https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs">Express web framework</a></cite>.
+  Koos je voor een ander raamwerk, dan kun je de Express-specifieke zaken negeren en aanvullend de Getting Started handleiding van het gekozen raamwerk doornemen, zoals de
+  <cite><a href="https://fastify.dev/docs/latest/Guides/Getting-Started/">Fastify Getting Started</a> handleiding</cite>.
+  Deze handleidingen zijn vrij uitgebreid,
+  dus als je het gevoel hebt dat je vertrouwd genoeg bent met de werkwijze,
+  kan je al overstappen naar de volgende taak.
+  Het is echter belangrijk dat je de structuur van het resultaat begrijpt,
+  want die verwachten we in je oplossing voor de volgende taak.
+</p>
+
+<p>
+  Bepaalde zaken uit de handleiding dien je anders aan te pakken voor de volgende taken:
+</p>
+<ul>
+  <li>Gebruik de native JavaScript <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Promises"><code>Promises</code></a> en <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Promises#async_and_await"><code>async/await</code></a> syntax in plaats van de <code>async</code> library.</li>
+  <li>Gebruik je eigen MongoDB instantie op je server in plaats van een online instantie.</li>
+  <li>Gebruik voor je route-bestanden een gelijkaardige opdeling als bij de models/controllers; plaats ze niet allemaal in 1 file.</li>
+  <li>Plaats niet alle views in 1 folder; groepeer ze in subfolders.</li>
+  <li>Indien je gebruik maakt van externe JavaScript bestanden voor de views, gebruik <code>package.json</code> en <code>node_modules</code> in plaats van online verwijzingen.</li>
+  <li>Vermijd codeduplicatie. In de tutorial komen bepaalde patronen code meermaals opnieuw voor; dit zien we liever niet.</li>
+  <li>Gebruik HTTP <code>DELETE</code>-berichten om iets te verwijderen.</li>
+  <li>Gebruik HTTP <code>PUT</code> als je de informatie van een object volledig overschrijft, gebruik HTTP <code>PATCH</code> als je dit gedeeltelijk doet.</li>
+  <li>Zorg ervoor dat geen objecten zonder referenties achterblijven: als je een resource verwijdert, moeten ook alle ervan afhankelijke resources verdwijnen.</li>
+</ul>
+
+<p>
+  Deze taak hoef je <em>niet</em> in te dienen.
+</p>
+
+<h3>Een webtoepassing voor audioboeken implementeren</h3>
+<p>
+  In dit tweede deel bouwen we een toepassing om een bibliotheek van audioboeken te beheren.
+  In deze bibliotheek kunnen audioboeken toegevoegd, aangepast, en verwijderd worden.
+  Op deze audioboeken kunnen gebruikers hun persoonlijke afspeelpositie ingeven, en beoordelingen toevoegen.
+</p>
+<p>
+  We hebben minimaal volgende info nodig
+</p>
+<ul>
+  <li>
+    <strong>gebruiker</strong>
+    <ul class="inline">
+      <li>naam</li>
+      <li>e-mailadres</li>
+    </ul>
+  </li>
+  <li>
+    <strong>audioboek genre</strong>
+    <ul class="inline">
+      <li>naam</li>
+      <li>beschrijving</li>
+    </ul>
+  </li>
+  <li>
+    <strong>audioboek</strong>
+    <ul class="inline">
+      <li>naam</li>
+      <li>auteurs</li>
+	  <li>genres</li>
+      <li>beschrijving</li>
+	  <li>datum van publicatie</li>
+	  <li>aankoop link</li>
+      <li>duur (milliseconden)</li>
+    </ul>
+  </li>
+  <li>
+    <strong>beoordeling</strong>
+    <ul class="inline">
+      <li>gebruiker</li>
+      <li>audioboek</li>
+      <li>beschrijving</li>
+      <li>score</li>
+    </ul>
+  </li>
+  <li>
+    <strong>afspeelpositie</strong>
+    <ul class="inline">
+      <li>gebruiker</li>
+      <li>audioboek</li>
+      <li>positie (milliseconden)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>
+  Op het profiel van een gebruiker dient een lijst te staan
+  van alle audioboeken die de gebruiker aan het beluisteren is,
+  en de reeds beluisterde audioboeken.
+</p>
+
+<p>
+  Gebruikers kunnen enkel beoordelingen plaatsen op audioboeken die ze reeds (gedeeltelijk) afgespeeld hebben.
+  Bouw ook de nodige <em>validatie</em> in,
+  zodat namen niet leeg kunnen zijn,
+  e-mailadressen geldig zijn,
+  etc.
+</p>
+
+<p>
+  Het verwijderen van audioboeken
+  moet er enkel voor zorgen dat het audioboek niet meer publiek zichtbaar is.
+  De eigenlijke gegevens moeten bewaard blijven.
+  Dit om toe te laten de "verwijderde" audioboeken nog bekeken kunnen worden.
+</p>
+
+<p>
+  Alle andere gegevens (gebruikers, genres, beoordelingen, afspeelposities) moeten <em>wel</em> effectief verwijderbaar zijn.
+  Hou hierbij rekening met het aanpassen van gelinkte gegevens, zoals bijvoorbeeld de referenties naar genres binnen audioboeken.
+</p>
+
+<p>
+  Het is <em>niet</em> de bedoeling om gebruikersaccounts en authenticatie te implementeren,
+  hoewel dat uiteraard wel nodig zou zijn
+  om een dergelijke toepassing uiteindelijk te lanceren.
+  We willen echter bewust focussen op het correct ontwerp van resources.
+  Je mag er dus van uitgaan dat iedereen alle gegevens kan aanpassen,
+  zonder eerst te moeten inloggen.
+  Hierbij kan je bijvoorbeeld bij elke actie een gebruikersveld toevoegen in de formulieren waar nodig,
+  zodat de server de gebruiker en zijn rol kan verifiëren en de vereiste logica kan toepassen.
+</p>
+
+<h3>De webtoepassing uitbreiden met JSON-representaties</h3>
+<p>
+  In de vorige taak heb je HTML-representaties gemaakt
+  die kunnen bediend worden door mensen via browsers.
+  Voor deze taak voeg je JSON-representaties toe
+  die door machines kunnen geconsumeerd worden.
+</p>
+
+<p>
+  Let erop dat alle data beschikbaar is in deze representaties,
+  en zorg er ook voor dat de links beschikbaar zijn,
+  zoals de REST achitecturale stijl vraagt.
+  Je&nbsp;kan JSON-representaties testen met de toepassing <em>curl</em>.
+  Gebruik dezelfde URL als voor HTML,
+  maar stel de optie <code>--header</code> in op “<code>Accept: application/json</code>”.
+  Of beter nog, maak je eigen hypermedia-type aan
+  dat een specialisatie is van&nbsp;JSON.
+</p>
+
+<h3>Je toepassing uitrollen op een server</h3>
+<p>
+  Je krijgt een lege Ubuntu-server ter beschikking
+  waarop je je toepassing dient te installeren
+  en publiek beschikbaar te maken.
+  De login-gegevens worden je bezorgd via mail.
+  Deze server heeft <emph>geen</emph> firewall, 
+  dus zorg ervoor dat je geen onveilige services publiek toegankelijk maakt.
+  Indien je een eigen firewall instelt, zorg ervoor dat je <emph>niet</emph> de SSH-poort blokkeert,
+  anders kun je niet meer op de server.
+</p>
+<p>
+  Je dient volgende zaken te voorzien:
+</p>
+<ul>
+  <li>Installatie van Node.js en npm.</li>
+  <li>Installatie van de NGINX-webserver als publieke server.</li>
+  <li>Je eigen webtoepassing automatisch laten starten als de server start.</li>
+  <li>
+    NGINX configureren zodat je webtoepassing beschikbaar is
+    in de root van het hoofddomein van je server.
+    Bijvoorbeeld, als je de domeinnaam
+    <code>groep01.webdev.stud.atlantis.UGent.be</code> kreeg,
+    dan is je applicatie beschikbaar op
+    <code>https://groep01.webdev.stud.atlantis.UGent.be/</code>.
+  </li>
+  <li>
+    NGINX configureren zodat andere hostnames een <code>404</code> geven.
+    Bijvoorbeeld, als we proberen je server te bereiken via
+    <code>http://example.org/</code>,
+    dan moet de server antwoorden met een <code>404</code>.
+  </li>
+  <li>
+    Een SSL-certificaat aanvragen via <a href="https://letsencrypt.org/">Let's Encrypt</a>
+    en dit certificaat instellen via NGINX.
+    Je site moet dus beschikbaar zijn via HTTPS
+    met een geldig certificaat.
+    Opgelet: <strong>vraag zo snel mogelijk een certificaat aan</strong>
+    gezien Let's Encrypt een limiet heeft van 20 certificaten per subdomein per week
+    en er meer dan 20 groepen zijn.
+  </li>
+  <li>
+    Gewone HTTP-URLs moeten permanent redirecten naar de HTTPS-URL.
+    Bijvoorbeeld:
+    <code>http://groep01.webdev.stud.atlantis.UGent.be/foo/bar</code>
+    moet redirecten naar
+    <code>http<ins>s</ins>://groep01.webdev.stud.atlantis.UGent.be/foo/bar</code>
+  </li>
+  <li>
+    Statische assets (in de <code>/assets/</code>-map, mag een andere naam hebben)
+    moeten gecached worden door NGINX voor een uur.
+  </li>
+</ul>
+
+<h2>Indienen</h2>
+<p>
+  Werk samen op <a href="https://github.ugent.be/">UGent GitHub</a>
+  en zorg ervoor dat je code enkel zichtbaar is voor je eigen team.
+  Dien je code in ten laatste op 13 maart (23:59) via <a href="https://ufora.ugent.be/">Ufora</a>
+  als een zip-bestand met volgende elementen:
+</p>
+<ul>
+  <li>
+    je <strong>volledige Node.js-project</strong> in de root
+    (bestand <code>package.json</code> en mappen <code>controllers</code>, <code>models</code>, <code>routes</code>, etc., maar <strong>niet <code>node_modules</code></strong>)
+  </li>
+  <li>
+    je <strong><code>.git</code>-map</strong>
+    (tenminste 20 commits, maar liever veel meer)
+  </li>
+  <li>
+    een <strong><em>gevulde</em> databank</strong> met voorbeelden,
+    via <a href="https://docs.mongodb.com/manual/reference/program/mongodump/">mongodump</a>.
+    (<code>mongodump -d database_name -o directory_backup</code>)
+  </li>
+</ul>
+
+<h2>Beoordelingscriteria</h2>
+<p>
+  Tijdens de verbetering zullen wij rekening houden met (onder andere) onderstaande criteria.
+  Deze kunnen dus een richtlijn geven aan welke zaken extra aandacht besteed moet worden.
+</p>
+<ul>
+  <li>
+    3.2. toepassing
+    <ul>
+      <li>
+        gegevensmodellering
+      </li>
+      <li>
+        gegevensvalidatie
+      </li>
+      <li>
+        HTML-representaties
+      </li>
+      <li>
+        conform de REST-principes
+      </li>
+    </ul>
+  </li>
+  <li>
+    3.3. JSON-representaties
+    <ul>
+      <li>
+        volledigheid
+      </li>
+      <li>
+        content negotiation
+      </li>
+      <li>
+        conform de REST-principes
+      </li>
+    </ul>
+  </li>
+  <li>
+    3.3. server
+    <ul>
+      <li>
+        installatie Node.js, NGINX
+      </li>
+      <li>
+        configuratie toepassing
+      </li>
+      <li>
+        configuratie NGINX
+      </li>
+      <li>
+        configuratie SSL
+      </li>
+    </ul>
+  </li>
+  <li>
+    algemeen
+    <ul>
+      <li>uitvoerbaarheid</li>
+      <li>implementatie</li>
+      <li>commits</li>
+      <li>indienstructuur</li>
+    </ul>
+  </li>
+</ul>
+
+</main>
