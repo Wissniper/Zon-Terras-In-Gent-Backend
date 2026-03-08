@@ -9,6 +9,8 @@ import terrasRoutes from "./routes/terrasRoutes.js";
 import restaurantRoutes from "./routes/restaurantRoutes.js";
 import sunDataRoutes from "./routes/sunDataRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import weatherRoutes from "./routes/weatherRoutes.js";
+import { startWeatherCron } from "./services/weatherCron.js";
 
 dotenv.config();
 
@@ -33,7 +35,11 @@ const mongoURI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db";
 mongoose
   .connect(mongoURI)
-  .then(() => console.log("MongoDB connected to:", mongoURI))
+  .then(() => {
+    console.log("MongoDB connected to:", mongoURI);
+    // Start de cron job pas nadat de database verbinding er is
+    startWeatherCron();
+  })
   .catch((err) => console.error("MongoDB error:", err));
 
 // Basic Routes
@@ -55,6 +61,7 @@ app.use("/api/terrasen", terrasRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/sun", sunDataRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/weather", weatherRoutes);
 
 // Database test routes
 app.use(dbTestRoutes);

@@ -3,21 +3,30 @@ import SunCalc from "suncalc3";
 import SunData from "../models/sunDataModel.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
-import Event from "../models/eventModel.js"
+import Event from "../models/eventModel.js";
+import Weather from "../models/weatherModel.js";
 import { Request, Response } from "express";
 
 /** Helper: calculate sun data for given coordinates and time */
-function calculateSunData(dateTime: Date, lat: number, lng: number) {
+function calculateSunData(dateTime: Date, lat: number, lng: number, cloudFactor?: number) {
   const position = SunCalc.getPosition(dateTime, lat, lng);
   const times = SunCalc.getSunTimes(dateTime, lat, lng);
 
   const altitudeDegrees = position.altitude * (180 / Math.PI);
-  const intensity = Math.max(0, Math.min(100, Math.round(altitudeDegrees / 90 * 100)));
+  // Bereken de ruwe intensiteit op basis van de zonhoogte
+  let intensity = Math.max(0, Math.min(100, Math.round(altitudeDegrees / 90 * 100)));
+
+  // Pas de cloudFactor toe als die beschikbaar is.
+  // cloudFactor = cloudCover * 0.8 (bv. 50% bewolking = 40% reductie)
+  if (cloudFactor !== undefined && cloudFactor > 0) {
+    intensity = Math.max(0, Math.round(intensity * (1 - cloudFactor / 100)));
+  }
 
   return {
     position,
     times,
     intensity,
+    cloudFactor: cloudFactor ?? null,
     goldenHour: {
       dawnStart: times.goldenHourDawnStart?.value,
       dawnEnd: times.goldenHourDawnEnd?.value,
@@ -25,6 +34,16 @@ function calculateSunData(dateTime: Date, lat: number, lng: number) {
       duskEnd: times.goldenHourDuskEnd?.value,
     },
   };
+}
+
+/** Helper: haal de meest recente cloudFactor op voor een locatie */
+async function getCloudFactor(lat: number, lng: number): Promise<number | undefined> {
+  const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
+  const weather = await Weather.findOne({
+    "location.coordinates": [lng, lat],
+    timestamp: { $gte: fifteenMinAgo },
+  });
+  return weather?.cloudFactor as number | undefined;
 }
 
 /** Helper: get or create cached sun data for a location */
@@ -41,7 +60,9 @@ async function getOrCreateCache(
   let cached = await SunData.findOne({ locationRef, locationType, dateTime: cacheDate });
 
   if (!cached) {
-    const sun = calculateSunData(dateTime, lat, lng);
+    // Haal de cloudFactor op uit de weerdata cache
+    const cloudFactor = await getCloudFactor(lat, lng);
+    const sun = calculateSunData(dateTime, lat, lng, cloudFactor);
 
     cached = await SunData.create({
       locationRef,
@@ -79,7 +100,9 @@ export const getSunPosition = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid time format. Use ISO 8601 or 'now'" });
     }
 
-    const sun = calculateSunData(dateTime, latitude, longitude);
+    // Haal cloudFactor op als er weerdata beschikbaar is
+    const cloudFactor = await getCloudFactor(latitude, longitude);
+    const sun = calculateSunData(dateTime, latitude, longitude, cloudFactor);
 
     res.status(200).json({
       latitude,
@@ -92,6 +115,7 @@ export const getSunPosition = async (req: Request, res: Response) => {
         altitudeDegrees: sun.position.altitude * (180 / Math.PI),
       },
       intensity: sun.intensity,
+      cloudFactor: sun.cloudFactor,
       goldenHour: sun.goldenHour,
       sunTimes: {
         solarNoon: sun.times.solarNoon?.value,
