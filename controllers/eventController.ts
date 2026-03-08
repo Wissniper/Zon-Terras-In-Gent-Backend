@@ -32,7 +32,6 @@ export const getEventById = async (req: Request, res: Response) => {
     }
 };
 
-
 // Filtert events die overlappen met vandaag of een gekozen datum (?date=YYYY-MM-DD)
 export const getTodaysEvents = async (req: Request, res: Response) => {
     try {
