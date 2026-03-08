@@ -9,6 +9,7 @@ import terrasRoutes from "./routes/terrasRoutes.js";
 import restaurantRoutes from "./routes/restaurantRoutes.js";
 import sunDataRoutes from "./routes/sunDataRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
 
@@ -61,6 +62,7 @@ app.use("/api/terrasen", terrasRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/sun", sunDataRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/search", searchRoutes);
 app.use("/api/weather", weatherRoutes);
 
 // Database test routes
