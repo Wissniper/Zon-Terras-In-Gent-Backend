@@ -7,11 +7,13 @@ import {
     getEventsWithTerras 
 } from '../controllers/eventController';
 
+import { validateDateQuery, validateID } from "../middelware/validation";
+
 const router = express.Router();
 
 router.get('/', getAllEvents);
-router.get('/today', getTodaysEvents);
-router.get('/with-terrassen', getEventsWithTerras);
-router.get('/:id', getEventById);
+router.get('/today', validateDateQuery, getTodaysEvents);
+router.get('/with-terrassen', validateDateQuery, getEventsWithTerras);
+router.get('/:id', validateID , getEventById);
 
 export default router
