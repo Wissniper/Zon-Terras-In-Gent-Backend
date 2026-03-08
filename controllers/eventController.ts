@@ -20,6 +20,18 @@ export const getAllEvents = async (req: Request, res: Response) => {
     }
 };
 
+export const getEventById = async (req: Request, res: Response) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+        res.status(200).json(event);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching event", error });
+    }
+};
+
 // Filtert events die overlappen met vandaag of een gekozen datum (?date=YYYY-MM-DD)
 export const getTodaysEvents = async (req: Request, res: Response) => {
     try {
