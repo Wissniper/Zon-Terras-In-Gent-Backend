@@ -1,6 +1,10 @@
 import Event, { EventDocument } from "../models/eventModel.js";
 import { Request, Response } from "express";
-import Terras from '../models/terrasModel.js';
+import Terras from "../models/terrasModel.js";
+import { createGetAll, createGetById } from "./baseController.js";
+
+export const getAllEvents = createGetAll(Event, { date_start: 1 });
+export const getEventById = createGetById(Event);
 
 // Helper: geeft start en einde van een dag terug
 const getDayRange = (date?: string) => {
@@ -9,27 +13,6 @@ const getDayRange = (date?: string) => {
     const nextDay = new Date(day);
     nextDay.setDate(nextDay.getDate() + 1);
     return { dayStart: day, dayEnd: nextDay };
-};
-
-export const getAllEvents = async (req: Request, res: Response) => {
-    try {
-        const events = await Event.find().sort({ date_start: 1 });
-        res.status(200).json(events);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching Events", error });
-    }
-};
-
-export const getEventById = async (req: Request, res: Response) => {
-    try {
-        const event = await Event.findById(req.params.id);
-        if (!event) {
-            return res.status(404).json({ message: "Event not found" });
-        }
-        res.status(200).json(event);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching event", error });
-    }
 };
 
 // Filtert events die overlappen met vandaag of een gekozen datum (?date=YYYY-MM-DD)
@@ -73,4 +56,4 @@ export const getEventsWithTerras = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ message: "Error fetching Events" });
     }
-}
+};
