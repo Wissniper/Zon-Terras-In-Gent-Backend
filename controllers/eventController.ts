@@ -1,10 +1,20 @@
 import Event, { EventDocument } from "../models/eventModel.js";
+import SunData from "../models/sunDataModel.js";
 import { Request, Response } from "express";
 import Terras from "../models/terrasModel.js";
-import { createGetAll, createGetById } from "./baseController.js";
+import { createGetAll, createGetById, createOne, updateOne, patchOne, hardDelete } from "./baseController.js";
 
 export const getAllEvents = createGetAll(Event, { date_start: 1 });
 export const getEventById = createGetById(Event);
+export const createEvent = createOne(Event);
+export const updateEvent = updateOne(Event);
+export const patchEvent = patchOne(Event);
+
+// Hard delete: event wordt volledig verwijderd
+// Cascade: verwijder alle gekoppelde zondata
+export const deleteEvent = hardDelete(Event, async (id) => {
+  await SunData.deleteMany({ locationRef: id, locationType: "Event" });
+});
 
 // Helper: geeft start en einde van een dag terug
 const getDayRange = (date?: string) => {

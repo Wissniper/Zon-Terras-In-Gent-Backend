@@ -1,17 +1,24 @@
 import express from "express";
-
-import { 
-    getAllEvents,
-    getEventById, 
-    getTodaysEvents, 
-    getEventsWithTerras 
-} from '../controllers/eventController';
+import {
+  getAllEvents,
+  getEventById,
+  createEvent,
+  updateEvent,
+  patchEvent,
+  deleteEvent,
+  getTodaysEvents,
+  getEventsWithTerras,
+} from "../controllers/eventController";
 
 const router = express.Router();
 
-router.get('/', getAllEvents);
-router.get('/today', getTodaysEvents);
-router.get('/with-terrassen', getEventsWithTerras);
-router.get('/:id', getEventById);
+router.get("/", getAllEvents);
+router.post("/", createEvent);
+router.get("/today", getTodaysEvents);
+router.get("/with-terrassen", getEventsWithTerras);
+router.get("/:id", getEventById);
+router.put("/:id", updateEvent);
+router.patch("/:id", patchEvent);
+router.delete("/:id", deleteEvent);
 
-export default router
+export default router;
