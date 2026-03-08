@@ -12,6 +12,8 @@ export interface EventDocument extends Document {
         type: string;
         coordinates: number[];
     };
+    isDeleted: boolean;
+    deletedAt?: Date;
 }
 
 const EventSchema = new Schema(
@@ -35,7 +37,9 @@ const EventSchema = new Schema(
                 type: [Number],
                 required: true,
             },
-        }
+        },
+        isDeleted: {type: Boolean, default: false},
+        deletedAt: {type: Date},
 
 },
     { timestamps: true }

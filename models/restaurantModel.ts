@@ -15,6 +15,8 @@ export interface RestaurantDocument extends Document {
         coordinates: number[]; // [long, lat]
     };
     intensity: number;
+    isDeleted: boolean;
+    deletedAt?: Date;
 }
 
 const RestaurantSchema = new Schema(
@@ -40,7 +42,9 @@ const RestaurantSchema = new Schema(
         required: true,
       },
     },
-    intensity: { type: Number, required: true }, // optional field for sun intensity at the restaurant location
+    intensity: { type: Number, required: true },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
   },
   { timestamps: true },
 );
