@@ -7,7 +7,7 @@ import {
   getSunForEvent,
   getSunBatch,
 } from "../controllers/sunDataController";
-import { validateCoords, validateID, validateLocationType, validateSunBatch, validateTimeParam, validateTimeQuery } from "../middelware/validation";
+import { validateCoords, validateID, validateLocationType, validateSunBatch, validateTimeParam, validateTimeQuery } from "../middleware/validation";
 
 const router = express.Router();
 

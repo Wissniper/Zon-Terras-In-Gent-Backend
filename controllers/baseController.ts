@@ -1,6 +1,14 @@
 import { Model, Document } from "mongoose";
 import { Request, Response } from "express";
 
+//helper:
+const resourcePlurals: Record<string, string> = {
+  terras: "terrassen",
+  event: "events",
+  restaurant: "restaurants",
+  sundata: "sun" ///api/sun
+};
+
 // Factory: genereer een getAll handler voor een Mongoose model
 export function createGetAll<T extends Document>(
   model: Model<T>,
@@ -9,7 +17,17 @@ export function createGetAll<T extends Document>(
   return async (req: Request, res: Response) => {
     try {
       const items = await model.find().sort(defaultSort);
-      res.status(200).json(items);
+      const resource = model.modelName.toLowerCase();
+
+      const plural = resourcePlurals[resource] || `${resource}s`;
+
+      res.status(200).json({
+        count: items.length,
+        [plural]: items,
+        links: [
+          { rel: "self", href: `/api/${plural}` }
+        ]
+      });
     } catch (error) {
       res.status(500).json({ message: `Error fetching ${model.modelName}`, error });
     }
@@ -24,7 +42,18 @@ export function createGetById<T extends Document>(model: Model<T>) {
       if (!item) {
         return res.status(404).json({ message: `${model.modelName} not found` });
       }
-      res.status(200).json(item);
+      const resource = model.modelName.toLowerCase();
+      const plural = resourcePlurals[resource] || `${resource}s`;
+      const id = item._id;
+
+      res.status(200).json({
+        [resource]: item,
+        links: [
+          { rel: "self", href: `/api/${plural}/${id}` },
+          { rel: "collection", href: `/api/${plural}` },
+          { rel: "sun", href: `/api/sun/${resource}/${id}` } 
+        ]
+      });
     } catch (error) {
       res.status(500).json({ message: `Error fetching ${model.modelName}`, error });
     }

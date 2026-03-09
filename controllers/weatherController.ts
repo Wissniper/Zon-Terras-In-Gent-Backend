@@ -11,7 +11,13 @@ export const getWeatherByParams = async (req: Request, res: Response) => {
         
         const weather = await fetchWeatherData(lat, lng);
 
-        res.status(200).json(weather);
+        res.status(200).json({
+            weather: weather,
+            links: [
+                { rel: "self", href: `/api/weather/${lat}/${lng}` },
+                { rel: "sun_position", href: `/api/sun/${lat}/${lng}/now` }
+            ]
+        });
     } catch (error) {
         res.status(500).json({ message: "Error in weather integration", error });
     }
@@ -32,7 +38,14 @@ export const getWeatherByExactLocation = async (req: Request, res: Response) => 
             "location.coordinates": [Number(lng), Number(lat)],
             timestamp: { $gte: startOfToday, $lte: endOfTomorrow }
         })
-        res.status(200).json(weather);
+        res.status(200).json({
+            count: weather.length,
+            weather: weather,
+            links: [
+                { rel: "self", href: '/api/weather/by-location' },
+                { rel: "sun_batch", href: "/api/sun/batch" }
+            ]
+        });
     } catch(error) {
         res.status(500).json({ message: "Error fetching Weather" });
     }
@@ -58,7 +71,14 @@ export const getWeatherInRadius = async (req: Request, res: Response) => {
             },
             timestamp: { $gte: startOfToday, $lte: endOfTomorrow }
         });
-        res.status(200).json(weather);
+        res.status(200).json({
+            count: weather.length,
+            weather: weather,
+            links: [
+                { rel: "self", href: '/api/weather/in-radius' },
+                { rel: "sun_batch", href: "/api/sun/batch" }
+            ]
+        });
     } catch(error) {
         res.status(500).json({ message: "Error fetching Weather" });
     }

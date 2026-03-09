@@ -25,7 +25,15 @@ export const getTodaysEvents = async (req: Request, res: Response) => {
             date_end: { $gte: dayStart }
         }).sort({ date_start: 1 });
 
-        res.status(200).json(events);
+        res.status(200).json({
+            count: events.length,
+            events: events,
+            links: [
+                { rel: "self", href: "/api/events/today" },
+                { rel: "collection", href: "/api/events" },
+                { rel: "with_terrassen", href: "/api/events/with-terrassen" } 
+            ]
+        });
     } catch (error) {
         res.status(500).json({ message: "Error fetching Events" });
     }
@@ -52,7 +60,15 @@ export const getEventsWithTerras = async (req: Request, res: Response) => {
         }).sort({ date_start: 1 });
 
         const result = await Promise.all(events.map(findNearbyTerrassen));
-        res.status(200).json(result);
+        res.status(200).json({
+            count: result.length,
+            events: result,
+            links: [
+                { rel: "self", href: "/api/events/with-terrassen" },
+                { rel: "today_only", href: "/api/events/today" },
+                { rel: "collection", href: "/api/events" }
+            ]
+        });
     } catch (error) {
         res.status(500).json({ message: "Error fetching Events" });
     }

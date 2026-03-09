@@ -1,7 +1,7 @@
 import express from "express";
 import { getAllRestaurants, getRestaurantById } from "../controllers/restaurantController";
 
-import { validateID } from "../middelware/validation";
+import { validateID } from "../middleware/validation";
 
 const router = express.Router();
 

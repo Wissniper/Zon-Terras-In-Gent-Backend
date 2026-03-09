@@ -6,7 +6,7 @@ import {
     getWeatherInRadius
     
 } from '../controllers/weatherController.js';
-import { validateCoords } from "../middelware/validation.js";
+import { validateCoords } from "../middleware/validation.js";
 
 const router = express.Router();
 

@@ -43,7 +43,14 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { intensity: -1 } });
 
     const terrasen = await Terras.aggregate(pipeline);
-    res.status(200).json(terrasen);
+    res.status(200).json({
+      count: terrasen.length, 
+      terrassen: terrasen, 
+      links: [
+          { rel: "self", href: req.originalUrl }, 
+          { rel: "collection", href: "/api/terrassen" } 
+      ]
+    });
   } catch (error) {
     res.status(500).json({ message: "Error searching terrasen", error });
   }
@@ -92,7 +99,14 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { rating: -1 } });
 
     const restaurants = await Restaurant.aggregate(pipeline);
-    res.status(200).json(restaurants);
+    res.status(200).json({
+      count: restaurants.length, 
+      restaurants: restaurants, 
+      links: [
+          { rel: "self", href: req.originalUrl }, 
+          { rel: "collection", href: "/api/restaurants" } 
+      ]
+    });
   } catch (error) {
     res.status(500).json({ message: "Error searching restaurants", error });
   }
@@ -136,7 +150,14 @@ export const searchEvents = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { date_start: 1 } });
 
     const events = await Event.aggregate(pipeline);
-    res.status(200).json(events);
+    res.status(200).json({
+      count: events.length, 
+      events: events, 
+      links: [
+          { rel: "self", href: req.originalUrl }, 
+          { rel: "collection", href: "/api/events" } 
+      ]
+    });
   } catch (error) {
     res.status(500).json({ message: "Error searching events", error });
   }
@@ -172,15 +193,24 @@ export const searchNearby = async (req: Request, res: Response) => {
     ]);
 
     res.status(200).json({
-      terrasen,
-      restaurants,
-      events,
+      
       counts: {
-        terrasen: terrasen.length,
+        terrassen: terrasen.length,
         restaurants: restaurants.length,
         events: events.length,
         total: terrasen.length + restaurants.length + events.length,
       },
+      data: {
+        terrassen: terrasen,
+        restaurants: restaurants,
+        events: events,
+      },
+      links: [
+        { rel: "self", href: `/api/search/nearby/${lat}/${lng}/${radius}` },
+        { rel: "terrassen", href: "/api/terrassen" },
+        { rel: "restaurants", href: "/api/restaurants" },
+        { rel: "events", href: "/api/events" }
+      ]
     });
   } catch (error) {
     res.status(500).json({ message: "Error searching nearby", error });

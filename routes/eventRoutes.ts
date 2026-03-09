@@ -7,7 +7,7 @@ import {
     getEventsWithTerras 
 } from '../controllers/eventController';
 
-import { validateDateQuery, validateID } from "../middelware/validation";
+import { validateDateQuery, validateID } from "../middleware/validation";
 
 const router = express.Router();
 

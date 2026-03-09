@@ -1,6 +1,6 @@
 import express from "express";
 import { getAllTerrasen, getTerrasById } from "../controllers/terrasController";
-import { validateID } from "../middelware/validation";
+import { validateID } from "../middleware/validation";
 
 const router = express.Router();
 

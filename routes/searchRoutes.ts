@@ -6,7 +6,7 @@ import {
   searchNearby,
 } from "../controllers/searchController";
 
-import { validateCoords, validateRadius } from "../middelware/validation";
+import { validateCoords, validateRadius } from "../middleware/validation";
 
 const router = express.Router();
 
