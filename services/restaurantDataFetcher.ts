@@ -1,6 +1,6 @@
 import Restaurant from "../models/restaurantModel.js";
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+const OVERPASS_URL = process.env.OVERPASS_URL || "https://overpass-api.de/api/interpreter";
 
 // Overpass query: alle restaurants in Gent (nodes + ways met center coördinaat)
 const OVERPASS_QUERY = `[out:json][timeout:120];

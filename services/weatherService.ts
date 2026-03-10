@@ -27,7 +27,7 @@ export const fetchWeatherData = async (lat: number, lng: number) => {
         timezone: "auto",
     };
 
-    const url = "https://api.open-meteo.com/v1/forecast";
+    const url = process.env.OPENMETEO_URL || "https://api.open-meteo.com/v1/forecast";
     const responses = await fetchWeatherApi(url, params);
 
     const response = responses[0];

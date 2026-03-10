@@ -1,6 +1,6 @@
 import Terras from "../models/terrasModel.js";
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+const OVERPASS_URL = process.env.OVERPASS_URL || "https://overpass-api.de/api/interpreter";
 
 // Overpass query: alle cafés, bars en pubs in Gent (nodes + ways met center coördinaat)
 const OVERPASS_QUERY = `[out:json][timeout:120];
