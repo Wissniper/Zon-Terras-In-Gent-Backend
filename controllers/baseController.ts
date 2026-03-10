@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 
 //helper:
 const resourcePlurals: Record<string, string> = {
-  terras: "terrassen",
+  terras: "terrasen",
   event: "events",
   restaurant: "restaurants",
   sundata: "sun" ///api/sun

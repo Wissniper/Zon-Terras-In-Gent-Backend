@@ -4,15 +4,15 @@ block content
   h2 Resultaten in de buurt
   p Totaal gevonden: #{counts.total}
 
-  h3 Terrassen (#{counts.terrassen})
-  if data.terrassen.length
+  h3 Terrasen (#{counts.terrasen})
+  if data.terrasen.length
     ul
-      each t in data.terrassen
+      each t in data.terrasen
         li
-          a(href=`/api/terrassen/${t._id}`) #{t.name}
+          a(href=`/api/terrasen/${t._id}`) #{t.name}
           |  - #{t.intensity}% zon
   else
-    p Geen terrassen gevonden.
+    p Geen terrasen gevonden.
 
   h3 Restaurants (#{counts.restaurants})
   if data.restaurants.length

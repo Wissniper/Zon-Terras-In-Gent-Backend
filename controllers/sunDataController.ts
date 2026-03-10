@@ -166,7 +166,7 @@ export const getSunForTerras = async (req: Request, res: Response) => {
       sunData: cached,
       links: [
         { rel: "self", href: `/api/sun/terras/${terras._id}` },
-        { rel: "terras", href: `/api/terrassen/${terras._id}` },
+        { rel: "terras", href: `/api/terrasen/${terras._id}` },
       ],
     };
 
@@ -281,7 +281,7 @@ export const getCachedSunData = async (req: Request, res: Response) => {
       locationType,
     }).sort({ dateTime: -1 });
 
-    const plural = locationType === "Terras" ? "terrassen" : locationType.toLowerCase() + 's';
+    const plural = locationType === "Terras" ? "terrasen" : locationType.toLowerCase() + 's';
 
     const responseData = {
       count: data.length,

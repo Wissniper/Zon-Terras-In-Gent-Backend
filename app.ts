@@ -57,7 +57,7 @@ app.get("/api", (req: Request, res: Response) => {
 });
 
 // API Routes
-app.use("/api/terrassen", terrasRoutes);
+app.use("/api/terrasen", terrasRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/sun", sunDataRoutes);
 app.use("/api/events", eventRoutes);

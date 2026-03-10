@@ -1,16 +1,16 @@
 extends ../layout
 
 block content
-  h2 Terrassen in Gent
+  h2 Terrasen in Gent
   p Totaal gevonden: #{count}
 
   ul.terras-list
-    each terras in terrassen
+    each terras in terrasen
       li.terras-card
         strong= terras.name
         p Locatie: #{terras.address}
         p.sun-score Zon-intensiteit: #{terras.intensity}%
-        a(href=`/api/terrassen/${terras._id}`) Bekijk details
+        a(href=`/api/terrasen/${terras._id}`) Bekijk details
 
   if links && links.length
     hr

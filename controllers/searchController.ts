@@ -46,16 +46,16 @@ export const searchTerrasen = async (req: Request, res: Response) => {
 
     const responseData = {
       count: terrasen.length, 
-      terrassen: terrasen, 
+      terrasen: terrasen,
       links: [
-          { rel: "self", href: req.originalUrl }, 
-          { rel: "collection", href: "/api/terrassen" } 
+          { rel: "self", href: req.originalUrl },
+          { rel: "collection", href: "/api/terrasen" }
       ]
     };
 
     res.format({
       'application/json': () => res.status(200).json(responseData),
-      'text/html': () => res.render('terrassen/list', responseData),
+      'text/html': () => res.render('terrasen/list', responseData),
       'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
@@ -215,19 +215,19 @@ export const searchNearby = async (req: Request, res: Response) => {
 
     const responseData = {
       counts: {
-        terrassen: terrasen.length,
+        terrasen: terrasen.length,
         restaurants: restaurants.length,
         events: events.length,
         total: terrasen.length + restaurants.length + events.length,
       },
       data: {
-        terrassen: terrasen,
+        terrasen: terrasen,
         restaurants: restaurants,
         events: events,
       },
       links: [
         { rel: "self", href: `/api/search/nearby/${lat}/${lng}/${radius}` },
-        { rel: "terrassen", href: "/api/terrassen" },
+        { rel: "terrasen", href: "/api/terrasen" },
         { rel: "restaurants", href: "/api/restaurants" },
         { rel: "events", href: "/api/events" }
       ]
