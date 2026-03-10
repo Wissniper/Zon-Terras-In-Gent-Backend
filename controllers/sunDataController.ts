@@ -89,104 +89,64 @@ export const getSunPosition = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * GET /api/sun/terras/:terrasId
- */
-export const getSunForTerras = async (req: Request, res: Response) => {
-  try {
-    const terras = await Terras.findById(req.params.terrasId);
-    if (!terras) {
-      return res.status(404).json({ message: "Terras not found" });
+/** Factory for entity-specific sun data handlers */
+function createGetSunForEntity(config: {
+  model: any;
+  paramName: string;
+  locationType: "Terras" | "Restaurant" | "Event";
+  responseKey: string;
+  nameField: string;
+  selfPrefix: string;
+  entityPrefix: string;
+}) {
+  return async (req: Request, res: Response) => {
+    try {
+      const entity = await config.model.findById(req.params[config.paramName]);
+      if (!entity) {
+        return res.status(404).json({ message: `${config.locationType} not found` });
+      }
+
+      const [lng, lat] = entity.location.coordinates;
+      const timeParam = req.query.time as string;
+      const dateTime = timeParam ? new Date(timeParam) : new Date();
+
+      if (isNaN(dateTime.getTime())) {
+        return res.status(400).json({ message: "Invalid time format" });
+      }
+
+      const cached = await getOrCreateCache(entity._id, config.locationType, lat, lng, dateTime);
+
+      res.status(200).json({
+        [config.responseKey]: { id: entity._id, name: entity[config.nameField], address: entity.address },
+        sunData: cached,
+        links: [
+          { rel: "self", href: `${config.selfPrefix}${entity._id}` },
+          { rel: config.responseKey, href: `${config.entityPrefix}${entity._id}` },
+        ],
+      });
+    } catch (error) {
+      res.status(500).json({ message: `Error fetching sun data for ${config.responseKey}`, error });
     }
+  };
+}
 
-    const [lng, lat] = terras.location.coordinates;
-    const timeParam = req.query.time as string;
-    const dateTime = timeParam ? new Date(timeParam) : new Date();
+export const getSunForTerras = createGetSunForEntity({
+  model: Terras, paramName: "terrasId", locationType: "Terras",
+  responseKey: "terras", nameField: "name",
+  selfPrefix: "/api/sun/terras/", entityPrefix: "/api/terrasen/",
+});
 
-    if (isNaN(dateTime.getTime())) {
-      return res.status(400).json({ message: "Invalid time format" });
-    }
+export const getSunForRestaurant = createGetSunForEntity({
+  model: Restaurant, paramName: "restaurantId", locationType: "Restaurant",
+  responseKey: "restaurant", nameField: "name",
+  selfPrefix: "/api/sun/restaurant/", entityPrefix: "/api/restaurants/",
+});
 
-    const cached = await getOrCreateCache(terras._id, "Terras", lat, lng, dateTime);
-
-    res.status(200).json({
-      terras: { id: terras._id, name: terras.name, address: terras.address },
-      sunData: cached,
-      links: [
-        { rel: "self", href: `/api/sun/terras/${terras._id}` },
-        { rel: "terras", href: `/api/terrasen/${terras._id}` },
-      ],
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching sun data for terras", error });
-  }
-};
-
-/**
- * GET /api/sun/restaurant/:restaurantId
- */
-export const getSunForRestaurant = async (req: Request, res: Response) => {
-  try {
-    const restaurant = await Restaurant.findById(req.params.restaurantId);
-    if (!restaurant) {
-      return res.status(404).json({ message: "Restaurant not found" });
-    }
-
-    const [lng, lat] = restaurant.location.coordinates;
-    const timeParam = req.query.time as string;
-    const dateTime = timeParam ? new Date(timeParam) : new Date();
-
-    if (isNaN(dateTime.getTime())) {
-      return res.status(400).json({ message: "Invalid time format" });
-    }
-
-    const cached = await getOrCreateCache(restaurant._id, "Restaurant", lat, lng, dateTime);
-
-    res.status(200).json({
-      restaurant: { id: restaurant._id, name: restaurant.name, address: restaurant.address },
-      sunData: cached,
-      links: [
-        { rel: "self", href: `/api/sun/restaurant/${restaurant._id}` },
-        { rel: "restaurant", href: `/api/restaurants/${restaurant._id}` },
-      ],
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching sun data for restaurant", error });
-  }
-};
-
-/**
- * GET /api/sun/event/:eventId
- */
-export const getSunForEvent = async (req: Request, res: Response) => {
-  try {
-    const event = await Event.findById(req.params.eventId);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    const [lng, lat] = event.location.coordinates;
-    const timeParam = req.query.time as string;
-    const dateTime = timeParam ? new Date(timeParam) : new Date();
-
-    if (isNaN(dateTime.getTime())) {
-      return res.status(400).json({ message: "Invalid time format" });
-    }
-
-    const cached = await getOrCreateCache(event._id, "Event", lat, lng, dateTime);
-
-    res.status(200).json({
-      event: { id: event._id, name: event.title, address: event.address },
-      sunData: cached,
-      links: [
-        { rel: "self", href: `/api/sun/event/${event._id}` },
-        { rel: "event", href: `/api/events/${event._id}` },
-      ],
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching sun data for event", error });
-  }
-};
+export const getSunForEvent = createGetSunForEntity({
+  model: Event, paramName: "eventId", locationType: "Event",
+  responseKey: "event", nameField: "title",
+  selfPrefix: "/api/sun/event/", entityPrefix: "/api/events/",
+});
 
 /**
  * GET /api/sun/cache/:locationType/:locationId
