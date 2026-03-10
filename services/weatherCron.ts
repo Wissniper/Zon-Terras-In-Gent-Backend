@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import { fetchWeatherData } from "./weatherService.js";
 import { calculateSunData, getCloudFactor } from "./sunService.js";
+import { syncTerrasData } from "./terrasDataFetcher.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
@@ -141,4 +142,30 @@ export function startWeatherCron() {
   });
 
   console.log("[Cron] Scheduled weather + sun update every 15 minutes");
+
+  // Terrasdata sync: elke maandag om 03:00 's nachts
+  cron.schedule("0 3 * * 1", async () => {
+    try {
+      console.log("[TerrasCron] Syncing terras data from data.stad.gent");
+      const result = await syncTerrasData();
+      console.log(`[TerrasCron] Done: ${result.total} cafés, ${result.created} new, ${result.updated} updated`);
+    } catch (error) {
+      console.error("[TerrasCron] Error:", error);
+    }
+  });
+
+  console.log("[Cron] Scheduled terras data sync every Monday at 03:00");
+
+  // Direct bij startup ook terrasdata ophalen als de collectie leeg is
+  Terras.countDocuments().then(async (count) => {
+    if (count === 0) {
+      console.log("[TerrasCron] Empty collection, fetching initial data");
+      try {
+        const result = await syncTerrasData();
+        console.log(`[TerrasCron] Initial sync: ${result.total} cafés imported`);
+      } catch (error) {
+        console.error("[TerrasCron] Initial sync failed:", error);
+      }
+    }
+  });
 }
