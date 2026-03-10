@@ -2,6 +2,7 @@ import cron from "node-cron";
 import { fetchWeatherData } from "./weatherService.js";
 import { calculateSunData, getCloudFactor } from "./sunService.js";
 import { syncTerrasData } from "./terrasDataFetcher.js";
+import { syncRestaurantData } from "./restaurantDataFetcher.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
@@ -143,28 +144,42 @@ export function startWeatherCron() {
 
   console.log("[Cron] Scheduled weather + sun update every 15 minutes");
 
-  // Terrasdata sync: elke maandag om 03:00 's nachts
+  // Terras + restaurant sync: elke maandag om 03:00 's nachts
   cron.schedule("0 3 * * 1", async () => {
     try {
       console.log("[TerrasCron] Syncing terras data from data.stad.gent");
-      const result = await syncTerrasData();
-      console.log(`[TerrasCron] Done: ${result.total} cafés, ${result.created} new, ${result.updated} updated`);
+      const terrasResult = await syncTerrasData();
+      console.log(`[TerrasCron] Done: ${terrasResult.total} cafés, ${terrasResult.created} new, ${terrasResult.updated} updated`);
+
+      console.log("[RestaurantCron] Syncing restaurant data from Overpass API");
+      const restResult = await syncRestaurantData();
+      console.log(`[RestaurantCron] Done: ${restResult.total} elements, ${restResult.unique} unique, ${restResult.created} new, ${restResult.updated} updated, ${restResult.duplicatesSkipped} duplicates skipped`);
     } catch (error) {
-      console.error("[TerrasCron] Error:", error);
+      console.error("[DataSyncCron] Error:", error);
     }
   });
 
-  console.log("[Cron] Scheduled terras data sync every Monday at 03:00");
+  console.log("[Cron] Scheduled terras + restaurant data sync every Monday at 03:00");
 
-  // Direct bij startup ook terrasdata ophalen als de collectie leeg is
-  Terras.countDocuments().then(async (count) => {
-    if (count === 0) {
+  // Direct bij startup data ophalen als collecties leeg zijn
+  Promise.all([Terras.countDocuments(), Restaurant.countDocuments()]).then(async ([terrasCount, restCount]) => {
+    if (terrasCount === 0) {
       console.log("[TerrasCron] Empty collection, fetching initial data");
       try {
         const result = await syncTerrasData();
         console.log(`[TerrasCron] Initial sync: ${result.total} cafés imported`);
       } catch (error) {
         console.error("[TerrasCron] Initial sync failed:", error);
+      }
+    }
+
+    if (restCount === 0) {
+      console.log("[RestaurantCron] Empty collection, fetching initial data");
+      try {
+        const result = await syncRestaurantData();
+        console.log(`[RestaurantCron] Initial sync: ${result.unique} restaurants imported (${result.duplicatesSkipped} duplicates skipped)`);
+      } catch (error) {
+        console.error("[RestaurantCron] Initial sync failed:", error);
       }
     }
   });
