@@ -8,6 +8,7 @@ export interface EventDocument extends Document {
     date_end: Date;
     description?: string;
     url?: string;
+    intensity?: number;
     location: {
         type: string;
         coordinates: number[];
@@ -23,6 +24,7 @@ const EventSchema = new Schema(
         date_end: {type: Date, required: true},
         description: {type: String},
         url: {type: String},
+        intensity: {type: Number, default: 0},
 
         location: {
             type: {

@@ -1,50 +1,9 @@
-// @ts-ignore
-import SunCalc from "suncalc3";
 import SunData from "../models/sunDataModel.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
-import Weather from "../models/weatherModel.js";
 import { Request, Response } from "express";
-
-/** Helper: calculate sun data for given coordinates and time */
-function calculateSunData(dateTime: Date, lat: number, lng: number, cloudFactor?: number) {
-  const position = SunCalc.getPosition(dateTime, lat, lng);
-  const times = SunCalc.getSunTimes(dateTime, lat, lng);
-
-  const altitudeDegrees = position.altitude * (180 / Math.PI);
-  // Bereken de ruwe intensiteit op basis van de zonhoogte
-  let intensity = Math.max(0, Math.min(100, Math.round(altitudeDegrees / 90 * 100)));
-
-  // Pas de cloudFactor toe als die beschikbaar is.
-  // cloudFactor = cloudCover * 0.8 (bv. 50% bewolking = 40% reductie)
-  if (cloudFactor !== undefined && cloudFactor > 0) {
-    intensity = Math.max(0, Math.round(intensity * (1 - cloudFactor / 100)));
-  }
-
-  return {
-    position,
-    times,
-    intensity,
-    cloudFactor: cloudFactor ?? null,
-    goldenHour: {
-      dawnStart: times.goldenHourDawnStart?.value,
-      dawnEnd: times.goldenHourDawnEnd?.value,
-      duskStart: times.goldenHourDuskStart?.value,
-      duskEnd: times.goldenHourDuskEnd?.value,
-    },
-  };
-}
-
-/** Helper: haal de meest recente cloudFactor op voor een locatie */
-async function getCloudFactor(lat: number, lng: number): Promise<number | undefined> {
-  const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
-  const weather = await Weather.findOne({
-    "location.coordinates": [lng, lat],
-    timestamp: { $gte: fifteenMinAgo },
-  });
-  return weather?.cloudFactor as number | undefined;
-}
+import { calculateSunData, getCloudFactor } from "../services/sunService.js";
 
 /** Helper: get or create cached sun data for a location */
 async function getOrCreateCache(
@@ -60,7 +19,6 @@ async function getOrCreateCache(
   let cached = await SunData.findOne({ locationRef, locationType, dateTime: cacheDate });
 
   if (!cached) {
-    // Haal de cloudFactor op uit de weerdata cache
     const cloudFactor = await getCloudFactor(lat, lng);
     const sun = calculateSunData(dateTime, lat, lng, cloudFactor);
 
@@ -81,7 +39,6 @@ async function getOrCreateCache(
 /**
  * GET /api/sun/:lat/:lng/:time
  * Calculate sun position for given coordinates and time.
- * If time is "now", uses current time.
  */
 export const getSunPosition = async (req: Request, res: Response) => {
   try {
@@ -100,7 +57,6 @@ export const getSunPosition = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid time format. Use ISO 8601 or 'now'" });
     }
 
-    // Haal cloudFactor op als er weerdata beschikbaar is
     const cloudFactor = await getCloudFactor(latitude, longitude);
     const sun = calculateSunData(dateTime, latitude, longitude, cloudFactor);
 
@@ -135,8 +91,6 @@ export const getSunPosition = async (req: Request, res: Response) => {
 
 /**
  * GET /api/sun/terras/:terrasId
- * Get sun data for a specific terras.
- * Optionally accepts ?time= query param (defaults to now).
  */
 export const getSunForTerras = async (req: Request, res: Response) => {
   try {
@@ -170,8 +124,6 @@ export const getSunForTerras = async (req: Request, res: Response) => {
 
 /**
  * GET /api/sun/restaurant/:restaurantId
- * Get sun data for a specific restaurant.
- * Optionally accepts ?time= query param (defaults to now).
  */
 export const getSunForRestaurant = async (req: Request, res: Response) => {
   try {
@@ -205,8 +157,6 @@ export const getSunForRestaurant = async (req: Request, res: Response) => {
 
 /**
  * GET /api/sun/event/:eventId
- * Get sun data for a specific event.
- * Optionally accepts ?time= query param (defaults to now).
  */
 export const getSunForEvent = async (req: Request, res: Response) => {
   try {
@@ -233,16 +183,13 @@ export const getSunForEvent = async (req: Request, res: Response) => {
         { rel: "event", href: `/api/events/${event._id}` },
       ],
     });
-
   } catch (error) {
     res.status(500).json({ message: "Error fetching sun data for event", error });
   }
 };
 
-
 /**
  * GET /api/sun/cache/:locationType/:locationId
- * Get all cached sun data entries for a location.
  */
 export const getCachedSunData = async (req: Request, res: Response) => {
   try {
@@ -263,18 +210,9 @@ export const getCachedSunData = async (req: Request, res: Response) => {
   }
 };
 
-
-/** * GET /api/sun/batch
+/**
+ * POST /api/sun/batch
  * Get sun data for multiple locations in a single request.
- * Expects JSON body with array of { lat, lng, time } objects.
- * 
- * Example request body:
- * {
- *   "locations": [
- *     { "lat": 51.05, "lng": 3.73, "time": "2024-06-01T12:00:00Z" },
- *     { "lat": 51.05, "lng": 3.73, "time": "now" }
- *   ]
- * }
  */
 export const getSunBatch = async (req: Request, res: Response) => {
   try {
