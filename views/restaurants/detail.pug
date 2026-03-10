@@ -35,9 +35,10 @@ block content
       p Site:
         a(href=restaurant.website target="_blank") Website bezoeken
 
-  section.geo
-    h3 Locatiegegevens
-    p Coordinaten: [#{restaurant.location.coordinates[0]}, #{restaurant.location.coordinates[1]}]
+  if restaurant.location && restaurant.location.coordinates
+    section.geo
+      h3 Locatiegegevens
+      p Coordinaten: [#{restaurant.location.coordinates[0]}, #{restaurant.location.coordinates[1]}]
 
   if links && links.length
     hr

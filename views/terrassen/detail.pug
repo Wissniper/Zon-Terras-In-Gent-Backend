@@ -18,9 +18,10 @@ block content
         strong Site:
         a(href=terras.url target="_blank") Bezoek website
 
-  section.geo
-    h3 Locatiegegevens
-    p Coordinaten: [#{terras.location.coordinates[0]}, #{terras.location.coordinates[1]}]
+  if terras.location && terras.location.coordinates
+    section.geo
+      h3 Locatiegegevens
+      p Coordinaten: [#{terras.location.coordinates[0]}, #{terras.location.coordinates[1]}]
 
   if links && links.length
     hr

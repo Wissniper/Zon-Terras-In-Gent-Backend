@@ -24,9 +24,10 @@ block content
         p Site:
           a(href=event.url target="_blank") #{event.url}
 
-    section.geo
-      h3 Locatiegegevens
-      p Coordinaten: [#{event.location.coordinates[0]}, #{event.location.coordinates[1]}]
+    if event.location && event.location.coordinates
+      section.geo
+        h3 Locatiegegevens
+        p Coordinaten: [#{event.location.coordinates[0]}, #{event.location.coordinates[1]}]
 
   if links && links.length
     hr
