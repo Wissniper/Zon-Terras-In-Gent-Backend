@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface WeatherDocument extends Document{
+export interface WeatherDocument extends Document {
     timestamp: Date;
-    temperature: Number;
-    cloudCover: Number;
-    cloudFactor: Number;
-    uvIndex: Number;
-    windspeed: Number;
+    temperature: number;
+    cloudCover: number;
+    cloudFactor: number;
+    uvIndex: number;
+    windspeed: number;
     location: {
         type: string;
         coordinates: number[];
@@ -34,7 +34,8 @@ const WeatherSchema = new Schema(
                 required: true,
             },
         }
-    }
+    },
+    { timestamps: true }
 )
 
 WeatherSchema.index({ timestamp: -1 });
