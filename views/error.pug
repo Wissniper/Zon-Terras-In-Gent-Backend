@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h2 Fout #{status}
+  if errors && errors.length
+    ul
+      each err in errors
+        li #{err.msg || err.message}
+  else if message
+    p= message

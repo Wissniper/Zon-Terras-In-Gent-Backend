@@ -4,7 +4,12 @@ import { Request, Response, NextFunction } from 'express';
 const handleErrors = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        const errorArray = errors.array();
+        return res.status(400).format({
+            'application/json': () => res.json({ errors: errorArray }),
+            'text/html': () => res.render('error', { title: 'Validatiefout', status: 400, errors: errorArray }),
+            'default': () => res.send('Bad Request')
+        });
     }
     next();
 };
@@ -21,7 +26,12 @@ export const validateID = [
         const idParams = ['id', 'locationId', 'restaurantId', 'terrasId', 'eventId'];
         const hasId = idParams.some(p => req.params[p]);
         if (!hasId) {
-            return res.status(400).json({ errors: [{ msg: "Missing id parameter" }] });
+            const errorArray = [{ msg: "Missing id parameter" }];
+            return res.status(400).format({
+                'application/json': () => res.json({ errors: errorArray }),
+                'text/html': () => res.render('error', { title: 'Validatiefout', status: 400, errors: errorArray }),
+                'default': () => res.send('Bad Request')
+            });
         }
         next();
     },
