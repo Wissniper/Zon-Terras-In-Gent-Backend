@@ -1,23 +1,41 @@
-doctype html
-html
-  head
-    title In de buurt
-    link(rel="stylesheet", href="/style.css")
-  body
-    h1 Resultaten in de buurt
-    p Totaal gevonden: #{counts.total}
+extends ../layout
 
-    h2 Terrassen (#{counts.terrassen})
+block content
+  h2 Resultaten in de buurt
+  p Totaal gevonden: #{counts.total}
+
+  h3 Terrassen (#{counts.terrassen})
+  if data.terrassen.length
     ul
       each t in data.terrassen
-        li #{t.name} - #{t.intensity}% zon
-    
-    h2 Restaurants (#{counts.restaurants})
+        li
+          a(href=`/api/terrassen/${t._id}`) #{t.name}
+          |  - #{t.intensity}% zon
+  else
+    p Geen terrassen gevonden.
+
+  h3 Restaurants (#{counts.restaurants})
+  if data.restaurants.length
     ul
       each r in data.restaurants
-        li #{r.name} (#{r.cuisine})
+        li
+          a(href=`/api/restaurants/${r._id}`) #{r.name}
+          |  (#{r.cuisine})
+  else
+    p Geen restaurants gevonden.
 
-    h2 Events (#{counts.events})
+  h3 Events (#{counts.events})
+  if data.events.length
     ul
       each e in data.events
-        li #{e.title}
+        li
+          a(href=`/api/events/${e._id}`) #{e.title}
+  else
+    p Geen events gevonden.
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

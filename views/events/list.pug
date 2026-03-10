@@ -1,16 +1,20 @@
-doctype html
-html
-  head
-    title Gentse Events
-    link(rel="stylesheet", href="/style.css")
-  body
-    h1 Aankomende Events
-    p Totaal gevonden: #{count}
-    
-    ul.event-list
-      each event in events
-        li.card
-          strong= event.title
-          p Datum: #{new Date(event.date_start).toLocaleDateString('nl-BE')}
-          p Locatie: #{event.address}
-          a(href=`/api/events/${event._id}`) Bekijk details 
+extends ../layout
+
+block content
+  h2 Events in Gent
+  p Totaal gevonden: #{count}
+
+  ul.event-list
+    each event in events
+      li.card
+        strong= event.title
+        p Datum: #{new Date(event.date_start).toLocaleDateString('nl-BE')}
+        p Locatie: #{event.address}
+        a(href=`/api/events/${event._id}`) Bekijk details
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

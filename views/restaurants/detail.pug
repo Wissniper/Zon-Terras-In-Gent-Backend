@@ -1,48 +1,45 @@
-doctype html
-html
-  head
-    title= restaurant.name
-    link(rel="stylesheet", href="/style.css")
-  body
-    h1= restaurant.name
-    p.cuisine 
-      strong Keuken: 
-      | #{restaurant.cuisine}
-    
-    section.details
-      p 
-        strong Score: 
-        | #{restaurant.rating} / 5
-      p 
-        strong Adres: 
-        | #{restaurant.address}
+extends ../layout
 
-      p 
-        strong Zon-intensiteit: 
-        | #{restaurant.intensity}%
-      
-      if restaurant.openingHours
-        p 
-          strong Openingsuren: 
-          | #{restaurant.openingHours}
-      
-      if restaurant.takeaway
-        p Afhalen mogelijk
-      else
-        p Geen afhaal
+block content
+  h2= restaurant.name
+  p.cuisine
+    strong Keuken:
+    |  #{restaurant.cuisine}
 
-    section.contact
-      h3 Contact en Info
-      if restaurant.phone
-        p Telefoonnummer: #{restaurant.phone}
-      if restaurant.website
-        p Site: 
-          a(href=restaurant.website target="_blank") Website bezoeken
+  section.details
+    p
+      strong Score:
+      |  #{restaurant.rating} / 5
+    p
+      strong Adres:
+      |  #{restaurant.address}
+    p
+      strong Zon-intensiteit:
+      |  #{restaurant.intensity}%
 
-    section.geo
-      h3 Locatiegegevens:
-      p Coördinaten: [#{restaurant.location.coordinates[0]}, #{restaurant.location.coordinates[1]}]
-    
+    if restaurant.openingHours
+      p
+        strong Openingsuren:
+        |  #{restaurant.openingHours}
+
+    if restaurant.takeaway
+      p Afhalen mogelijk
+    else
+      p Geen afhaal
+
+  section.contact
+    h3 Contact en Info
+    if restaurant.phone
+      p Telefoonnummer: #{restaurant.phone}
+    if restaurant.website
+      p Site:
+        a(href=restaurant.website target="_blank") Website bezoeken
+
+  section.geo
+    h3 Locatiegegevens
+    p Coordinaten: [#{restaurant.location.coordinates[0]}, #{restaurant.location.coordinates[1]}]
+
+  if links && links.length
     hr
     nav
       ul

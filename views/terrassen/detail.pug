@@ -1,30 +1,28 @@
-doctype html
-html
-  head
-    title= terras.name
-    link(rel="stylesheet", href="/style.css")
-  body
-    h1= terras.name
-    
-    if terras.description
-      p.description= terras.description
+extends ../layout
 
-    section.info
-      p 
-        strong Adres: 
-        | #{terras.address}
-      p 
-        strong Zon-intensiteit: 
-        | #{terras.intensity}%
-      if terras.url
-        p 
-          strong Site: 
-          a(href=terras.url target="_blank") Bezoek website
-    
-    section.geo
-      h3 Locatiegegevens:
-      p Coördinaten: [#{terras.location.coordinates[0]}, #{terras.location.coordinates[1]}]
-      
+block content
+  h2= terras.name
+
+  if terras.description
+    p.description= terras.description
+
+  section.info
+    p
+      strong Adres:
+      | #{terras.address}
+    p
+      strong Zon-intensiteit:
+      | #{terras.intensity}%
+    if terras.url
+      p
+        strong Site:
+        a(href=terras.url target="_blank") Bezoek website
+
+  section.geo
+    h3 Locatiegegevens
+    p Coordinaten: [#{terras.location.coordinates[0]}, #{terras.location.coordinates[1]}]
+
+  if links && links.length
     hr
     nav
       ul

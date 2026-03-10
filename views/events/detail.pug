@@ -1,36 +1,34 @@
-doctype html
-html
-  head
-    title= event.title
-    link(rel="stylesheet", href="/style.css")
-  body
-    article.event-detail
-      h1= event.title
-      
-      section.time-info
-        p 
-          strong Begint op: 
-          | #{new Date(event.date_start).toLocaleString('nl-BE')}
-        p 
-          strong Eindigt op: 
-          | #{new Date(event.date_end).toLocaleString('nl-BE')}
+extends ../layout
 
-      section.content
-        if event.description
-          p.description= event.description
-        
-        p 
-          strong Adres: 
-          | #{event.address}
-        
-        if event.url
-          p Site: 
-            a(href=event.url target="_blank")
+block content
+  article.event-detail
+    h2= event.title
 
-      section.geo
-      h3 Locatiegegevens:
-      p Coördinaten: [#{event.location.coordinates[0]}, #{event.location.coordinates[1]}]
+    section.time-info
+      p
+        strong Begint op:
+        |  #{new Date(event.date_start).toLocaleString('nl-BE')}
+      p
+        strong Eindigt op:
+        |  #{new Date(event.date_end).toLocaleString('nl-BE')}
 
+    section.content
+      if event.description
+        p.description= event.description
+
+      p
+        strong Adres:
+        |  #{event.address}
+
+      if event.url
+        p Site:
+          a(href=event.url target="_blank") #{event.url}
+
+    section.geo
+      h3 Locatiegegevens
+      p Coordinaten: [#{event.location.coordinates[0]}, #{event.location.coordinates[1]}]
+
+  if links && links.length
     hr
     nav
       ul
