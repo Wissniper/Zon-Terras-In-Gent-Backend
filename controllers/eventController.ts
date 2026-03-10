@@ -79,7 +79,7 @@ export const getEventsWithTerras = async (req: Request, res: Response) => {
 
         res.format({
             'application/json': () => res.status(200).json(responseData),
-            'text/html': () => res.render('events/list', responseData), // TODO: eventueel apparte view maken 'with-terassen'
+            'text/html': () => res.render('events/list', responseData), // TODO: eventueel aparte view maken 'with-terrassen'
             'default': () => res.status(406).send('Not Acceptable')
         });
     } catch (error) {

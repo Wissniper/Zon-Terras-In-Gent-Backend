@@ -12,10 +12,10 @@ import { validateCoords, validateID, validateLocationType, validateSunBatch, val
 const router = express.Router();
 
 router.post("/batch", validateSunBatch, getSunBatch);
-router.get("/:lat/:lng/:time", validateCoords, validateTimeParam, getSunPosition);
-router.get("/terras/:terrasId", validateID, validateTimeQuery ,getSunForTerras);
+router.get("/terras/:terrasId", validateID, validateTimeQuery, getSunForTerras);
 router.get("/restaurant/:restaurantId", validateID, validateTimeQuery, getSunForRestaurant);
 router.get("/event/:eventId", validateID, validateTimeQuery, getSunForEvent);
 router.get("/cache/:locationType/:locationId", validateID, validateLocationType, getCachedSunData);
+router.get("/:lat/:lng/:time", validateCoords, validateTimeParam, getSunPosition);
 
 export default router;

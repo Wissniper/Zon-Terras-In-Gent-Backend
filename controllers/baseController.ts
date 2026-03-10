@@ -50,7 +50,6 @@ export function createGetById<T extends Document>(model: Model<T>) {
       }
       const resource = model.modelName.toLowerCase();
       const plural = resourcePlurals[resource] || `${resource}s`;
-      const id = item._id;
 
       const responseData = {
         [resource]: item,
