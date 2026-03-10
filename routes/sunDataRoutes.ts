@@ -6,8 +6,8 @@ import {
   getCachedSunData,
   getSunForEvent,
   getSunBatch,
-} from "../controllers/sunDataController";
-import { validateCoords, validateID, validateLocationType, validateSunBatch, validateTimeParam, validateTimeQuery } from "../middleware/validation";
+} from "../controllers/sunDataController.js";
+import { validateCoords, validateID, validateLocationType, validateSunBatch, validateTimeParam, validateTimeQuery }from "../middleware/validation.js";
 
 const router = express.Router();
 

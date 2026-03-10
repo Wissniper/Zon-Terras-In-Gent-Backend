@@ -1,0 +1,38 @@
+doctype html
+html
+  head
+    title= event.title
+    link(rel="stylesheet", href="/style.css")
+  body
+    article.event-detail
+      h1= event.title
+      
+      section.time-info
+        p 
+          strong Begint op: 
+          | #{new Date(event.date_start).toLocaleString('nl-BE')}
+        p 
+          strong Eindigt op: 
+          | #{new Date(event.date_end).toLocaleString('nl-BE')}
+
+      section.content
+        if event.description
+          p.description= event.description
+        
+        p 
+          strong Adres: 
+          | #{event.address}
+        
+        if event.url
+          p Site: 
+            a(href=event.url target="_blank")
+
+      section.geo
+      h3 Locatiegegevens:
+      p Coördinaten: [#{event.location.coordinates[0]}, #{event.location.coordinates[1]}]
+
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

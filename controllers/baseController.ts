@@ -21,12 +21,18 @@ export function createGetAll<T extends Document>(
 
       const plural = resourcePlurals[resource] || `${resource}s`;
 
-      res.status(200).json({
+      const responseData = {
         count: items.length,
         [plural]: items,
-        links: [
-          { rel: "self", href: `/api/${plural}` }
-        ]
+        links: [{ rel: "self", href: `/api/${plural}` }]
+      };
+
+      res.format({
+       
+        'application/json': () => res.status(200).json(responseData),
+        'text/html': () => res.render(`${plural}/list`, responseData),
+        'default': () => res.status(406).send('Not Acceptable')
+
       });
     } catch (error) {
       res.status(500).json({ message: `Error fetching ${model.modelName}`, error });
@@ -46,14 +52,22 @@ export function createGetById<T extends Document>(model: Model<T>) {
       const plural = resourcePlurals[resource] || `${resource}s`;
       const id = item._id;
 
-      res.status(200).json({
+      const responseData = {
         [resource]: item,
         links: [
-          { rel: "self", href: `/api/${plural}/${id}` },
+          { rel: "self", href: `/api/${plural}/${item._id}` },
           { rel: "collection", href: `/api/${plural}` },
-          { rel: "sun", href: `/api/sun/${resource}/${id}` } 
+          { rel: "sun", href: `/api/sun/${resource}/${item._id}` } 
         ]
+      };
+
+      res.format({
+
+        'application/json': () => res.status(200).json(responseData),
+        'text/html': () => res.render(`${plural}/detail`, responseData),
+        'default': () => res.status(406).send('Not Acceptable')
       });
+      
     } catch (error) {
       res.status(500).json({ message: `Error fetching ${model.modelName}`, error });
     }

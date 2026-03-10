@@ -5,9 +5,9 @@ import {
     getEventById, 
     getTodaysEvents, 
     getEventsWithTerras 
-} from '../controllers/eventController';
+} from '../controllers/eventController.js';
 
-import { validateDateQuery, validateID } from "../middleware/validation";
+import { validateDateQuery, validateID } from "../middleware/validation.js";
 
 const router = express.Router();
 

@@ -4,9 +4,9 @@ import {
   searchRestaurants,
   searchEvents,
   searchNearby,
-} from "../controllers/searchController";
+} from "../controllers/searchController.js";
 
-import { validateCoords, validateRadius } from "../middleware/validation";
+import { validateCoords, validateRadius } from "../middleware/validation.js";
 
 const router = express.Router();
 

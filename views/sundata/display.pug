@@ -1,0 +1,41 @@
+doctype html
+html
+  head
+    title Zondata 
+    link(rel="stylesheet", href="/style.css")
+  body
+    header
+      h1 Zondata Analyse
+      p Status voor locatie: #{sun.locationType} (ID: #{sun.locationRef})
+
+    main.sun-container
+      section.main-stats
+        .stat-card
+          h3 Intensiteit
+          p.value #{sun.intensity}%
+        .stat-card
+          h3 Zonpositie
+          p Azimuth: #{sun.azimuth.toFixed(2)} rad
+          p Hoogte: #{sun.altitude.toFixed(2)} rad
+
+      section.golden-hour
+        h2 Golden Hour Tijden
+        .grid
+          .time-box
+            strong Ochtend (Dawn)
+            p Start: #{new Date(sun.goldenHour.dawnStart).toLocaleTimeString('nl-BE')}
+            p Eind: #{new Date(sun.goldenHour.dawnEnd).toLocaleTimeString('nl-BE')}
+          .time-box
+            strong Avond (Dusk)
+            p Start: #{new Date(sun.goldenHour.duskStart).toLocaleTimeString('nl-BE')}
+            p Eind: #{new Date(sun.goldenHour.duskEnd).toLocaleTimeString('nl-BE')}
+
+      section.meta
+        p Meting uitgevoerd op: #{new Date(sun.dateTime).toLocaleString('nl-BE')}
+
+    footer
+      hr
+      nav
+        ul
+          li: a(href="/api/terrassen") Terug naar Terrassen
+          li: a(href="/api/restaurants") Terug naar Restaurants

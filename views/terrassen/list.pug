@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+    title Alle Terrassen
+ 
+    link(rel="stylesheet", href="/style.css")
+  body
+    h1 Terrassen in Gent
+    p Totaal gevonden: #{count}
+
+    main
+      ul.terras-list
+        each terras in terrassen
+          li.terras-card
+            strong= terras.name
+            p Locatie: #{terras.address}
+            p.sun-score Zon-intensiteit: #{terras.intensity}%
+            a(href=`/api/terrassen/${terras._id}`) Bekijk details
+

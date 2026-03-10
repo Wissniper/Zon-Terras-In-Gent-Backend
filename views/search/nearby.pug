@@ -1,0 +1,23 @@
+doctype html
+html
+  head
+    title In de buurt
+    link(rel="stylesheet", href="/style.css")
+  body
+    h1 Resultaten in de buurt
+    p Totaal gevonden: #{counts.total}
+
+    h2 Terrassen (#{counts.terrassen})
+    ul
+      each t in data.terrassen
+        li #{t.name} - #{t.intensity}% zon
+    
+    h2 Restaurants (#{counts.restaurants})
+    ul
+      each r in data.restaurants
+        li #{r.name} (#{r.cuisine})
+
+    h2 Events (#{counts.events})
+    ul
+      each e in data.events
+        li #{e.title}

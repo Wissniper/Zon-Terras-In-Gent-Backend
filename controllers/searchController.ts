@@ -43,13 +43,20 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { intensity: -1 } });
 
     const terrasen = await Terras.aggregate(pipeline);
-    res.status(200).json({
+
+    const responseData = {
       count: terrasen.length, 
       terrassen: terrasen, 
       links: [
           { rel: "self", href: req.originalUrl }, 
           { rel: "collection", href: "/api/terrassen" } 
       ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('terrassen/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error searching terrasen", error });
@@ -99,13 +106,20 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { rating: -1 } });
 
     const restaurants = await Restaurant.aggregate(pipeline);
-    res.status(200).json({
+
+    const responseData = {
       count: restaurants.length, 
       restaurants: restaurants, 
       links: [
           { rel: "self", href: req.originalUrl }, 
           { rel: "collection", href: "/api/restaurants" } 
       ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('restaurants/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error searching restaurants", error });
@@ -150,13 +164,20 @@ export const searchEvents = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { date_start: 1 } });
 
     const events = await Event.aggregate(pipeline);
-    res.status(200).json({
+
+    const responseData = {
       count: events.length, 
       events: events, 
       links: [
           { rel: "self", href: req.originalUrl }, 
           { rel: "collection", href: "/api/events" } 
       ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('events/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error searching events", error });
@@ -192,8 +213,7 @@ export const searchNearby = async (req: Request, res: Response) => {
       Event.find(geoQuery),
     ]);
 
-    res.status(200).json({
-      
+    const responseData = {
       counts: {
         terrassen: terrasen.length,
         restaurants: restaurants.length,
@@ -211,6 +231,13 @@ export const searchNearby = async (req: Request, res: Response) => {
         { rel: "restaurants", href: "/api/restaurants" },
         { rel: "events", href: "/api/events" }
       ]
+    };
+    
+
+  res.format({
+    'application/json': () => res.status(200).json(responseData),
+    'text/html': () => res.render('search/nearby', responseData),
+    'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error searching nearby", error });

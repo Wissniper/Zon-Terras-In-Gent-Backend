@@ -104,7 +104,7 @@ export const getSunPosition = async (req: Request, res: Response) => {
     const cloudFactor = await getCloudFactor(latitude, longitude);
     const sun = calculateSunData(dateTime, latitude, longitude, cloudFactor);
 
-    res.status(200).json({
+    const responseData = {
       latitude,
       longitude,
       dateTime: dateTime.toISOString(),
@@ -126,7 +126,13 @@ export const getSunPosition = async (req: Request, res: Response) => {
       },
       links: [
         { rel: "self", href: `/api/sun/${lat}/${lng}/${time}` },
-      ],
+      ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/display', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error calculating sun position", error });
@@ -155,13 +161,19 @@ export const getSunForTerras = async (req: Request, res: Response) => {
 
     const cached = await getOrCreateCache(terras._id, "Terras", lat, lng, dateTime);
 
-    res.status(200).json({
+    const responseData = {
       terras: { id: terras._id, name: terras.name, address: terras.address },
       sunData: cached,
       links: [
         { rel: "self", href: `/api/sun/terras/${terras._id}` },
         { rel: "terras", href: `/api/terrassen/${terras._id}` },
       ],
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/display', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error fetching sun data for terras", error });
@@ -190,13 +202,19 @@ export const getSunForRestaurant = async (req: Request, res: Response) => {
 
     const cached = await getOrCreateCache(restaurant._id, "Restaurant", lat, lng, dateTime);
 
-    res.status(200).json({
+    const responseData = {
       restaurant: { id: restaurant._id, name: restaurant.name, address: restaurant.address },
       sunData: cached,
       links: [
         { rel: "self", href: `/api/sun/restaurant/${restaurant._id}` },
         { rel: "restaurant", href: `/api/restaurants/${restaurant._id}` },
-      ],
+      ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/display', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error fetching sun data for restaurant", error });
@@ -224,14 +242,20 @@ export const getSunForEvent = async (req: Request, res: Response) => {
     }
 
     const cached = await getOrCreateCache(event._id, "Event", lat, lng, dateTime);
-
-    res.status(200).json({
-      event: { id: event._id, name: event.title, address: event.address },
+    
+    const responseData = {
+       event: { id: event._id, name: event.title, address: event.address },
       sunData: cached,
       links: [
         { rel: "self", href: `/api/sun/event/${event._id}` },
         { rel: "event", href: `/api/events/${event._id}` },
       ],
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/display', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
 
   } catch (error) {
@@ -259,13 +283,19 @@ export const getCachedSunData = async (req: Request, res: Response) => {
 
     const plural = locationType === "Terras" ? "terrassen" : locationType.toLowerCase() + 's';
 
-    res.status(200).json({
+    const responseData = {
       count: data.length,
       sunData: data,
       links: [
         { rel: "self", href: `/api/sun/cache/${locationType}/${locationId}` },
         { rel: "location", href: `/api/${plural}/${locationId}` }
       ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error fetching cached sun data", error });
@@ -313,12 +343,16 @@ export const getSunBatch = async (req: Request, res: Response) => {
       };
     });
 
-    res.status(200).json({
+    const responseData = {
       count: results.length,
       results: results,
-      links: [
-        { rel: "self", href: "/api/sun/batch" }
-      ]
+      links: [{ rel: "self", href: "/api/sun/batch" }]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/batch', responseData), 
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error processing batch sun data request", error });

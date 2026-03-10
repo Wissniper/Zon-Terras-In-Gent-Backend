@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    title Gentse Events
+    link(rel="stylesheet", href="/style.css")
+  body
+    h1 Aankomende Events
+    p Totaal gevonden: #{count}
+    
+    ul.event-list
+      each event in events
+        li.card
+          strong= event.title
+          p Datum: #{new Date(event.date_start).toLocaleDateString('nl-BE')}
+          p Locatie: #{event.address}
+          a(href=`/api/events/${event._id}`) Bekijk details 

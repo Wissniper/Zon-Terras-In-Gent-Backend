@@ -25,7 +25,7 @@ export const getTodaysEvents = async (req: Request, res: Response) => {
             date_end: { $gte: dayStart }
         }).sort({ date_start: 1 });
 
-        res.status(200).json({
+        const responseData = {
             count: events.length,
             events: events,
             links: [
@@ -33,6 +33,12 @@ export const getTodaysEvents = async (req: Request, res: Response) => {
                 { rel: "collection", href: "/api/events" },
                 { rel: "with_terrassen", href: "/api/events/with-terrassen" } 
             ]
+        };
+
+        res.format({
+            'application/json': () => res.status(200).json(responseData),
+            'text/html': () => res.render('events/list', responseData),
+            'default': () => res.status(406).send('Not Acceptable')
         });
     } catch (error) {
         res.status(500).json({ message: "Error fetching Events" });
@@ -60,7 +66,8 @@ export const getEventsWithTerras = async (req: Request, res: Response) => {
         }).sort({ date_start: 1 });
 
         const result = await Promise.all(events.map(findNearbyTerrassen));
-        res.status(200).json({
+
+        const responseData = {
             count: result.length,
             events: result,
             links: [
@@ -68,6 +75,12 @@ export const getEventsWithTerras = async (req: Request, res: Response) => {
                 { rel: "today_only", href: "/api/events/today" },
                 { rel: "collection", href: "/api/events" }
             ]
+        };
+
+        res.format({
+            'application/json': () => res.status(200).json(responseData),
+            'text/html': () => res.render('events/list', responseData), // TODO: eventueel apparte view maken 'with-terassen'
+            'default': () => res.status(406).send('Not Acceptable')
         });
     } catch (error) {
         res.status(500).json({ message: "Error fetching Events" });
