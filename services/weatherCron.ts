@@ -147,9 +147,9 @@ export function startWeatherCron() {
   // Terras + restaurant sync: elke maandag om 03:00 's nachts
   cron.schedule("0 3 * * 1", async () => {
     try {
-      console.log("[TerrasCron] Syncing terras data from data.stad.gent");
+      console.log("[TerrasCron] Syncing terras data from Overpass API");
       const terrasResult = await syncTerrasData();
-      console.log(`[TerrasCron] Done: ${terrasResult.total} cafés, ${terrasResult.created} new, ${terrasResult.updated} updated`);
+      console.log(`[TerrasCron] Done: ${terrasResult.total} elements, ${terrasResult.unique} unique, ${terrasResult.created} new, ${terrasResult.updated} updated, ${terrasResult.duplicatesSkipped} duplicates skipped`);
 
       console.log("[RestaurantCron] Syncing restaurant data from Overpass API");
       const restResult = await syncRestaurantData();
@@ -167,7 +167,7 @@ export function startWeatherCron() {
       console.log("[TerrasCron] Empty collection, fetching initial data");
       try {
         const result = await syncTerrasData();
-        console.log(`[TerrasCron] Initial sync: ${result.total} cafés imported`);
+        console.log(`[TerrasCron] Initial sync: ${result.unique} terrasen imported (${result.duplicatesSkipped} duplicates skipped)`);
       } catch (error) {
         console.error("[TerrasCron] Initial sync failed:", error);
       }
