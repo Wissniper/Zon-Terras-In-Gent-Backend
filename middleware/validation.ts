@@ -16,7 +16,15 @@ export const validateCoords = [
 ];
 
 export const validateID = [
-    param(['id', 'locationId', 'restaurantId', 'terrasId', 'eventId']).isMongoId().withMessage("Invalid database id"),
+    param(['id', 'locationId', 'restaurantId', 'terrasId', 'eventId']).optional().isMongoId().withMessage("Invalid database id"),
+    (req: Request, res: Response, next: NextFunction) => {
+        const idParams = ['id', 'locationId', 'restaurantId', 'terrasId', 'eventId'];
+        const hasId = idParams.some(p => req.params[p]);
+        if (!hasId) {
+            return res.status(400).json({ errors: [{ msg: "Missing id parameter" }] });
+        }
+        next();
+    },
     handleErrors
 ];
 
