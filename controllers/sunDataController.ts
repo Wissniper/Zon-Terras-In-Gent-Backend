@@ -213,6 +213,8 @@ export const getCachedSunData = async (req: Request, res: Response) => {
 /**
  * POST /api/sun/batch
  * Get sun data for multiple locations in a single request.
+ * 
+ * Request body: { locations: [{ lat, lng, time }] }
  */
 export const getSunBatch = async (req: Request, res: Response) => {
   try {
