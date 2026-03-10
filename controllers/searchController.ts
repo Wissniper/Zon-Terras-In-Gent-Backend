@@ -7,7 +7,7 @@ import { buildGeoStage, buildSunDataLookup, buildRangeFilter } from "./baseContr
 /**
  * GET /api/search/terrasen
  *   ?q=korenmarkt              — zoek op naam
- *   ?sunnyOnly=true            — alleen terrassen met intensity > 50
+ *   ?sunnyOnly=true            — alleen terrasen met intensity > 50
  *   ?minIntensity=60           — minimum intensity
  *   ?maxIntensity=100          — maximum intensity
  *   ?lat=51.05&lng=3.72&radius=1  — binnen straal (km)

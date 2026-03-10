@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get('/', getAllEvents);
 router.get('/today', validateDateQuery, getTodaysEvents);
-router.get('/with-terrassen', validateDateQuery, getEventsWithTerras);
+router.get('/with-terrasen', validateDateQuery, getEventsWithTerras);
 router.get('/:id', validateID, getEventById);
 
 export default router
