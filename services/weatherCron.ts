@@ -3,6 +3,7 @@ import { fetchWeatherData } from "./weatherService.js";
 import { calculateSunData, getCloudFactor } from "./sunService.js";
 import { syncTerrasData } from "./terrasDataFetcher.js";
 import { syncRestaurantData } from "./restaurantDataFetcher.js";
+import { syncEventData } from "./eventDataFetcher.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
@@ -161,8 +162,21 @@ export function startWeatherCron() {
 
   console.log("[Cron] Scheduled terras + restaurant data sync every Monday at 03:00");
 
+  // Event sync: elke dag om 04:00
+  cron.schedule("0 4 * * *", async () => {
+    try {
+      console.log("[EventCron] Syncing event data from Stad Gent API");
+      const result = await syncEventData();
+      console.log(`[EventCron] Done: ${result.total} records, ${result.parsed} parsed, ${result.created} new, ${result.updated} updated, ${result.skipped} skipped`);
+    } catch (error) {
+      console.error("[EventCron] Error:", error);
+    }
+  });
+
+  console.log("[Cron] Scheduled event data sync every day at 04:00");
+
   // Direct bij startup data ophalen als collecties leeg zijn
-  Promise.all([Terras.countDocuments(), Restaurant.countDocuments()]).then(async ([terrasCount, restCount]) => {
+  Promise.all([Terras.countDocuments(), Restaurant.countDocuments(), Event.countDocuments()]).then(async ([terrasCount, restCount, eventCount]) => {
     if (terrasCount === 0) {
       console.log("[TerrasCron] Empty collection, fetching initial data");
       try {
@@ -180,6 +194,16 @@ export function startWeatherCron() {
         console.log(`[RestaurantCron] Initial sync: ${result.unique} restaurants imported (${result.duplicatesSkipped} duplicates skipped)`);
       } catch (error) {
         console.error("[RestaurantCron] Initial sync failed:", error);
+      }
+    }
+
+    if (eventCount === 0) {
+      console.log("[EventCron] Empty collection, fetching initial data");
+      try {
+        const result = await syncEventData();
+        console.log(`[EventCron] Initial sync: ${result.parsed} events imported (${result.skipped} skipped)`);
+      } catch (error) {
+        console.error("[EventCron] Initial sync failed:", error);
       }
     }
   });
