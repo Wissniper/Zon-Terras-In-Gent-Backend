@@ -11,6 +11,8 @@ export interface TerrasDocument extends Document {
     coordinates: number[]; // [long, lat]
   };
   intensity: number; // actual sun-intensity (0-100)
+  isDeleted: boolean;
+  deletedAt?: Date;
 }
 
 const TerrasSchema = new Schema(
@@ -33,6 +35,8 @@ const TerrasSchema = new Schema(
       },
     },
     intensity: { type: Number, required: true },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
   },
   { timestamps: true },
 );

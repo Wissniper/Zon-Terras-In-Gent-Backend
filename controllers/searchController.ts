@@ -22,7 +22,7 @@ export const searchTerrasen = async (req: Request, res: Response) => {
       pipeline.push(buildGeoStage(lat as string, lng as string, radius as string));
     }
 
-    const match: any = {};
+    const match: any = { isDeleted: { $ne: true } };
 
     if (q) {
       match.name = { $regex: q as string, $options: "i" };
@@ -68,7 +68,7 @@ export const searchRestaurants = async (req: Request, res: Response) => {
       pipeline.push(buildGeoStage(lat as string, lng as string, radius as string));
     }
 
-    const match: any = {};
+    const match: any = { isDeleted: { $ne: true } };
 
     if (q) {
       match.name = { $regex: q as string, $options: "i" };
@@ -166,8 +166,8 @@ export const searchNearby = async (req: Request, res: Response) => {
     };
 
     const [terrasen, restaurants, events] = await Promise.all([
-      Terras.find(geoQuery),
-      Restaurant.find(geoQuery),
+      Terras.find({ ...geoQuery, isDeleted: { $ne: true } }),
+      Restaurant.find({ ...geoQuery, isDeleted: { $ne: true } }),
       Event.find(geoQuery),
     ]);
 
