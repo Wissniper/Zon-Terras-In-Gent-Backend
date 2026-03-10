@@ -2,7 +2,7 @@ import Event, { EventDocument } from "../models/eventModel.js";
 import SunData from "../models/sunDataModel.js";
 import { Request, Response } from "express";
 import Terras from "../models/terrasModel.js";
-import { createGetAll, createGetById, createOne, updateOne, patchOne, hardDelete } from "./baseController.js";
+import { createGetAll, createGetById, createOne, updateOne, patchOne, softDelete } from "./baseController.js";
 
 export const getAllEvents = createGetAll(Event, { date_start: 1 });
 export const getEventById = createGetById(Event);
@@ -10,9 +10,9 @@ export const createEvent = createOne(Event);
 export const updateEvent = updateOne(Event);
 export const patchEvent = patchOne(Event);
 
-// Hard delete: event wordt volledig verwijderd
+// Soft delete: event wordt gemarkeerd als verwijderd
 // Cascade: verwijder alle gekoppelde zondata
-export const deleteEvent = hardDelete(Event, async (id) => {
+export const deleteEvent = softDelete(Event, async (id) => {
   await SunData.deleteMany({ locationRef: id, locationType: "Event" });
 });
 

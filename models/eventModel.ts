@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface EventDocument extends Document {
-    id: string;
     title: string;
     address: string;
     date_start: Date;
@@ -13,11 +12,12 @@ export interface EventDocument extends Document {
         type: string;
         coordinates: number[];
     };
+    isDeleted: boolean;
+    deletedAt?: Date;
 }
 
 const EventSchema = new Schema(
     {
-        id: {type: String, required: true, unique: true},
         title: {type: String, required: true},
         address: {type: String, required: true},
         date_start: {type: Date, required: true},
@@ -38,7 +38,9 @@ const EventSchema = new Schema(
                 required: true,
             },
         },
-},
+        isDeleted: { type: Boolean, default: false },
+        deletedAt: { type: Date },
+    },
     { timestamps: true }
 )
 
