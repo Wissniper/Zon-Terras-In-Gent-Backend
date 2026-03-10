@@ -17,7 +17,7 @@ export const deleteEvent = softDelete(Event, async (id) => {
 });
 
 // Helper: geeft start en einde van een dag terug
-const getDayRange = (date?: string) => {
+const getDayRange = (date?: string) : { dayStart: Date; dayEnd: Date } => {
     const day = date ? new Date(date) : new Date();
     day.setHours(0, 0, 0, 0);
     const nextDay = new Date(day);

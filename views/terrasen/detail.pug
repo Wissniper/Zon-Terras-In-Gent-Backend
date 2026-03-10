@@ -12,7 +12,8 @@ block content
       | #{terras.address}
     p
       strong Zon-intensiteit:
-      | #{terras.intensity}%
+      | 
+      a(href=`/api/sun/terras/${terras._id}`) #{terras.intensity}% Bekijk details 
     if terras.url
       p
         strong Site:
@@ -22,6 +23,7 @@ block content
     section.geo
       h3 Locatiegegevens
       p Coordinaten: [#{terras.location.coordinates[0]}, #{terras.location.coordinates[1]}]
+      p: a(href=`/api/search/nearby/${terras.location.coordinates[1]}/${terras.location.coordinates[0]}/1`) In de buurt
 
   if links && links.length
     hr

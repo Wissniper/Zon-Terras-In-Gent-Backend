@@ -6,6 +6,13 @@ html(lang="nl")
   body
     header
       h1 Sun-Seeker Gent
+
+      nav
+        ul(style="display: flex; gap: 15px; list-style: none; padding: 0;")
+          li: a(href="/api/terrasen") Terrassen
+          li: a(href="/api/restaurants") Restaurants
+          li: a(href="/api/events") Events
+
     main
       block content
     footer

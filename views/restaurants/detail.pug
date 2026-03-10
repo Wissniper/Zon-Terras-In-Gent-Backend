@@ -15,7 +15,8 @@ block content
       |  #{restaurant.address}
     p
       strong Zon-intensiteit:
-      |  #{restaurant.intensity}%
+      |  
+      a(href=`/api/sun/restaurant/${restaurant._id}`) #{restaurant.intensity}% Bekijk details
 
     if restaurant.openingHours
       p
@@ -39,6 +40,7 @@ block content
     section.geo
       h3 Locatiegegevens
       p Coordinaten: [#{restaurant.location.coordinates[0]}, #{restaurant.location.coordinates[1]}]
+      p: a(href=`/api/search/nearby/${restaurant.location.coordinates[1]}/${restaurant.location.coordinates[0]}/1`) In de buurt
 
   if links && links.length
     hr

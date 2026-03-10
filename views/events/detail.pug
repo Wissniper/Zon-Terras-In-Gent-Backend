@@ -29,6 +29,12 @@ block content
         h3 Locatiegegevens
         p Coordinaten: [#{event.location.coordinates[0]}, #{event.location.coordinates[1]}]
 
+      section.related-resources
+        h3 Ontdek meer
+        ul
+          li: a(href=`/api/sun/${event.location.coordinates[1]}/${event.location.coordinates[0]}/now`) Bekijk de zonintensiteit hier
+          li: a(href=`/api/search/nearby/${event.location.coordinates[1]}/${event.location.coordinates[0]}/1`) In de buurt
+
   if links && links.length
     hr
     nav
