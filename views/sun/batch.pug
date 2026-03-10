@@ -1,0 +1,23 @@
+extends ../layout
+
+block content
+  h2 Batch Berekening Resultaten
+  p Aantal locaties berekend: #{count}
+
+  each res in results
+    if res.error
+      .sun-card
+        p.error= res.error
+    else
+      .sun-card
+        h3 Locatie: #{res.latitude}, #{res.longitude}
+        p Tijd: #{new Date(res.dateTime).toLocaleString('nl-BE')}
+        p Intensiteit: #{res.intensity}%
+        p Azimuth: #{res.position.azimuthDegrees.toFixed(2)}
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

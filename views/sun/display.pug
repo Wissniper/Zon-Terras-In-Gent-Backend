@@ -1,0 +1,70 @@
+extends ../layout
+
+block content
+  h2 Zondata Analyse
+
+  //- getSunFor* passes entity info (terras/restaurant/event)
+  if terras
+    p Terras:
+      a(href=`/api/terrasen/${terras.id}`)= terras.name
+      |  — #{terras.address}
+  if restaurant
+    p Restaurant:
+      a(href=`/api/restaurants/${restaurant.id}`)= restaurant.name
+      |  — #{restaurant.address}
+  if event
+    p Event:
+      a(href=`/api/events/${event.id}`)= event.name
+      |  — #{event.address}
+
+  //- getSunFor* passes cached data under sunData; getSunPosition passes flat
+  - const sun = sunData || {}
+  - const azVal = sun.azimuth !== undefined ? sun.azimuth : (position && position.azimuth)
+  - const altVal = sun.altitude !== undefined ? sun.altitude : (position && position.altitude)
+  - const intVal = sun.intensity !== undefined ? sun.intensity : intensity
+  - const gh = sun.goldenHour || goldenHour || {}
+  - const dt = sun.dateTime || dateTime
+
+  section.main-stats
+    .stat-card
+      h3 Intensiteit
+      p.value #{intVal}%
+    .stat-card
+      h3 Zonpositie
+      if azVal !== undefined
+        p Azimuth: #{azVal.toFixed(2)} rad
+        p Hoogte: #{altVal.toFixed(2)} rad
+
+  if gh.dawnStart
+    section.golden-hour
+      h3 Golden Hour
+      .grid
+        .time-box
+          strong Ochtend (Dawn)
+          p Start: #{new Date(gh.dawnStart).toLocaleTimeString('nl-BE')}
+          p Eind: #{new Date(gh.dawnEnd).toLocaleTimeString('nl-BE')}
+        .time-box
+          strong Avond (Dusk)
+          p Start: #{new Date(gh.duskStart).toLocaleTimeString('nl-BE')}
+          p Eind: #{new Date(gh.duskEnd).toLocaleTimeString('nl-BE')}
+
+  if sunTimes
+    section.sun-times
+      h3 Zontijden
+      if sunTimes.sunriseStart
+        p Zonsopkomst: #{new Date(sunTimes.sunriseStart).toLocaleTimeString('nl-BE')}
+      if sunTimes.sunsetStart
+        p Zonsondergang: #{new Date(sunTimes.sunsetStart).toLocaleTimeString('nl-BE')}
+      if sunTimes.solarNoon
+        p Zonhoogste punt: #{new Date(sunTimes.solarNoon).toLocaleTimeString('nl-BE')}
+
+  if dt
+    section.meta
+      p Meting uitgevoerd op: #{new Date(dt).toLocaleString('nl-BE')}
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

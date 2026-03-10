@@ -8,17 +8,19 @@ import {
   deleteEvent,
   getTodaysEvents,
   getEventsWithTerras,
-} from "../controllers/eventController";
+} from "../controllers/eventController.js";
+
+import { validateDateQuery, validateID } from "../middleware/validation.js";
 
 const router = express.Router();
 
 router.get("/", getAllEvents);
 router.post("/", createEvent);
-router.get("/today", getTodaysEvents);
-router.get("/with-terrassen", getEventsWithTerras);
-router.get("/:id", getEventById);
-router.put("/:id", updateEvent);
-router.patch("/:id", patchEvent);
-router.delete("/:id", deleteEvent);
+router.get("/today", validateDateQuery, getTodaysEvents);
+router.get("/with-terrasen", validateDateQuery, getEventsWithTerras);
+router.get("/:id", validateID, getEventById);
+router.put("/:id", validateID, updateEvent);
+router.patch("/:id", validateID, patchEvent);
+router.delete("/:id", validateID, deleteEvent);
 
 export default router;

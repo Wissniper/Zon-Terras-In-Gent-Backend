@@ -1,0 +1,28 @@
+extends ../layout
+
+block content
+  h2 Gecachte Zondata
+  p Totaal aantal metingen: #{count}
+
+  if sunData && sunData.length
+    table
+      thead
+        tr
+          th Datum/Tijd
+          th Intensiteit
+          th Hoogte (alt)
+      tbody
+        each entry in sunData
+          tr
+            td= new Date(entry.dateTime).toLocaleString('nl-BE')
+            td #{entry.intensity}%
+            td= entry.altitude != null ? entry.altitude.toFixed(4) : '-'
+  else
+    p Geen metingen gevonden.
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

@@ -60,7 +60,7 @@ export const getSunPosition = async (req: Request, res: Response) => {
     const cloudFactor = await getCloudFactor(latitude, longitude);
     const sun = calculateSunData(dateTime, latitude, longitude, cloudFactor);
 
-    res.status(200).json({
+    const responseData = {
       latitude,
       longitude,
       dateTime: dateTime.toISOString(),
@@ -82,7 +82,13 @@ export const getSunPosition = async (req: Request, res: Response) => {
       },
       links: [
         { rel: "self", href: `/api/sun/${lat}/${lng}/${time}` },
-      ],
+      ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/display', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error calculating sun position", error });
@@ -116,13 +122,19 @@ function createGetSunForEntity(config: {
 
       const cached = await getOrCreateCache(entity._id, config.locationType, lat, lng, dateTime);
 
-      res.status(200).json({
+      const responseData = {
         [config.responseKey]: { id: entity._id, name: entity[config.nameField], address: entity.address },
         sunData: cached,
         links: [
           { rel: "self", href: `${config.selfPrefix}${entity._id}` },
           { rel: config.responseKey, href: `${config.entityPrefix}${entity._id}` },
         ],
+      };
+
+      res.format({
+        'application/json': () => res.status(200).json(responseData),
+        'text/html': () => res.render('sun/display', responseData),
+        'default': () => res.status(406).send('Not Acceptable')
       });
     } catch (error) {
       res.status(500).json({ message: `Error fetching sun data for ${config.responseKey}`, error });
@@ -164,7 +176,22 @@ export const getCachedSunData = async (req: Request, res: Response) => {
       locationType,
     }).sort({ dateTime: -1 });
 
-    res.status(200).json(data);
+    const plural = locationType === "Terras" ? "terrasen" : locationType.toLowerCase() + 's';
+
+    const responseData = {
+      count: data.length,
+      sunData: data,
+      links: [
+        { rel: "self", href: `/api/sun/cache/${locationType}/${locationId}` },
+        { rel: "location", href: `/api/${plural}/${locationId}` }
+      ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
+    });
   } catch (error) {
     res.status(500).json({ message: "Error fetching cached sun data", error });
   }
@@ -173,7 +200,7 @@ export const getCachedSunData = async (req: Request, res: Response) => {
 /**
  * POST /api/sun/batch
  * Get sun data for multiple locations in a single request.
- * 
+ *
  * Request body: { locations: [{ lat, lng, time }] }
  */
 export const getSunBatch = async (req: Request, res: Response) => {
@@ -204,7 +231,17 @@ export const getSunBatch = async (req: Request, res: Response) => {
       };
     });
 
-    res.status(200).json(results);
+    const responseData = {
+      count: results.length,
+      results: results,
+      links: [{ rel: "self", href: "/api/sun/batch" }]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('sun/batch', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
+    });
   } catch (error) {
     res.status(500).json({ message: "Error processing batch sun data request", error });
   }

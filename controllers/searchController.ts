@@ -7,7 +7,7 @@ import { buildGeoStage, buildSunDataLookup, buildRangeFilter } from "./baseContr
 /**
  * GET /api/search/terrasen
  *   ?q=korenmarkt              — zoek op naam
- *   ?sunnyOnly=true            — alleen terrassen met intensity > 50
+ *   ?sunnyOnly=true            — alleen terrasen met intensity > 50
  *   ?minIntensity=60           — minimum intensity
  *   ?maxIntensity=100          — maximum intensity
  *   ?lat=51.05&lng=3.72&radius=1  — binnen straal (km)
@@ -43,7 +43,21 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { intensity: -1 } });
 
     const terrasen = await Terras.aggregate(pipeline);
-    res.status(200).json(terrasen);
+
+    const responseData = {
+      count: terrasen.length, 
+      terrasen: terrasen,
+      links: [
+          { rel: "self", href: req.originalUrl },
+          { rel: "collection", href: "/api/terrasen" }
+      ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('terrasen/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
+    });
   } catch (error) {
     res.status(500).json({ message: "Error searching terrasen", error });
   }
@@ -92,7 +106,21 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { rating: -1 } });
 
     const restaurants = await Restaurant.aggregate(pipeline);
-    res.status(200).json(restaurants);
+
+    const responseData = {
+      count: restaurants.length, 
+      restaurants: restaurants, 
+      links: [
+          { rel: "self", href: req.originalUrl }, 
+          { rel: "collection", href: "/api/restaurants" } 
+      ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('restaurants/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
+    });
   } catch (error) {
     res.status(500).json({ message: "Error searching restaurants", error });
   }
@@ -136,7 +164,21 @@ export const searchEvents = async (req: Request, res: Response) => {
     pipeline.push({ $sort: { date_start: 1 } });
 
     const events = await Event.aggregate(pipeline);
-    res.status(200).json(events);
+
+    const responseData = {
+      count: events.length, 
+      events: events, 
+      links: [
+          { rel: "self", href: req.originalUrl }, 
+          { rel: "collection", href: "/api/events" } 
+      ]
+    };
+
+    res.format({
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('events/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
+    });
   } catch (error) {
     res.status(500).json({ message: "Error searching events", error });
   }
@@ -171,16 +213,31 @@ export const searchNearby = async (req: Request, res: Response) => {
       Event.find(geoQuery),
     ]);
 
-    res.status(200).json({
-      terrasen,
-      restaurants,
-      events,
+    const responseData = {
       counts: {
         terrasen: terrasen.length,
         restaurants: restaurants.length,
         events: events.length,
         total: terrasen.length + restaurants.length + events.length,
       },
+      data: {
+        terrasen: terrasen,
+        restaurants: restaurants,
+        events: events,
+      },
+      links: [
+        { rel: "self", href: `/api/search/nearby/${lat}/${lng}/${radius}` },
+        { rel: "terrasen", href: "/api/terrasen" },
+        { rel: "restaurants", href: "/api/restaurants" },
+        { rel: "events", href: "/api/events" }
+      ]
+    };
+    
+
+  res.format({
+    'application/json': () => res.status(200).json(responseData),
+    'text/html': () => res.render('search/nearby', responseData),
+    'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error searching nearby", error });

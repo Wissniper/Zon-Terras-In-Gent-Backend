@@ -1,0 +1,37 @@
+extends ../layout
+
+block content
+  article.event-detail
+    h2= event.title
+
+    section.time-info
+      p
+        strong Begint op:
+        |  #{new Date(event.date_start).toLocaleString('nl-BE')}
+      p
+        strong Eindigt op:
+        |  #{new Date(event.date_end).toLocaleString('nl-BE')}
+
+    section.content
+      if event.description
+        p.description= event.description
+
+      p
+        strong Adres:
+        |  #{event.address}
+
+      if event.url
+        p Site:
+          a(href=event.url target="_blank") #{event.url}
+
+    if event.location && event.location.coordinates
+      section.geo
+        h3 Locatiegegevens
+        p Coordinaten: [#{event.location.coordinates[0]}, #{event.location.coordinates[1]}]
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

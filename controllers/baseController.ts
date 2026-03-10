@@ -1,6 +1,14 @@
 import { Model, Document } from "mongoose";
 import { Request, Response } from "express";
 
+//helper:
+const resourcePlurals: Record<string, string> = {
+  terras: "terrasen",
+  event: "events",
+  restaurant: "restaurants",
+  sundata: "sun" ///api/sun
+};
+
 // Factory: GET / — haal alle items op (filtert soft-deleted items uit)
 export function createGetAll<T extends Document>(
   model: Model<T>,
@@ -9,7 +17,20 @@ export function createGetAll<T extends Document>(
   return async (req: Request, res: Response) => {
     try {
       const items = await model.find({ isDeleted: { $ne: true } }).sort(defaultSort);
-      res.status(200).json(items);
+      const resource = model.modelName.toLowerCase();
+      const plural = resourcePlurals[resource] || `${resource}s`;
+
+      const responseData = {
+        count: items.length,
+        [plural]: items,
+        links: [{ rel: "self", href: `/api/${plural}` }]
+      };
+
+      res.format({
+        'application/json': () => res.status(200).json(responseData),
+        'text/html': () => res.render(`${plural}/list`, responseData),
+        'default': () => res.status(406).send('Not Acceptable')
+      });
     } catch (error) {
       res.status(500).json({ message: `Error fetching ${model.modelName}`, error });
     }
@@ -24,7 +45,24 @@ export function createGetById<T extends Document>(model: Model<T>) {
       if (!item) {
         return res.status(404).json({ message: `${model.modelName} not found` });
       }
-      res.status(200).json(item);
+      const resource = model.modelName.toLowerCase();
+      const plural = resourcePlurals[resource] || `${resource}s`;
+
+      const responseData = {
+        [resource]: item,
+        links: [
+          { rel: "self", href: `/api/${plural}/${item._id}` },
+          { rel: "collection", href: `/api/${plural}` },
+          { rel: "sun", href: `/api/sun/${resource}/${item._id}` }
+        ]
+      };
+
+      res.format({
+        'application/json': () => res.status(200).json(responseData),
+        'text/html': () => res.render(`${plural}/detail`, responseData),
+        'default': () => res.status(406).send('Not Acceptable')
+      });
+
     } catch (error) {
       res.status(500).json({ message: `Error fetching ${model.modelName}`, error });
     }

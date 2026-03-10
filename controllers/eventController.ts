@@ -35,23 +35,37 @@ export const getTodaysEvents = async (req: Request, res: Response) => {
             date_end: { $gte: dayStart }
         }).sort({ date_start: 1 });
 
-        res.status(200).json(events);
+        const responseData = {
+            count: events.length,
+            events: events,
+            links: [
+                { rel: "self", href: "/api/events/today" },
+                { rel: "collection", href: "/api/events" },
+                { rel: "with_terrasen", href: "/api/events/with-terrasen" } 
+            ]
+        };
+
+        res.format({
+            'application/json': () => res.status(200).json(responseData),
+            'text/html': () => res.render('events/list', responseData),
+            'default': () => res.status(406).send('Not Acceptable')
+        });
     } catch (error) {
         res.status(500).json({ message: "Error fetching Events" });
     }
 };
 
-// Koppel events aan dichtstbijzijnde terrassen (max 100m)
-const findNearbyTerrassen = async (event: EventDocument) => {
-    const terrassen = await Terras.find({
+// Koppel events aan dichtstbijzijnde terrasen (max 100m)
+const findNearbyTerrasen = async (event: EventDocument) => {
+    const terrasen = await Terras.find({
         location: {
             $near: { $geometry: event.location, $maxDistance: 100 }
         }
     });
-    return { ...event.toObject(), terrassen };
+    return { ...event.toObject(), terrasen };
 };
 
-// Events van vandaag/gekozen datum + gekoppelde terrassen
+// Events van vandaag/gekozen datum + gekoppelde terrasen
 export const getEventsWithTerras = async (req: Request, res: Response) => {
     try {
         const { dayStart, dayEnd } = getDayRange(req.query.date as string);
@@ -61,8 +75,23 @@ export const getEventsWithTerras = async (req: Request, res: Response) => {
             date_end: { $gte: dayStart }
         }).sort({ date_start: 1 });
 
-        const result = await Promise.all(events.map(findNearbyTerrassen));
-        res.status(200).json(result);
+        const result = await Promise.all(events.map(findNearbyTerrasen));
+
+        const responseData = {
+            count: result.length,
+            events: result,
+            links: [
+                { rel: "self", href: "/api/events/with-terrasen" },
+                { rel: "today_only", href: "/api/events/today" },
+                { rel: "collection", href: "/api/events" }
+            ]
+        };
+
+        res.format({
+            'application/json': () => res.status(200).json(responseData),
+            'text/html': () => res.render('events/list', responseData), // TODO: eventueel aparte view maken 'with-terrasen'
+            'default': () => res.status(406).send('Not Acceptable')
+        });
     } catch (error) {
         res.status(500).json({ message: "Error fetching Events" });
     }
