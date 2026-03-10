@@ -1,6 +1,6 @@
 import Event from "../models/eventModel.js";
 
-const API_URL = "https://data.stad.gent/api/explore/v2.1/catalog/datasets/toeristische-evenementen-visit-gent/records";
+const API_URL = process.env.STADGENT_EVENTS_URL || "https://data.stad.gent/api/explore/v2.1/catalog/datasets/toeristische-evenementen-visit-gent/records";
 const PAGE_SIZE = 100;
 
 interface GentEventRecord {
