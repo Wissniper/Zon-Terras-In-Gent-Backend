@@ -4,7 +4,6 @@ import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
-import dbTestRoutes from "./routes/dbTests.js";
 import terrasRoutes from "./routes/terrasRoutes.js";
 import restaurantRoutes from "./routes/restaurantRoutes.js";
 import sunDataRoutes from "./routes/sunDataRoutes.js";
@@ -64,9 +63,6 @@ app.use("/api/sun", sunDataRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/weather", weatherRoutes);
-
-// Database test routes
-app.use(dbTestRoutes);
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
