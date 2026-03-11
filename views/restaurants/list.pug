@@ -1,0 +1,22 @@
+extends ../layout
+
+block content
+  h2 Restaurants in Gent
+  p Totaal gevonden: #{count}
+
+  ul.restaurant-list
+    each restaurant in restaurants
+      li.card
+        strong= restaurant.name
+        p Locatie: #{restaurant.address}
+        p Score: #{restaurant.rating} / 5
+        p Keuken: #{restaurant.cuisine}
+        p.sun-score Zon-intensiteit: #{restaurant.intensity}%
+        a(href=`/api/restaurants/${restaurant._id}`) Bekijk details
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

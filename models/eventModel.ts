@@ -5,12 +5,15 @@ export interface EventDocument extends Document {
     address: string;
     date_start: Date;
     date_end: Date;
-    description?: string; 
+    description?: string;
     url?: string;
+    intensity?: number;
     location: {
         type: string;
         coordinates: number[];
     };
+    isDeleted: boolean;
+    deletedAt?: Date;
 }
 
 const EventSchema = new Schema(
@@ -21,6 +24,7 @@ const EventSchema = new Schema(
         date_end: {type: Date, required: true},
         description: {type: String},
         url: {type: String},
+        intensity: {type: Number, default: 0},
 
         location: {
             type: {
@@ -34,8 +38,11 @@ const EventSchema = new Schema(
                 required: true,
             },
         },
-
-})
+        isDeleted: { type: Boolean, default: false },
+        deletedAt: { type: Date },
+    },
+    { timestamps: true }
+)
 
 EventSchema.index({ location: '2dsphere' });
 

@@ -1,0 +1,50 @@
+extends ../layout
+
+block content
+  h2= restaurant.name
+  p.cuisine
+    strong Keuken:
+    |  #{restaurant.cuisine}
+
+  section.details
+    p
+      strong Score:
+      |  #{restaurant.rating} / 5
+    p
+      strong Adres:
+      |  #{restaurant.address}
+    p
+      strong Zon-intensiteit:
+      |  
+      a(href=`/api/sun/restaurant/${restaurant._id}`) #{restaurant.intensity}% Bekijk details
+
+    if restaurant.openingHours
+      p
+        strong Openingsuren:
+        |  #{restaurant.openingHours}
+
+    if restaurant.takeaway
+      p Afhalen mogelijk
+    else
+      p Geen afhaal
+
+  section.contact
+    h3 Contact en Info
+    if restaurant.phone
+      p Telefoonnummer: #{restaurant.phone}
+    if restaurant.website
+      p Site:
+        a(href=restaurant.website target="_blank") Website bezoeken
+
+  if restaurant.location && restaurant.location.coordinates
+    section.geo
+      h3 Locatiegegevens
+      p Coordinaten: [#{restaurant.location.coordinates[0]}, #{restaurant.location.coordinates[1]}]
+      p: a(href=`/api/search/nearby/${restaurant.location.coordinates[1]}/${restaurant.location.coordinates[0]}/1`) In de buurt
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel

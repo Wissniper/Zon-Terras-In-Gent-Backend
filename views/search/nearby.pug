@@ -1,0 +1,41 @@
+extends ../layout
+
+block content
+  h2 Resultaten in de buurt
+  p Totaal gevonden: #{counts.total}
+
+  h3 Terrasen (#{counts.terrasen})
+  if data.terrasen.length
+    ul
+      each t in data.terrasen
+        li
+          a(href=`/api/terrasen/${t._id}`) #{t.name}
+          |  - #{t.intensity}% zon
+  else
+    p Geen terrasen gevonden.
+
+  h3 Restaurants (#{counts.restaurants})
+  if data.restaurants.length
+    ul
+      each r in data.restaurants
+        li
+          a(href=`/api/restaurants/${r._id}`) #{r.name}
+          |  (#{r.cuisine})
+  else
+    p Geen restaurants gevonden.
+
+  h3 Events (#{counts.events})
+  if data.events.length
+    ul
+      each e in data.events
+        li
+          a(href=`/api/events/${e._id}`) #{e.title}
+  else
+    p Geen events gevonden.
+
+  if links && links.length
+    hr
+    nav
+      ul
+        each link in links
+          li: a(href=link.href)= link.rel
