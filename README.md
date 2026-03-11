@@ -18,8 +18,6 @@ Kaart met lichtintensiteit of kleurcodes: geel voor zon, blauw voor schaduw. Sun
 - **Remote worker hittegolf**: schaduwrijke terrassen.
 - **Fotograaf**: golden hour notificaties.
 
----
-
 ## 1. Eigen API
 
 De API maakt het mogelijk om data-updates dynamisch en schaalbaar te beheren.
