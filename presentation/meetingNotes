@@ -1,0 +1,9 @@
+# WEBDEV MEETING
+- ipv cron job, on the fly zon intensiteit berekenen & cachen voor een kwartier
+- links in de /api/ weglaten of voorzien van 200 response zonder parameter of uitleg van wat je moet doen 
+- rdf bekijken (knowledge graphs)
+    - alle entiteiten overlinken via uuid api onafhankelijk
+    - kijken of overstreet api ook bestaat in rdf
+    - stad gent apiu: https://data.stad.gent/pages/linked-open-data/
+    - https://wiki.openstreetmap.org/wiki/QLever/Example_queries
+    - 
