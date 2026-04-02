@@ -3,6 +3,7 @@ import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
 import { buildGeoStage, buildSunDataLookup, buildRangeFilter } from "./baseController.js";
+import { toCollectionLd } from "../contexts/jsonld.js";
 
 /**
  * GET /api/search/terrasen
@@ -54,6 +55,9 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json(
+        toCollectionLd("terras", terrasen, req.originalUrl)
+      ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('terrasen/list', responseData),
       'default': () => res.status(406).send('Not Acceptable')
@@ -117,6 +121,9 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json(
+        toCollectionLd("restaurant", restaurants, req.originalUrl)
+      ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('restaurants/list', responseData),
       'default': () => res.status(406).send('Not Acceptable')
@@ -175,6 +182,9 @@ export const searchEvents = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json(
+        toCollectionLd("event", events, req.originalUrl)
+      ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('events/list', responseData),
       'default': () => res.status(406).send('Not Acceptable')

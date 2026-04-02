@@ -1,5 +1,6 @@
 import { Model, Document, isValidObjectId } from "mongoose";
 import { Request, Response } from "express";
+import { toLd, toCollectionLd } from "../contexts/jsonld.js";
 
 // Helper: bouw een query die zowel UUID als ObjectId ondersteunt
 function buildIdQuery(id: string | string[]) {
@@ -42,6 +43,9 @@ export function createGetAll<T extends Document>(
       };
 
       res.format({
+        'application/ld+json': () => res.status(200).json(
+          toCollectionLd(resource, itemsWithLinks, `/api/${plural}`)
+        ),
         'application/json': () => res.status(200).json(responseData),
         'text/html': () => res.render(`${plural}/list`, responseData),
         'default': () => res.status(406).send('Not Acceptable')
@@ -63,16 +67,20 @@ export function createGetById<T extends Document>(model: Model<T>) {
       const resource = model.modelName.toLowerCase();
       const plural = resourcePlurals[resource] || `${resource}s`;
 
+      const selfHref = `/api/${plural}/${(item as any).uuid}`;
       const responseData = {
         [resource]: item,
         links: [
-          { rel: "self", href: `/api/${plural}/${(item as any).uuid}` },
+          { rel: "self", href: selfHref },
           { rel: "collection", href: `/api/${plural}` },
           { rel: "sun", href: `/api/sun/${resource}/${(item as any).uuid}` }
         ]
       };
 
       res.format({
+        'application/ld+json': () => res.status(200).json(
+          toLd(resource, item.toObject(), selfHref)
+        ),
         'application/json': () => res.status(200).json(responseData),
         'text/html': () => res.render(`${plural}/detail`, responseData),
         'default': () => res.status(406).send('Not Acceptable')

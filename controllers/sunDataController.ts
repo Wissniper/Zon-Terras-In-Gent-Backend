@@ -6,6 +6,7 @@ import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
 import { calculateSunData, getCloudFactor } from "../services/sunService.js";
 import { fetchWeatherData } from "../services/weatherService.js";
+import { SUNDATA_CONTEXT, toLd } from "../contexts/jsonld.js";
 
 function buildIdQuery(id: string | string[]) {
   const val = Array.isArray(id) ? id[0] : id;
@@ -104,6 +105,12 @@ export const getSunPosition = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json({
+        "@context": SUNDATA_CONTEXT,
+        "@type": "zt:SunData",
+        "@id": `/api/sun/${lat}/${lng}/${time}`,
+        ...responseData,
+      }),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('sun/display', responseData),
       'default': () => res.status(406).send('Not Acceptable')
@@ -149,7 +156,14 @@ function createGetSunForEntity(config: {
         ],
       };
 
+      const selfHref = `${config.selfPrefix}${entity.uuid}`;
       res.format({
+        'application/ld+json': () => res.status(200).json({
+          "@context": SUNDATA_CONTEXT,
+          "@type": "zt:SunData",
+          "@id": selfHref,
+          ...responseData,
+        }),
         'application/json': () => res.status(200).json(responseData),
         'text/html': () => res.render('sun/display', responseData),
         'default': () => res.status(406).send('Not Acceptable')
