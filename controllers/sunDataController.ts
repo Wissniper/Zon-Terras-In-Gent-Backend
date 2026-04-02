@@ -80,9 +80,7 @@ export const getSunPosition = async (req: Request, res: Response) => {
         sunsetStart: sun.times.sunsetStart?.value,
         sunsetEnd: sun.times.sunsetEnd?.value,
       },
-      links: [
-        { rel: "self", href: `/api/sun/${lat}/${lng}/${time}` },
-      ]
+      
     };
 
     res.format({
@@ -125,10 +123,7 @@ function createGetSunForEntity(config: {
       const responseData = {
         [config.responseKey]: { id: entity._id, name: entity[config.nameField], address: entity.address },
         sunData: cached,
-        links: [
-          { rel: "self", href: `${config.selfPrefix}${entity._id}` },
-          { rel: config.responseKey, href: `${config.entityPrefix}${entity._id}` },
-        ],
+        
       };
 
       res.format({
@@ -181,10 +176,7 @@ export const getCachedSunData = async (req: Request, res: Response) => {
     const responseData = {
       count: data.length,
       sunData: data,
-      links: [
-        { rel: "self", href: `/api/sun/cache/${locationType}/${locationId}` },
-        { rel: "location", href: `/api/${plural}/${locationId}` }
-      ]
+    
     };
 
     res.format({
@@ -234,7 +226,6 @@ export const getSunBatch = async (req: Request, res: Response) => {
     const responseData = {
       count: results.length,
       results: results,
-      links: [{ rel: "self", href: "/api/sun/batch" }]
     };
 
     res.format({

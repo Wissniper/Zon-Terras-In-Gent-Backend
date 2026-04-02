@@ -23,7 +23,6 @@ export function createGetAll<T extends Document>(
       const responseData = {
         count: items.length,
         [plural]: items,
-        links: [{ rel: "self", href: `/api/${plural}` }]
       };
 
       res.format({
@@ -50,11 +49,7 @@ export function createGetById<T extends Document>(model: Model<T>) {
 
       const responseData = {
         [resource]: item,
-        links: [
-          { rel: "self", href: `/api/${plural}/${item._id}` },
-          { rel: "collection", href: `/api/${plural}` },
-          { rel: "sun", href: `/api/sun/${resource}/${item._id}` }
-        ]
+        
       };
 
       res.format({
