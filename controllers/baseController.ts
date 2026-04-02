@@ -1,5 +1,11 @@
-import { Model, Document } from "mongoose";
+import { Model, Document, isValidObjectId } from "mongoose";
 import { Request, Response } from "express";
+
+// Helper: bouw een query die zowel UUID als ObjectId ondersteunt
+function buildIdQuery(id: string | string[]) {
+  const val = Array.isArray(id) ? id[0] : id;
+  return isValidObjectId(val) ? { _id: val } : { uuid: val };
+}
 
 //helper:
 const resourcePlurals: Record<string, string> = {
@@ -20,9 +26,18 @@ export function createGetAll<T extends Document>(
       const resource = model.modelName.toLowerCase();
       const plural = resourcePlurals[resource] || `${resource}s`;
 
+      const itemsWithLinks = items.map((item: any) => ({
+        ...item.toObject(),
+        links: [
+          { rel: "self", href: `/api/${plural}/${item.uuid}` },
+          { rel: "collection", href: `/api/${plural}` },
+          { rel: "sun", href: `/api/sun/${resource}/${item.uuid}` },
+        ],
+      }));
+
       const responseData = {
         count: items.length,
-        [plural]: items,
+        [plural]: itemsWithLinks,
         links: [{ rel: "self", href: `/api/${plural}` }]
       };
 
@@ -37,11 +52,11 @@ export function createGetAll<T extends Document>(
   };
 }
 
-// Factory: GET /:id — haal één item op (filtert soft-deleted items uit)
+// Factory: GET /:id — haal één item op via UUID of ObjectId (filtert soft-deleted items uit)
 export function createGetById<T extends Document>(model: Model<T>) {
   return async (req: Request, res: Response) => {
     try {
-      const item = await model.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
+      const item = await model.findOne({ ...buildIdQuery(req.params.id), isDeleted: { $ne: true } } as any);
       if (!item) {
         return res.status(404).json({ message: `${model.modelName} not found` });
       }
@@ -51,9 +66,9 @@ export function createGetById<T extends Document>(model: Model<T>) {
       const responseData = {
         [resource]: item,
         links: [
-          { rel: "self", href: `/api/${plural}/${item._id}` },
+          { rel: "self", href: `/api/${plural}/${(item as any).uuid}` },
           { rel: "collection", href: `/api/${plural}` },
-          { rel: "sun", href: `/api/sun/${resource}/${item._id}` }
+          { rel: "sun", href: `/api/sun/${resource}/${(item as any).uuid}` }
         ]
       };
 
@@ -89,9 +104,9 @@ export function createOne<T extends Document>(model: Model<T>) {
 export function updateOne<T extends Document>(model: Model<T>) {
   return async (req: Request, res: Response) => {
     try {
-      const { _id, isDeleted, deletedAt, ...body } = req.body;
+      const { _id, uuid, isDeleted, deletedAt, ...body } = req.body;
       const item = await model.findOneAndReplace(
-        { _id: req.params.id, isDeleted: { $ne: true } },
+        { ...buildIdQuery(req.params.id), isDeleted: { $ne: true } } as any,
         body,
         { new: true, runValidators: true }
       );
@@ -112,9 +127,9 @@ export function updateOne<T extends Document>(model: Model<T>) {
 export function patchOne<T extends Document>(model: Model<T>) {
   return async (req: Request, res: Response) => {
     try {
-      const { _id, isDeleted, deletedAt, ...body } = req.body;
+      const { _id, uuid, isDeleted, deletedAt, ...body } = req.body;
       const item = await model.findOneAndUpdate(
-        { _id: req.params.id, isDeleted: { $ne: true } },
+        { ...buildIdQuery(req.params.id), isDeleted: { $ne: true } } as any,
         { $set: body },
         { new: true, runValidators: true }
       );
@@ -140,7 +155,7 @@ export function softDelete<T extends Document>(
   return async (req: Request, res: Response) => {
     try {
       const item = await model.findOneAndUpdate(
-        { _id: req.params.id, isDeleted: { $ne: true } },
+        { ...buildIdQuery(req.params.id), isDeleted: { $ne: true } } as any,
         { isDeleted: true, deletedAt: new Date() },
         { new: true }
       );
@@ -163,7 +178,7 @@ export function hardDelete<T extends Document>(
 ) {
   return async (req: Request, res: Response) => {
     try {
-      const item = await model.findByIdAndDelete(req.params.id);
+      const item = await model.findOneAndDelete(buildIdQuery(req.params.id) as any);
       if (!item) {
         return res.status(404).json({ message: `${model.modelName} not found` });
       }
