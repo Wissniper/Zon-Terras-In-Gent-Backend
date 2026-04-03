@@ -4,8 +4,11 @@ import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
 import { calculateSunData, getCloudFactor } from "../services/sunService.js";
+import { fetchWeatherData } from "../services/weatherService.js";
 
-/** Helper: get or create cached sun data for a location */
+const CACHE_MAX_AGE_MS = 15 * 60 * 1000; // 15 minutes
+
+/** Helper: get or create cached sun data for a location, recalculating if stale (>15 min) */
 async function getOrCreateCache(
   locationRef: any,
   locationType: "Terras" | "Restaurant" | "Event",
@@ -16,24 +19,33 @@ async function getOrCreateCache(
   const cacheDate = new Date(dateTime);
   cacheDate.setMinutes(0, 0, 0);
 
-  let cached = await SunData.findOne({ locationRef, locationType, dateTime: cacheDate });
+  const cached = await SunData.findOne({ locationRef, locationType, dateTime: cacheDate });
 
-  if (!cached) {
-    const cloudFactor = await getCloudFactor(lat, lng);
-    const sun = calculateSunData(dateTime, lat, lng, cloudFactor);
+  const isStale = !cached || (Date.now() - new Date((cached as any).updatedAt ?? cached.dateTime).getTime()) > CACHE_MAX_AGE_MS;
 
-    cached = await SunData.create({
-      locationRef,
-      locationType,
-      dateTime: cacheDate,
-      intensity: sun.intensity,
-      azimuth: sun.position.azimuth,
-      altitude: sun.position.altitude,
-      goldenHour: sun.goldenHour,
-    });
+  if (!isStale) return cached;
+
+  // Ensure fresh weather data is available, then recalculate
+  await fetchWeatherData(lat, lng);
+  const cloudFactor = await getCloudFactor(lat, lng);
+  const sun = calculateSunData(dateTime, lat, lng, cloudFactor);
+
+  const sunFields = {
+    locationRef,
+    locationType,
+    dateTime: cacheDate,
+    intensity: sun.intensity,
+    azimuth: sun.position.azimuth,
+    altitude: sun.position.altitude,
+    goldenHour: sun.goldenHour,
+  };
+
+  if (cached) {
+    await SunData.updateOne({ _id: cached._id }, { $set: sunFields });
+    return { ...cached.toObject(), ...sunFields };
   }
 
-  return cached;
+  return await SunData.create(sunFields);
 }
 
 /**
