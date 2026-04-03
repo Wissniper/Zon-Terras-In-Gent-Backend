@@ -1,13 +1,36 @@
 import Restaurant from "../models/restaurantModel.js";
-import { fetchOverpass, getCoords, buildAddress, findDuplicates, OverpassElement } from "./overpassFetcher.js";
+import { fetchSparql, SparqlBinding } from "./sparqlFetcher.js";
+import { findDuplicates } from "./geoUtils.js";
 
-const OVERPASS_QUERY = `[out:json][timeout:120];
-area[name="Gent"]["admin_level"="8"]->.a;
-(
-  node["amenity"="restaurant"](area.a);
-  way["amenity"="restaurant"](area.a);
-);
-out center body;`;
+const QLEVER_ENDPOINT = process.env.QLEVER_OSM_ENDPOINT || "https://qlever.dev/api/osm-planet";
+
+/**
+ * SPARQL query: haal restaurants op in Gent via QLever (OSM als RDF).
+ * Vereist: naam, geo
+ * Optioneel: adres, cuisine, beschrijving, telefoon, website, openingsuren
+ */
+const RESTAURANT_QUERY = `
+  PREFIX osmkey: <https://www.openstreetmap.org/wiki/Key:>
+  PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+  PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+
+  SELECT ?osm ?name ?geo ?street ?housenumber ?city ?cuisine ?description ?phone ?website ?openingHours WHERE {
+    ?osm osmkey:amenity "restaurant" ;
+         osmkey:name ?name ;
+         geo:hasGeometry/geo:asWKT ?geo .
+    FILTER(geof:latitude(?geo) > 50.99 && geof:latitude(?geo) < 51.12 && geof:longitude(?geo) > 3.64 && geof:longitude(?geo) < 3.82)
+    OPTIONAL { ?osm osmkey:addr:street ?street }
+    OPTIONAL { ?osm osmkey:addr:housenumber ?housenumber }
+    OPTIONAL { ?osm osmkey:addr:city ?city }
+    OPTIONAL { ?osm osmkey:cuisine ?cuisine }
+    OPTIONAL { ?osm osmkey:description ?description }
+    OPTIONAL { ?osm osmkey:phone ?phone }
+    OPTIONAL { ?osm <https://www.openstreetmap.org/wiki/Key:contact:phone> ?phone }
+    OPTIONAL { ?osm osmkey:website ?website }
+    OPTIONAL { ?osm <https://www.openstreetmap.org/wiki/Key:contact:website> ?website }
+    OPTIONAL { ?osm osmkey:opening_hours ?openingHours }
+  }
+`;
 
 interface ParsedRestaurant {
   osmId: number;
@@ -17,38 +40,57 @@ interface ParsedRestaurant {
   phone?: string;
   website?: string;
   openingHours?: string;
-  takeaway?: boolean;
   lat: number;
   lng: number;
 }
 
-function parseElement(el: OverpassElement): ParsedRestaurant | null {
-  const tags = el.tags || {};
-  if (!tags.name) return null;
+/** Parse WKT "POINT(lon lat)" naar coördinaten */
+function parseWkt(wkt: string): { lat: number; lng: number } | null {
+  const match = wkt.match(/POINT\(([-\d.]+)\s+([-\d.]+)\)/);
+  if (!match) return null;
+  return { lng: parseFloat(match[1]), lat: parseFloat(match[2]) };
+}
 
-  const coords = getCoords(el);
+/** Haal OSM node/way ID uit URI: "https://www.openstreetmap.org/node/12345" → 12345 */
+function parseOsmId(uri: string): number {
+  const match = uri.match(/(\d+)$/);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+function buildAddress(b: SparqlBinding): string {
+  const street = b.street?.value || "";
+  const number = b.housenumber?.value || "";
+  const city = b.city?.value || "Gent";
+  if (street && number) return `${street} ${number}, ${city}`;
+  if (street) return `${street}, ${city}`;
+  return city;
+}
+
+function parseBinding(b: SparqlBinding): ParsedRestaurant | null {
+  if (!b.osm || !b.name || !b.geo) return null;
+
+  const coords = parseWkt(b.geo.value);
   if (!coords) return null;
 
   return {
-    osmId: el.id,
-    name: tags.name,
-    address: buildAddress(tags),
-    cuisine: tags.cuisine || "restaurant",
-    phone: tags.phone || tags["contact:phone"],
-    website: tags.website || tags["contact:website"],
-    openingHours: tags.opening_hours,
-    takeaway: tags.takeaway === "yes" ? true : tags.takeaway === "no" ? false : undefined,
+    osmId: parseOsmId(b.osm.value),
+    name: b.name.value,
+    address: buildAddress(b),
+    cuisine: b.cuisine?.value || "restaurant",
+    phone: b.phone?.value,
+    website: b.website?.value,
+    openingHours: b.openingHours?.value,
     lat: coords.lat,
     lng: coords.lng,
   };
 }
 
 export async function syncRestaurantData() {
-  const elements = await fetchOverpass(OVERPASS_QUERY, "RestaurantFetcher");
+  const bindings = await fetchSparql(RESTAURANT_QUERY, QLEVER_ENDPOINT);
 
   const parsed: ParsedRestaurant[] = [];
-  for (const el of elements) {
-    const r = parseElement(el);
+  for (const b of bindings) {
+    const r = parseBinding(b);
     if (r) parsed.push(r);
   }
 
@@ -70,7 +112,6 @@ export async function syncRestaurantData() {
           phone: r.phone || "",
           website: r.website || "",
           openingHours: r.openingHours || "",
-          takeaway: r.takeaway,
           location: {
             type: "Point",
             coordinates: [r.lng, r.lat],
@@ -90,7 +131,7 @@ export async function syncRestaurantData() {
   }
 
   return {
-    total: elements.length,
+    total: bindings.length,
     parsed: parsed.length,
     duplicatesSkipped: duplicates.size,
     unique: unique.length,
