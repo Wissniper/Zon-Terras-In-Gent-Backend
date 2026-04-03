@@ -45,11 +45,9 @@ async function getUniqueLocations(): Promise<{ lat: number; lng: number }[]> {
 
 // Start cron jobs:
 // - Weerdata: elke 15 minuten
-// - Zondata: elke 15 minuten (na weerdata, zodat cloudFactor up-to-date is)
 export function startWeatherCron() {
   cron.schedule("*/15 * * * *", async () => {
     try {
-      // Stap 1: weerdata ophalen
       const locations = await getUniqueLocations();
 
       if (locations.length === 0) {

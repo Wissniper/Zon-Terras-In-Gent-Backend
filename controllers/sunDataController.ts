@@ -1,3 +1,4 @@
+import { isValidObjectId } from "mongoose";
 import SunData from "../models/sunDataModel.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
@@ -5,6 +6,12 @@ import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
 import { calculateSunData, getCloudFactor } from "../services/sunService.js";
 import { fetchWeatherData } from "../services/weatherService.js";
+import { SUNDATA_CONTEXT, toLd } from "../contexts/jsonld.js";
+
+function buildIdQuery(id: string | string[]) {
+  const val = Array.isArray(id) ? id[0] : id;
+  return isValidObjectId(val) ? { _id: val } : { uuid: val };
+}
 
 const CACHE_MAX_AGE_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -98,6 +105,12 @@ export const getSunPosition = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json({
+        "@context": SUNDATA_CONTEXT,
+        "@type": "zt:SunData",
+        "@id": `/api/sun/${lat}/${lng}/${time}`,
+        ...responseData,
+      }),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('sun/display', responseData),
       'default': () => res.status(406).send('Not Acceptable')
@@ -119,7 +132,7 @@ function createGetSunForEntity(config: {
 }) {
   return async (req: Request, res: Response) => {
     try {
-      const entity = await config.model.findById(req.params[config.paramName]);
+      const entity = await config.model.findOne(buildIdQuery(req.params[config.paramName]));
       if (!entity) {
         return res.status(404).json({ message: `${config.locationType} not found` });
       }
@@ -135,15 +148,22 @@ function createGetSunForEntity(config: {
       const cached = await getOrCreateCache(entity._id, config.locationType, lat, lng, dateTime);
 
       const responseData = {
-        [config.responseKey]: { id: entity._id, name: entity[config.nameField], address: entity.address },
+        [config.responseKey]: { uuid: entity.uuid, name: entity[config.nameField], address: entity.address },
         sunData: cached,
         links: [
-          { rel: "self", href: `${config.selfPrefix}${entity._id}` },
-          { rel: config.responseKey, href: `${config.entityPrefix}${entity._id}` },
+          { rel: "self", href: `${config.selfPrefix}${entity.uuid}` },
+          { rel: config.responseKey, href: `${config.entityPrefix}${entity.uuid}` },
         ],
       };
 
+      const selfHref = `${config.selfPrefix}${entity.uuid}`;
       res.format({
+        'application/ld+json': () => res.status(200).json({
+          "@context": SUNDATA_CONTEXT,
+          "@type": "zt:SunData",
+          "@id": selfHref,
+          ...responseData,
+        }),
         'application/json': () => res.status(200).json(responseData),
         'text/html': () => res.render('sun/display', responseData),
         'default': () => res.status(406).send('Not Acceptable')

@@ -1,6 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 export interface TerrasDocument extends Document {
+  uuid: string;
   name: string;
   description?: string;
   address: string;
@@ -17,6 +19,7 @@ export interface TerrasDocument extends Document {
 
 const TerrasSchema = new Schema(
   {
+    uuid: { type: String, default: uuidv4, unique: true, index: true },
     name: { type: String, required: true },
     description: { type: String },
     address: { type: String, required: true },

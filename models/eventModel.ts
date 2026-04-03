@@ -1,6 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { v4 as uuidv4 } from "uuid";
 
 export interface EventDocument extends Document {
+    uuid: string;
+    eventUri?: string;
     title: string;
     address: string;
     date_start: Date;
@@ -18,6 +21,8 @@ export interface EventDocument extends Document {
 
 const EventSchema = new Schema(
     {
+        uuid: { type: String, default: uuidv4, unique: true, index: true },
+        eventUri: { type: String, unique: true, sparse: true },
         title: {type: String, required: true},
         address: {type: String, required: true},
         date_start: {type: Date, required: true},
