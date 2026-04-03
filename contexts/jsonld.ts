@@ -45,6 +45,7 @@ export const EVENT_CONTEXT = {
   title: "schema:name",
   date_start: { "@id": "schema:startDate", "@type": "schema:DateTime" },
   date_end: { "@id": "schema:endDate", "@type": "schema:DateTime" },
+  eventUri: { "@id": "schema:sameAs", "@type": "@id" },
 };
 
 export const SUNDATA_CONTEXT = {
