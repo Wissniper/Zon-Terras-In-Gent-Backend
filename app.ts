@@ -42,17 +42,34 @@ mongoose
   })
   .catch((err) => console.error("MongoDB error:", err));
 
-// Basic Routes
+// Root redirect
 app.get("/", (req: Request, res: Response) => {
-  res.render("index", { title: "Zon-Terras-In-Gent API" });
+  res.redirect("/api");
 });
 
-// Example API endpoint
+// API index with content negotiation
 app.get("/api", (req: Request, res: Response) => {
-  res.json({
+  const responseData = {
     message: "API is operational",
     version: "1.0.0",
-    links: [{ rel: "self", href: "/api" }],
+    links: [
+      { rel: "self", href: "/api" },
+      { rel: "terrasen", href: "/api/terrasen" },
+      { rel: "restaurants", href: "/api/restaurants" },
+      { rel: "events", href: "/api/events" },
+      { rel: "sun", href: "/api/sun" },
+      { rel: "search", href: "/api/search" },
+      { rel: "weather", href: "/api/weather" },
+    ],
+  };
+  res.format({
+    "application/json": () => res.json(responseData),
+    "text/html": () =>
+      res.render("index", {
+        title: "Zon-Terras-In-Gent API",
+        ...responseData,
+      }),
+    default: () => res.status(406).send("Not Acceptable"),
   });
 });
 
