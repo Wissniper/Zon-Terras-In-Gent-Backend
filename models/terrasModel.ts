@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export interface TerrasDocument extends Document {
   uuid: string;
+  osmUri?: string; 
   name: string;
   description?: string;
   address: string;
@@ -19,7 +20,8 @@ export interface TerrasDocument extends Document {
 
 const TerrasSchema = new Schema(
   {
-    uuid: { type: String, default: uuidv4, unique: true, index: true },
+    uuid: { type: String, default: uuidv4, required: true, unique: true, index: true },
+    osmUri: { type: String, unique: true, sparse: true },
     name: { type: String, required: true },
     description: { type: String },
     address: { type: String, required: true },
