@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 
 export interface RestaurantDocument extends Document {
     uuid: string;
-    identifier: number; // unique identifier for the restaurant
     name: string;
     address: string;
     cuisine: string;
@@ -23,8 +22,7 @@ export interface RestaurantDocument extends Document {
 
 const RestaurantSchema = new Schema(
   {
-    uuid: { type: String, default: uuidv4, unique: true, index: true },
-    identifier: { type: Number, required: true, unique: true },
+    uuid: { type: String, default: uuidv4, required: true, unique: true, index: true },
     name: { type: String, required: true },
     address: { type: String, required: true },
     cuisine: { type: String, required: true },
