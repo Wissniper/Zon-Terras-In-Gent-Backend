@@ -11742,3 +11742,183 @@
 <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.726 51.041)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
 <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/servesCuisine> "Belgian" .
 <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/aggregateRating> "4.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2> <http://purl.org/dc/terms/identifier> "4c0d2302-9525-48a8-840c-48406132f7a2" .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2#geometry> .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/4c0d2302-9525-48a8-840c-48406132f7a2> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a> <http://purl.org/dc/terms/identifier> "d97a81df-f067-487a-a5fb-89f1c56b3a0a" .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a#geometry> .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/d97a81df-f067-487a-a5fb-89f1c56b3a0a> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888> <http://purl.org/dc/terms/identifier> "fbf5bf95-2813-4b51-9714-431bd7949888" .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888> <http://www.w3.org/2002/07/owl#sameAs> <https://www.openstreetmap.org/node/12345> .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888> <https://schema.org/name> "Café Den Turk" .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888> <https://schema.org/address> "Botermarkt 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888#geometry> .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/fbf5bf95-2813-4b51-9714-431bd7949888> <http://api.sun-seeker.be/vocab#sunIntensity> "85"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Restaurant> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://purl.org/dc/terms/identifier> "bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/name> "De Gouden Saté" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/address> "Sint-Pietersplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.726 51.041)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/servesCuisine> "Belgian" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/aggregateRating> "4.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469> <http://purl.org/dc/terms/identifier> "1be551c0-8df3-41f5-9639-868afaa3b469" .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469#geometry> .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/1be551c0-8df3-41f5-9639-868afaa3b469> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16> <http://purl.org/dc/terms/identifier> "e156e8f5-d51a-41e0-abe3-e1264dfc7b16" .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16#geometry> .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/e156e8f5-d51a-41e0-abe3-e1264dfc7b16> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837> <http://purl.org/dc/terms/identifier> "abb5b493-9508-4947-8102-c05dcbdfe837" .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837#geometry> .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/abb5b493-9508-4947-8102-c05dcbdfe837> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da> <http://purl.org/dc/terms/identifier> "edbbb49a-fe00-4418-93cb-aa24b5af08da" .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da> <https://schema.org/name> "Sunny Terrace" .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da#geometry> .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da> <http://api.sun-seeker.be/vocab#sunIntensity> "90"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Event> .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <http://purl.org/dc/terms/identifier> "4522697d-f020-440c-a3bf-718037997dac" .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <https://schema.org/name> "Jazz on the Terrace" .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac#geometry> .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <https://schema.org/startDate> "2026-04-05T17:33:45.047Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <https://schema.org/endDate> "2026-04-05T17:33:45.047Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/4522697d-f020-440c-a3bf-718037997dac> <https://schema.org/location> <http://api.sun-seeker.be/terrasen/edbbb49a-fe00-4418-93cb-aa24b5af08da> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Restaurant> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://purl.org/dc/terms/identifier> "bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/name> "De Gouden Saté" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/address> "Sint-Pietersplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.726 51.041)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/servesCuisine> "Belgian" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/aggregateRating> "4.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Restaurant> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://purl.org/dc/terms/identifier> "bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/name> "De Gouden Saté" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/address> "Sint-Pietersplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.726 51.041)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/servesCuisine> "Belgian" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/aggregateRating> "4.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Restaurant> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://purl.org/dc/terms/identifier> "bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/name> "De Gouden Saté" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/address> "Sint-Pietersplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.726 51.041)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/servesCuisine> "Belgian" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/aggregateRating> "4.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa> <http://purl.org/dc/terms/identifier> "cc0c7e5c-6723-4978-9b74-10866829cffa" .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa> <http://www.w3.org/2002/07/owl#sameAs> <https://www.openstreetmap.org/node/12345> .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa> <https://schema.org/name> "Café Den Turk" .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa> <https://schema.org/address> "Botermarkt 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa#geometry> .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/cc0c7e5c-6723-4978-9b74-10866829cffa> <http://api.sun-seeker.be/vocab#sunIntensity> "85"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Restaurant> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://purl.org/dc/terms/identifier> "bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/name> "De Gouden Saté" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/address> "Sint-Pietersplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.726 51.041)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/servesCuisine> "Belgian" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/aggregateRating> "4.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f> <http://purl.org/dc/terms/identifier> "e50955a6-2e23-44e7-9138-4e8b2a0ff55f" .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f> <https://schema.org/name> "Sunny Terrace" .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f#geometry> .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f> <http://api.sun-seeker.be/vocab#sunIntensity> "90"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Event> .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <http://purl.org/dc/terms/identifier> "97f9bbde-b19e-40ad-a30b-203efec7b20a" .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <https://schema.org/name> "Jazz on the Terrace" .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a#geometry> .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <https://schema.org/startDate> "2026-04-05T17:34:16.705Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <https://schema.org/endDate> "2026-04-05T17:34:16.705Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/97f9bbde-b19e-40ad-a30b-203efec7b20a> <https://schema.org/location> <http://api.sun-seeker.be/terrasen/e50955a6-2e23-44e7-9138-4e8b2a0ff55f> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Restaurant> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://purl.org/dc/terms/identifier> "bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/name> "De Gouden Saté" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/address> "Sint-Pietersplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.726 51.041)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/servesCuisine> "Belgian" .
+<http://api.sun-seeker.be/restaurants/bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7> <https://schema.org/aggregateRating> "4.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://purl.org/dc/terms/identifier> "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://purl.org/dc/terms/identifier> "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://purl.org/dc/terms/identifier> "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://purl.org/dc/terms/identifier> "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/name> "Terras Gent Zuid" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <https://schema.org/address> "Woodrow Wilsonplein 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.731 51.047)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d> <http://api.sun-seeker.be/vocab#sunIntensity> "70"^^<http://www.w3.org/2001/XMLSchema#integer> .

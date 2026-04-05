@@ -10,7 +10,7 @@ describe('Terras Model Tests', () => {
   const validTerrasData = {
     name: 'Terras Gent Zuid',
     address: 'Woodrow Wilsonplein 1, 9000 Gent',
-    identifier: 987654321,
+    uuid: 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', //uuid string
     location: { 
       type: 'Point', 
       coordinates: [3.731, 51.047] 
@@ -23,7 +23,7 @@ describe('Terras Model Tests', () => {
         const terras = new Terras(validTerrasData);
         const savedTerras = await terras.save();
         
-        expect(savedTerras._id).toBeDefined();
+        expect(savedTerras.uuid).toBe(validTerrasData.uuid);
         expect(savedTerras.name).toBe(validTerrasData.name);
     });
 
