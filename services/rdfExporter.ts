@@ -38,7 +38,15 @@ export async function syncToTriplestore(triples: string[]) {
  * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000> <http://api.sun-seeker.be/vocab#sunIntensity> "3"^^<http://www.w3.org/2001/XMLSchema#integer> .
  */
 export function docToTriples(entityType: string, doc: any): string[] {
-    let baseUri = `${BASE_IRI}/${entityType}/${doc.uuid}`;
+    const typePlurals: Record<string, string> = {
+        terras: "terrasen",
+        restaurant: "restaurants",
+        event: "events",
+        weather: "weather",
+        sundata: "sun"
+    };
+    const plural = typePlurals[entityType] || `${entityType}s`;
+    let baseUri = `${BASE_IRI}/${plural}/${doc.uuid}`;
     const triples: string[] = [];
 
     // Correct base URI according to IRI Strategy for special types
@@ -98,7 +106,8 @@ export function docToTriples(entityType: string, doc: any): string[] {
         if (doc.date_start) triples.push(`<${baseUri}> <https://schema.org/startDate> ${dtLit(new Date(doc.date_start).toISOString(), "dateTime")} .`);
         if (doc.date_end) triples.push(`<${baseUri}> <https://schema.org/endDate> ${dtLit(new Date(doc.date_end).toISOString(), "dateTime")} .`);
         if (doc.locationRef && doc.locationType) {
-            const venueUri = `${BASE_IRI}/${doc.locationType.toLowerCase()}s/${doc.locationRef}`;
+            const venuePlural = typePlurals[doc.locationType.toLowerCase()] || `${doc.locationType.toLowerCase()}s`;
+            const venueUri = `${BASE_IRI}/${venuePlural}/${doc.locationRef}`;
             triples.push(`<${baseUri}> <https://schema.org/location> <${venueUri}> .`);
         }
     }

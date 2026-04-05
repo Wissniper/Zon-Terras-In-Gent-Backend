@@ -9,9 +9,9 @@ We use `http://api.sun-seeker.be/` as our internal base URI for resources.
 
 | Entity | IRI Pattern | Notes |
 | --- | --- | --- |
-| **Terras** | `http://api.sun-seeker.be/terras/{uuid}` | `uuid` is generated on creation. `osmUri` (owl:sameAs) links to OSM. |
-| **Restaurant** | `http://api.sun-seeker.be/restaurant/{uuid}` | Linked to Ghent's restaurant dataset and OSM via `osmUri`. |
-| **Event** | `http://api.sun-seeker.be/event/{uuid}` | May also refer to external `eventUri` via `schema:sameAs`. |
+| **Terras** | `http://api.sun-seeker.be/terrasen/{uuid}` | `uuid` is generated on creation. `osmUri` (owl:sameAs) links to OSM. |
+| **Restaurant** | `http://api.sun-seeker.be/restaurants/{uuid}` | Linked to Ghent's restaurant dataset and OSM via `osmUri`. |
+| **Event** | `http://api.sun-seeker.be/events/{uuid}` | May also refer to external `eventUri` via `schema:sameAs`. |
 | **Weather** | `http://api.sun-seeker.be/weather/{timestamp}/{longitude}/{latitude}` | Snapshot of weather at a specific time and place. |
 | **SunData** | `http://api.sun-seeker.be/sun/{locationType}/{locationUuid}/{timestamp}` | Calculated sun position for a specific location at a given time. |
 
