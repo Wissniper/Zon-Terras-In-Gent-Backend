@@ -1,5 +1,7 @@
 import { param, validationResult, body, query } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
+import Terras from '../models/terrasModel.js';
+import Restaurant from '../models/restaurantModel.js';
 
 const handleErrors = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -94,4 +96,25 @@ export const validateSunBatch = [
         throw new Error("Invalid time format");
     }),
     handleErrors
-];
+    ];
+
+    export const validateLocationRef = [
+    body('locationRef').optional().custom(async (value, { req }) => {
+        const type = req.body.locationType;
+        if (!type) {
+            // If locationRef is provided, locationType is mandatory
+            if (value) throw new Error("locationType is required when locationRef is provided");
+            return true;
+        }
+
+        if (type === 'terras') {
+            const exists = await Terras.findOne({ uuid: value, isDeleted: { $ne: true } });
+            if (!exists) throw new Error("Referenced Terras does not exist");
+        } else if (type === 'restaurant') {
+            const exists = await Restaurant.findOne({ uuid: value, isDeleted: { $ne: true } });
+            if (!exists) throw new Error("Referenced Restaurant does not exist");
+        }
+        return true;
+    }),
+    handleErrors
+    ];
