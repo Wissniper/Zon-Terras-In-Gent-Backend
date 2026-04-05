@@ -1,4 +1,3 @@
-import { jest, describe, it, expect, beforeAll, afterAll, afterEach } from '@jest/globals';
 import mongoose from 'mongoose';
 import { connect, clearDatabase, closeDatabase } from './database.helper';
 import SunData from '../models/sunDataModel';
