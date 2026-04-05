@@ -9,6 +9,7 @@
     "openmeteo": "^1.2.3",
     "pug": "^3.0.3",
     "suncalc3": "^2.0.5",
+    "supertest": "^7.2.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -17,6 +18,7 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "^25.3.3",
     "@types/node-cron": "^3.0.11",
+    "@types/supertest": "^7.2.0",
     "@types/uuid": "^10.0.0",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.0.1",

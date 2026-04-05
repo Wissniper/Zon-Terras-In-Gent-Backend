@@ -31,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Database connection
+if (process.env.NODE_ENV !== 'test') {
 const mongoURI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db";
 mongoose
@@ -41,6 +42,7 @@ mongoose
     startWeatherCron();
   })
   .catch((err) => console.error("MongoDB error:", err));
+}
 
 // Root redirect
 app.get("/", (req: Request, res: Response) => {
@@ -90,3 +92,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
+export default app;
