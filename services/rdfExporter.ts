@@ -3,7 +3,22 @@ import { TERRAS_CONTEXT, EVENT_CONTEXT, RESTAURANT_CONTEXT, SUNDATA_CONTEXT } fr
 const BASE_IRI = "http://api.sun-seeker.be";
 
 /**
- * Generates N-Triples for a given entity document.
+ * Generates N-Triples for a given entity document based on its type and properties:
+ * - Constructs a base URI using the entity type and UUID (or special IRI strategy for sundata/weather).
+ * - Adds rdf:type triple based on the entity type.
+ * - Maps document properties to RDF predicates according to the JSON-LD contexts.
+ * - Handles geometry as WKT literals.
+ * - Returns an array of RDF triples as strings.
+ * 
+ * Example output for a Terras document:
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000> <http://purl.org/dc/terms/identifier> "123e4567-e89b-12d3-a456-426614174000" .
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000> <https://schema.org/name> "Café de Zon" .
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000> <https://schema.org/address> "Korenmarkt 1, Gent" .
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000#geometry> .
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+ * <http://api.sun-seeker.be/terras/123e4567-e89b-12d3-a456-426614174000> <http://api.sun-seeker.be/vocab#sunIntensity> "3"^^<http://www.w3.org/2001/XMLSchema#integer> .
  */
 export function docToTriples(entityType: string, doc: any): string[] {
     let baseUri = `${BASE_IRI}/${entityType}/${doc.uuid}`;
