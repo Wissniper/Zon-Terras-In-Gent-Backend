@@ -2,10 +2,58 @@ import Event, { EventDocument } from "../models/eventModel.js";
 import SunData from "../models/sunDataModel.js";
 import { Request, Response } from "express";
 import Terras from "../models/terrasModel.js";
-import { createGetAll, createGetById, createOne, updateOne, patchOne, softDelete } from "./baseController.js";
+import Restaurant from "../models/restaurantModel.js";
+import { createGetAll, createOne, updateOne, patchOne, softDelete } from "./baseController.js";
+import { toLd } from "../contexts/jsonld.js";
+import { isValidObjectId } from "mongoose";
 
 export const getAllEvents = createGetAll(Event, { date_start: 1 });
-export const getEventById = createGetById(Event);
+
+// Custom getById om de venue (Terras/Restaurant) mee te geven
+export const getEventById = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const query = isValidObjectId(id) ? { _id: id } : { uuid: id };
+    const event = await Event.findOne({ ...query, isDeleted: { $ne: true } });
+    
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    let venue = null;
+    if (event.locationRef && event.locationType) {
+      if (event.locationType === "terras") {
+        venue = await Terras.findOne({ uuid: event.locationRef, isDeleted: { $ne: true } });
+      } else if (event.locationType === "restaurant") {
+        venue = await Restaurant.findOne({ uuid: event.locationRef, isDeleted: { $ne: true } });
+      }
+    }
+
+    const selfHref = `/api/events/${event.uuid}`;
+    const responseData = {
+      event: event,
+      venue: venue, // Bevat nu de naam, adres etc. van de plek
+      links: [
+        { rel: "self", href: selfHref },
+        { rel: "collection", href: "/api/events" },
+        { rel: "sun", href: `/api/sun/event/${event.uuid}` }
+      ]
+    };
+
+    res.format({
+      'application/ld+json': () => res.status(200).json(
+        toLd("event", event.toObject(), selfHref)
+      ),
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('events/detail', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching Event", error });
+  }
+};
+
 export const createEvent = createOne(Event);
 export const updateEvent = updateOne(Event);
 export const patchEvent = patchOne(Event);

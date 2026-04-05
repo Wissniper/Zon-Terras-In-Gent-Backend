@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+import { docToTriples, syncToTriplestore } from "../services/rdfExporter.js";
 
 export interface RestaurantDocument extends Document {
     uuid: string;
-    identifier: number; // unique identifier for the restaurant
+    osmUri?: string;
     name: string;
     address: string;
     cuisine: string;
@@ -23,8 +24,8 @@ export interface RestaurantDocument extends Document {
 
 const RestaurantSchema = new Schema(
   {
-    uuid: { type: String, default: uuidv4, unique: true, index: true },
-    identifier: { type: Number, required: true, unique: true },
+    uuid: { type: String, default: uuidv4, required: true, unique: true, index: true },
+    osmUri: { type: String, unique: true, sparse: true },
     name: { type: String, required: true },
     address: { type: String, required: true },
     cuisine: { type: String, required: true },
@@ -61,6 +62,19 @@ RestaurantSchema.index({ intensity: -1 }); // create an index on the intensity f
 RestaurantSchema.index({ name: 1 }); // create an index on the name field for faster queries when searching by name
 
 RestaurantSchema.index({ cuisine: 1 }); // create an index on the cuisine field for faster queries when searching by cuisine
+
+// Middleware voor automatische RDF sync
+RestaurantSchema.post('save', async function(doc) {
+  const triples = docToTriples('restaurant', doc.toObject());
+  await syncToTriplestore(triples);
+});
+
+RestaurantSchema.post('findOneAndUpdate', async function(doc) {
+  if (doc) {
+    const triples = docToTriples('restaurant', doc.toObject());
+    await syncToTriplestore(triples);
+  }
+});
 
 const Restaurant = mongoose.model<RestaurantDocument>(
   "Restaurant",

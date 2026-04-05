@@ -1,5 +1,39 @@
 import Event from "../models/eventModel.js";
+import Terras from "../models/terrasModel.js";
+import Restaurant from "../models/restaurantModel.js";
 import { fetchSparql, SparqlBinding } from "./sparqlFetcher.js";
+import { docToTriples, syncToTriplestore } from "./rdfExporter.js";
+
+/**
+ * Zoek een terras of restaurant op basis van coördinaten (max 10 meter afstand)
+ */
+async function findVenue(lat: number, lng: number): Promise<{ ref: string; type: "terras" | "restaurant" } | null> {
+  // Zoek eerst een terras
+  const terras = await Terras.findOne({
+    location: {
+      $near: {
+        $geometry: { type: "Point", coordinates: [lng, lat] },
+        $maxDistance: 10, // meters
+      },
+    },
+    isDeleted: { $ne: true },
+  });
+  if (terras) return { ref: (terras as any).uuid, type: "terras" };
+
+  // Zoek dan een restaurant
+  const restaurant = await Restaurant.findOne({
+    location: {
+      $near: {
+        $geometry: { type: "Point", coordinates: [lng, lat] },
+        $maxDistance: 10, // meters
+      },
+    },
+    isDeleted: { $ne: true },
+  });
+  if (restaurant) return { ref: (restaurant as any).uuid, type: "restaurant" };
+
+  return null;
+}
 
 /**
  * SPARQL query: haal events op uit Stad Gent Linked Open Data.
@@ -138,6 +172,7 @@ export async function syncEventData() {
   let updated = 0;
 
   for (const e of parsed) {
+    const venue = await findVenue(e.lat, e.lng);
     const result = await Event.updateOne(
       { eventUri: e.eventUri },
       {
@@ -153,6 +188,8 @@ export async function syncEventData() {
             type: "Point",
             coordinates: [e.lng, e.lat],
           },
+          locationRef: venue?.ref,
+          locationType: venue?.type,
         },
         $setOnInsert: {
           intensity: 0,
@@ -162,8 +199,16 @@ export async function syncEventData() {
       { upsert: true },
     );
 
-    if (result.upsertedCount > 0) created++;
-    else if (result.modifiedCount > 0) updated++;
+    if (result.upsertedCount > 0 || result.modifiedCount > 0) {
+      if (result.upsertedCount > 0) created++;
+      else updated++;
+
+      const updatedDoc = await Event.findOne({ eventUri: e.eventUri });
+      if (updatedDoc) {
+        const triples = docToTriples('event', updatedDoc.toObject());
+        await syncToTriplestore(triples);
+      }
+    }
   }
 
   return {

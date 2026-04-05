@@ -29,6 +29,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "node dist/app.js",
     "dev": "nodemon --exec ts-node app.ts",
+    "export-rdf": "node --loader ts-node/esm scripts/exportRdf.ts",
     "build": "npm ci && tsc && npm prune --omit=dev"
   }
 }

@@ -7,11 +7,13 @@
 const BASE_CONTEXT = {
   schema: "https://schema.org/",
   dcterms: "http://purl.org/dc/terms/",
+  owl: "http://www.w3.org/2002/07/owl#",
   geojson: "https://purl.org/geojson/vocab#",
   hydra: "http://www.w3.org/ns/hydra/core#",
-  zt: "https://zontarras.gent/vocab#",
+  zt: "http://api.sun-seeker.be/vocab#",
 
   uuid: "dcterms:identifier",
+  osmUri: { "@id": "owl:sameAs", "@type": "@id" },
   name: "schema:name",
   description: "schema:description",
   address: "schema:address",
@@ -26,12 +28,10 @@ const BASE_CONTEXT = {
 export const TERRAS_CONTEXT = {
   ...BASE_CONTEXT,
   Terras: "zt:Terras",
-  identifier: "schema:identifier",
 };
 
 export const RESTAURANT_CONTEXT = {
   ...BASE_CONTEXT,
-  identifier: "schema:identifier",
   cuisine: "schema:servesCuisine",
   rating: "schema:aggregateRating",
   phone: "schema:telephone",
@@ -46,11 +46,12 @@ export const EVENT_CONTEXT = {
   date_start: { "@id": "schema:startDate", "@type": "schema:DateTime" },
   date_end: { "@id": "schema:endDate", "@type": "schema:DateTime" },
   eventUri: { "@id": "schema:sameAs", "@type": "@id" },
+  locationRef: { "@id": "schema:location", "@type": "@id" },
 };
 
 export const SUNDATA_CONTEXT = {
   schema: "https://schema.org/",
-  zt: "https://zontarras.gent/vocab#",
+  zt: "http://api.sun-seeker.be/vocab#",
 
   SunData: "zt:SunData",
   locationRef: { "@id": "zt:locationRef", "@type": "@id" },

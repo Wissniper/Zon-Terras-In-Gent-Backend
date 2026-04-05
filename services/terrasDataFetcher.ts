@@ -1,6 +1,7 @@
 import Terras from "../models/terrasModel.js";
 import { fetchSparql, SparqlBinding } from "./sparqlFetcher.js";
 import { findDuplicates } from "./geoUtils.js";
+import { docToTriples, syncToTriplestore } from "./rdfExporter.js";
 
 const QLEVER_ENDPOINT = process.env.QLEVER_OSM_ENDPOINT || "https://qlever.dev/api/osm-planet";
 
@@ -30,7 +31,7 @@ const TERRAS_QUERY = `
 `;
 
 interface ParsedTerras {
-  osmId: number;
+  osmUri: string;
   name: string;
   description: string;
   address: string;
@@ -44,12 +45,6 @@ function parseWkt(wkt: string): { lat: number; lng: number } | null {
   const match = wkt.match(/POINT\(([-\d.]+)\s+([-\d.]+)\)/);
   if (!match) return null;
   return { lng: parseFloat(match[1]), lat: parseFloat(match[2]) };
-}
-
-/** Haal OSM node/way ID uit URI: "https://www.openstreetmap.org/node/12345" → 12345 */
-function parseOsmId(uri: string): number {
-  const match = uri.match(/(\d+)$/);
-  return match ? parseInt(match[1], 10) : 0;
 }
 
 function buildAddress(b: SparqlBinding): string {
@@ -68,7 +63,7 @@ function parseBinding(b: SparqlBinding): ParsedTerras | null {
   if (!coords) return null;
 
   return {
-    osmId: parseOsmId(b.osm.value),
+    osmUri: b.osm.value,
     name: b.name.value,
     description: b.description?.value || "",
     address: buildAddress(b),
@@ -87,7 +82,7 @@ export async function syncTerrasData() {
     if (t) parsed.push(t);
   }
 
-  const duplicates = findDuplicates(parsed);
+  const duplicates = findDuplicates(parsed as any);
   const unique = parsed.filter((_, i) => !duplicates.has(i));
 
   let created = 0;
@@ -95,14 +90,14 @@ export async function syncTerrasData() {
 
   for (const t of unique) {
     const result = await Terras.updateOne(
-      { identifier: t.osmId },
+      { osmUri: t.osmUri },
       {
         $set: {
           name: t.name,
           description: t.description,
           address: t.address,
           url: t.url,
-          identifier: t.osmId,
+          osmUri: t.osmUri,
           location: {
             type: "Point",
             coordinates: [t.lng, t.lat],
@@ -116,8 +111,17 @@ export async function syncTerrasData() {
       { upsert: true },
     );
 
-    if (result.upsertedCount > 0) created++;
-    else if (result.modifiedCount > 0) updated++;
+    if (result.upsertedCount > 0 || result.modifiedCount > 0) {
+      if (result.upsertedCount > 0) created++;
+      else updated++;
+
+      // Handmatige RDF sync omdat updateOne geen hooks triggert
+      const updatedDoc = await Terras.findOne({ osmUri: t.osmUri });
+      if (updatedDoc) {
+        const triples = docToTriples('terras', updatedDoc.toObject());
+        await syncToTriplestore(triples);
+      }
+    }
   }
 
   return {

@@ -1,6 +1,7 @@
 import Restaurant from "../models/restaurantModel.js";
 import { fetchSparql, SparqlBinding } from "./sparqlFetcher.js";
 import { findDuplicates } from "./geoUtils.js";
+import { docToTriples, syncToTriplestore } from "./rdfExporter.js";
 
 const QLEVER_ENDPOINT = process.env.QLEVER_OSM_ENDPOINT || "https://qlever.dev/api/osm-planet";
 
@@ -33,7 +34,7 @@ const RESTAURANT_QUERY = `
 `;
 
 interface ParsedRestaurant {
-  osmId: number;
+  osmUri: string;
   name: string;
   address: string;
   cuisine: string;
@@ -49,12 +50,6 @@ function parseWkt(wkt: string): { lat: number; lng: number } | null {
   const match = wkt.match(/POINT\(([-\d.]+)\s+([-\d.]+)\)/);
   if (!match) return null;
   return { lng: parseFloat(match[1]), lat: parseFloat(match[2]) };
-}
-
-/** Haal OSM node/way ID uit URI: "https://www.openstreetmap.org/node/12345" → 12345 */
-function parseOsmId(uri: string): number {
-  const match = uri.match(/(\d+)$/);
-  return match ? parseInt(match[1], 10) : 0;
 }
 
 function buildAddress(b: SparqlBinding): string {
@@ -73,7 +68,7 @@ function parseBinding(b: SparqlBinding): ParsedRestaurant | null {
   if (!coords) return null;
 
   return {
-    osmId: parseOsmId(b.osm.value),
+    osmUri: b.osm.value,
     name: b.name.value,
     address: buildAddress(b),
     cuisine: b.cuisine?.value || "restaurant",
@@ -94,7 +89,7 @@ export async function syncRestaurantData() {
     if (r) parsed.push(r);
   }
 
-  const duplicates = findDuplicates(parsed);
+  const duplicates = findDuplicates(parsed as any);
   const unique = parsed.filter((_, i) => !duplicates.has(i));
 
   let created = 0;
@@ -102,13 +97,13 @@ export async function syncRestaurantData() {
 
   for (const r of unique) {
     const result = await Restaurant.updateOne(
-      { identifier: r.osmId },
+      { osmUri: r.osmUri },
       {
         $set: {
           name: r.name,
           address: r.address,
           cuisine: r.cuisine,
-          identifier: r.osmId,
+          osmUri: r.osmUri,
           phone: r.phone || "",
           website: r.website || "",
           openingHours: r.openingHours || "",
@@ -126,8 +121,16 @@ export async function syncRestaurantData() {
       { upsert: true },
     );
 
-    if (result.upsertedCount > 0) created++;
-    else if (result.modifiedCount > 0) updated++;
+    if (result.upsertedCount > 0 || result.modifiedCount > 0) {
+      if (result.upsertedCount > 0) created++;
+      else updated++;
+
+      const updatedDoc = await Restaurant.findOne({ osmUri: r.osmUri });
+      if (updatedDoc) {
+        const triples = docToTriples('restaurant', updatedDoc.toObject());
+        await syncToTriplestore(triples);
+      }
+    }
   }
 
   return {
