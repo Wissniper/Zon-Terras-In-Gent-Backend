@@ -1,6 +1,23 @@
 import { TERRAS_CONTEXT, EVENT_CONTEXT, RESTAURANT_CONTEXT, SUNDATA_CONTEXT } from "../contexts/jsonld.js";
+import fs from "fs/promises";
+import path from "path";
 
 const BASE_IRI = "http://api.sun-seeker.be";
+const EXPORT_FILE = path.join(process.cwd(), "data", "export.nt");
+
+/**
+ * Voegt triples toe aan een lokaal .nt bestand (gesimuleerde triplestore sync)
+ */
+export async function syncToTriplestore(triples: string[]) {
+    try {
+        await fs.mkdir(path.dirname(EXPORT_FILE), { recursive: true });
+        // We gebruiken 'a' (append) om triples toe te voegen aan het einde van het bestand
+        await fs.appendFile(EXPORT_FILE, triples.join("\n") + "\n");
+        console.log(`[RDFSync] Synced ${triples.length} triples to ${EXPORT_FILE}`);
+    } catch (error) {
+        console.error("[RDFSync] Error syncing to triplestore:", error);
+    }
+}
 
 /**
  * Generates N-Triples for a given entity document based on its type and properties:

@@ -1,6 +1,7 @@
 import Restaurant from "../models/restaurantModel.js";
 import { fetchSparql, SparqlBinding } from "./sparqlFetcher.js";
 import { findDuplicates } from "./geoUtils.js";
+import { docToTriples, syncToTriplestore } from "./rdfExporter.js";
 
 const QLEVER_ENDPOINT = process.env.QLEVER_OSM_ENDPOINT || "https://qlever.dev/api/osm-planet";
 
@@ -120,8 +121,16 @@ export async function syncRestaurantData() {
       { upsert: true },
     );
 
-    if (result.upsertedCount > 0) created++;
-    else if (result.modifiedCount > 0) updated++;
+    if (result.upsertedCount > 0 || result.modifiedCount > 0) {
+      if (result.upsertedCount > 0) created++;
+      else updated++;
+
+      const updatedDoc = await Restaurant.findOne({ osmUri: r.osmUri });
+      if (updatedDoc) {
+        const triples = docToTriples('restaurant', updatedDoc.toObject());
+        await syncToTriplestore(triples);
+      }
+    }
   }
 
   return {

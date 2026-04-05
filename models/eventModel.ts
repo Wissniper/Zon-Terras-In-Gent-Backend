@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { v4 as uuidv4 } from "uuid";
+import { docToTriples, syncToTriplestore } from "../services/rdfExporter.js";
 
 export interface EventDocument extends Document {
     uuid: string;
@@ -57,6 +58,16 @@ EventSchema.index({ location: '2dsphere' });
 
 EventSchema.index({ date_start: 1 });
 EventSchema.index({ date_end: 1 });
+
+// Middleware voor automatische RDF sync
+EventSchema.post('save', async function(doc) {
+    try {
+        const triples = docToTriples('event', doc.toObject());
+        await syncToTriplestore(triples);
+    } catch (error) {
+        console.error("[EventModel] RDF sync failed:", error);
+    }
+});
 
 const Event = mongoose.model<EventDocument>('Event', EventSchema);
 export default Event;

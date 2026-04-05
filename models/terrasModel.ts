@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+import { docToTriples, syncToTriplestore } from "../services/rdfExporter.js";
 
 export interface TerrasDocument extends Document {
   uuid: string;
@@ -47,6 +48,20 @@ const TerrasSchema = new Schema(
 TerrasSchema.index({ location: "2dsphere" }); // create a geospatial index on the location field
 
 TerrasSchema.index({ intensity: -1 }); // create an index on the intensity field for faster queries when sorting by intensity
+
+// Middleware voor automatische RDF sync
+TerrasSchema.post('save', async function(doc) {
+  const triples = docToTriples('terras', doc.toObject());
+  await syncToTriplestore(triples);
+});
+
+// Ook syncen bij updates via findOneAndUpdate (gebruikt in fetchers)
+TerrasSchema.post('findOneAndUpdate', async function(doc) {
+  if (doc) {
+    const triples = docToTriples('terras', doc.toObject());
+    await syncToTriplestore(triples);
+  }
+});
 
 const Terras = mongoose.model<TerrasDocument>("Terras", TerrasSchema);
 

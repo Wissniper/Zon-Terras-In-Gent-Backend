@@ -2,6 +2,7 @@ import Event from "../models/eventModel.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import { fetchSparql, SparqlBinding } from "./sparqlFetcher.js";
+import { docToTriples, syncToTriplestore } from "./rdfExporter.js";
 
 /**
  * Zoek een terras of restaurant op basis van coördinaten (max 10 meter afstand)
@@ -198,8 +199,16 @@ export async function syncEventData() {
       { upsert: true },
     );
 
-    if (result.upsertedCount > 0) created++;
-    else if (result.modifiedCount > 0) updated++;
+    if (result.upsertedCount > 0 || result.modifiedCount > 0) {
+      if (result.upsertedCount > 0) created++;
+      else updated++;
+
+      const updatedDoc = await Event.findOne({ eventUri: e.eventUri });
+      if (updatedDoc) {
+        const triples = docToTriples('event', updatedDoc.toObject());
+        await syncToTriplestore(triples);
+      }
+    }
   }
 
   return {

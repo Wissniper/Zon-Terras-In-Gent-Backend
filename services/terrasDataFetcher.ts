@@ -1,6 +1,7 @@
 import Terras from "../models/terrasModel.js";
 import { fetchSparql, SparqlBinding } from "./sparqlFetcher.js";
 import { findDuplicates } from "./geoUtils.js";
+import { docToTriples, syncToTriplestore } from "./rdfExporter.js";
 
 const QLEVER_ENDPOINT = process.env.QLEVER_OSM_ENDPOINT || "https://qlever.dev/api/osm-planet";
 
@@ -110,8 +111,17 @@ export async function syncTerrasData() {
       { upsert: true },
     );
 
-    if (result.upsertedCount > 0) created++;
-    else if (result.modifiedCount > 0) updated++;
+    if (result.upsertedCount > 0 || result.modifiedCount > 0) {
+      if (result.upsertedCount > 0) created++;
+      else updated++;
+
+      // Handmatige RDF sync omdat updateOne geen hooks triggert
+      const updatedDoc = await Terras.findOne({ osmUri: t.osmUri });
+      if (updatedDoc) {
+        const triples = docToTriples('terras', updatedDoc.toObject());
+        await syncToTriplestore(triples);
+      }
+    }
   }
 
   return {
