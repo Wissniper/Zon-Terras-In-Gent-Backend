@@ -37,4 +37,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
 data/
+data/export.nt
