@@ -12,7 +12,7 @@ describe('Restaurant Model Tests', () => {
     address: 'Sint-Pietersplein 1, 9000 Gent',
     cuisine: 'Belgian',
     rating: 4.5,
-    identifier: 123456789,
+    uuid: 'bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7', //uuid string
     location: { type: 'Point', coordinates: [3.726, 51.041] },
     intensity: 85
   };
@@ -22,7 +22,7 @@ describe('Restaurant Model Tests', () => {
     const restaurant = new Restaurant(validRestaurantData);
     const savedRestaurant = await restaurant.save();
     
-    expect(savedRestaurant._id).toBeDefined();
+    expect(savedRestaurant.uuid).toBe(validRestaurantData.uuid);
     expect(savedRestaurant.name).toBe(validRestaurantData.name);
   });
 
