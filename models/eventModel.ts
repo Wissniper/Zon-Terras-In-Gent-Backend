@@ -15,6 +15,8 @@ export interface EventDocument extends Document {
         type: string;
         coordinates: number[];
     };
+    locationRef?: string;
+    locationType?: "terras" | "restaurant";
     isDeleted: boolean;
     deletedAt?: Date;
 }
@@ -43,6 +45,8 @@ const EventSchema = new Schema(
                 required: true,
             },
         },
+        locationRef: { type: String },
+        locationType: { type: String, enum: ["terras", "restaurant"] },
         isDeleted: { type: Boolean, default: false },
         deletedAt: { type: Date },
     },

@@ -80,6 +80,10 @@ export function docToTriples(entityType: string, doc: any): string[] {
     if (entityType === "event") {
         if (doc.date_start) triples.push(`<${baseUri}> <https://schema.org/startDate> ${dtLit(new Date(doc.date_start).toISOString(), "dateTime")} .`);
         if (doc.date_end) triples.push(`<${baseUri}> <https://schema.org/endDate> ${dtLit(new Date(doc.date_end).toISOString(), "dateTime")} .`);
+        if (doc.locationRef && doc.locationType) {
+            const venueUri = `${BASE_IRI}/${doc.locationType.toLowerCase()}s/${doc.locationRef}`;
+            triples.push(`<${baseUri}> <https://schema.org/location> <${venueUri}> .`);
+        }
     }
 
     if (entityType === "sundata") {
