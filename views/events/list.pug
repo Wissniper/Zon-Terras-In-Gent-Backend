@@ -10,7 +10,7 @@ block content
         strong= event.title
         p Datum: #{new Date(event.date_start).toLocaleDateString('nl-BE')}
         p Locatie: #{event.address}
-        a(href=`/api/events/${event._id}`) Bekijk details
+        a(href=`/api/events/${event.uuid}`) Bekijk details
 
   if links && links.length
     hr
