@@ -21,7 +21,17 @@ export const validateCoords = [
 ];
 
 export const validateID = [
-    param(['id', 'locationId', 'restaurantId', 'terrasId', 'eventId']).optional().isMongoId().withMessage("Invalid database id"),
+    param(['id', 'locationId', 'restaurantId', 'terrasId', 'eventId'])
+        .optional()
+        .custom((value) => {
+            // Check if it's a valid MongoDB ObjectId or a valid UUID (v4)
+            const mongoIdPattern = /^[0-9a-fA-F]{24}$/;
+            const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            if (mongoIdPattern.test(value) || uuidPattern.test(value)) {
+                return true;
+            }
+            throw new Error("Invalid database id");
+        }),
     (req: Request, res: Response, next: NextFunction) => {
         const idParams = ['id', 'locationId', 'restaurantId', 'terrasId', 'eventId'];
         const hasId = idParams.some(p => req.params[p]);

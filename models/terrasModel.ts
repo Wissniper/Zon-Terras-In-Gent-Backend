@@ -8,7 +8,6 @@ export interface TerrasDocument extends Document {
   description?: string;
   address: string;
   url?: string;
-  identifier: number;
   location: {
     type: "Point";
     coordinates: number[]; // [long, lat]
@@ -26,7 +25,6 @@ const TerrasSchema = new Schema(
     description: { type: String },
     address: { type: String, required: true },
     url: { type: String },
-    identifier: { type: Number, required: true, unique: true },
     location: {
       type: {
         type: String,

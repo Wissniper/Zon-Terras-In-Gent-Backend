@@ -6,15 +6,15 @@ block content
   //- getSunFor* passes entity info (terras/restaurant/event)
   if terras
     p Terras:
-      a(href=`/api/terrasen/${terras.id}`)= terras.name
+      a(href=`/api/terrasen/${terras.uuid}`)= terras.name
       |  — #{terras.address}
   if restaurant
     p Restaurant:
-      a(href=`/api/restaurants/${restaurant.id}`)= restaurant.name
+      a(href=`/api/restaurants/${restaurant.uuid}`)= restaurant.name
       |  — #{restaurant.address}
   if event
     p Event:
-      a(href=`/api/events/${event.id}`)= event.name
+      a(href=`/api/events/${event.uuid}`)= event.name
       |  — #{event.address}
 
   //- getSunFor* passes cached data under sunData; getSunPosition passes flat

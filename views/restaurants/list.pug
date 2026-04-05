@@ -12,7 +12,7 @@ block content
         p Score: #{restaurant.rating} / 5
         p Keuken: #{restaurant.cuisine}
         p.sun-score Zon-intensiteit: #{restaurant.intensity}%
-        a(href=`/api/restaurants/${restaurant._id}`) Bekijk details
+        a(href=`/api/restaurants/${restaurant.uuid}`) Bekijk details
 
   if links && links.length
     hr

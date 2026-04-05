@@ -13,11 +13,15 @@ block content
     p
       strong Zon-intensiteit:
       | 
-      a(href=`/api/sun/terras/${terras._id}`) #{terras.intensity}% Bekijk details 
+      a(href=`/api/sun/terras/${terras.uuid}`) #{terras.intensity}% Bekijk details 
     if terras.url
       p
         strong Site:
         a(href=terras.url target="_blank") Bezoek website
+    if terras.osmUri
+      p
+        strong OpenStreetMap:
+        a(href=terras.osmUri target="_blank") Bekijk op OSM
 
   if terras.location && terras.location.coordinates
     section.geo

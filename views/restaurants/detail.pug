@@ -16,7 +16,7 @@ block content
     p
       strong Zon-intensiteit:
       |  
-      a(href=`/api/sun/restaurant/${restaurant._id}`) #{restaurant.intensity}% Bekijk details
+      a(href=`/api/sun/restaurant/${restaurant.uuid}`) #{restaurant.intensity}% Bekijk details
 
     if restaurant.openingHours
       p
@@ -35,6 +35,9 @@ block content
     if restaurant.website
       p Site:
         a(href=restaurant.website target="_blank") Website bezoeken
+    if restaurant.osmUri
+      p OpenStreetMap:
+        a(href=restaurant.osmUri target="_blank") Bekijk op OSM
 
   if restaurant.location && restaurant.location.coordinates
     section.geo
