@@ -23,6 +23,7 @@ describe('Terras Model Tests', () => {
         const terras = new Terras(validTerrasData);
         const savedTerras = await terras.save();
         
+        expect(savedTerras._id).toBeDefined();
         expect(savedTerras.uuid).toBe(validTerrasData.uuid);
         expect(savedTerras.name).toBe(validTerrasData.name);
     });

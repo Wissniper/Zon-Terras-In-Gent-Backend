@@ -22,6 +22,7 @@ describe('Restaurant Model Tests', () => {
     const restaurant = new Restaurant(validRestaurantData);
     const savedRestaurant = await restaurant.save();
     
+    expect(savedRestaurant._id).toBeDefined();
     expect(savedRestaurant.uuid).toBe(validRestaurantData.uuid);
     expect(savedRestaurant.name).toBe(validRestaurantData.name);
   });
