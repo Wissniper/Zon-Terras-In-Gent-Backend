@@ -16,7 +16,7 @@ block content
     p
       strong Zon-intensiteit:
       |  
-      a(href=`/api/sun/restaurant/${restaurant._id}`) #{restaurant.intensity}% Bekijk details
+      a(href=`/api/sun/restaurant/${restaurant.uuid}`) #{restaurant.intensity}% Bekijk details
 
     if restaurant.openingHours
       p
@@ -35,12 +35,25 @@ block content
     if restaurant.website
       p Site:
         a(href=restaurant.website target="_blank") Website bezoeken
+    if restaurant.osmUri
+      p OpenStreetMap:
+        a(href=restaurant.osmUri target="_blank") Bekijk op OSM
 
   if restaurant.location && restaurant.location.coordinates
     section.geo
       h3 Locatiegegevens
       p Coordinaten: [#{restaurant.location.coordinates[0]}, #{restaurant.location.coordinates[1]}]
       p: a(href=`/api/search/nearby/${restaurant.location.coordinates[1]}/${restaurant.location.coordinates[0]}/1`) In de buurt
+
+  if events && events.length
+    section.events
+      h3 Events in dit restaurant
+      ul
+        each event in events
+          li
+            strong= new Date(event.date_start).toLocaleDateString('nl-BE')
+            | : 
+            a(href=`/api/events/${event.uuid}`)= event.title
 
   if links && links.length
     hr

@@ -1,5 +1,7 @@
 import { param, validationResult, body, query } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
+import Terras from '../models/terrasModel.js';
+import Restaurant from '../models/restaurantModel.js';
 
 const handleErrors = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -21,7 +23,17 @@ export const validateCoords = [
 ];
 
 export const validateID = [
-    param(['id', 'locationId', 'restaurantId', 'terrasId', 'eventId']).optional().isMongoId().withMessage("Invalid database id"),
+    param(['id', 'locationId', 'restaurantId', 'terrasId', 'eventId'])
+        .optional()
+        .custom((value) => {
+            // Check if it's a valid MongoDB ObjectId or a valid UUID (v4)
+            const mongoIdPattern = /^[0-9a-fA-F]{24}$/;
+            const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            if (mongoIdPattern.test(value) || uuidPattern.test(value)) {
+                return true;
+            }
+            throw new Error("Invalid database id");
+        }),
     (req: Request, res: Response, next: NextFunction) => {
         const idParams = ['id', 'locationId', 'restaurantId', 'terrasId', 'eventId'];
         const hasId = idParams.some(p => req.params[p]);
@@ -84,4 +96,25 @@ export const validateSunBatch = [
         throw new Error("Invalid time format");
     }),
     handleErrors
-];
+    ];
+
+    export const validateLocationRef = [
+    body('locationRef').optional().custom(async (value, { req }) => {
+        const type = req.body.locationType;
+        if (!type) {
+            // If locationRef is provided, locationType is mandatory
+            if (value) throw new Error("locationType is required when locationRef is provided");
+            return true;
+        }
+
+        if (type === 'terras') {
+            const exists = await Terras.findOne({ uuid: value, isDeleted: { $ne: true } });
+            if (!exists) throw new Error("Referenced Terras does not exist");
+        } else if (type === 'restaurant') {
+            const exists = await Restaurant.findOne({ uuid: value, isDeleted: { $ne: true } });
+            if (!exists) throw new Error("Referenced Restaurant does not exist");
+        }
+        return true;
+    }),
+    handleErrors
+    ];

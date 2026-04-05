@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <title>Opgave 2: Webdevelopment</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="../_shared/styles/assignment.css">
+</head>
+<body>
+<header>
+  <h1>Client-side webtoepassingen</h1>
+  <p class="course">Opgave Webdevelopment</p>
+  <p class="year">Academiejaar 2025–2026</p>
+</header>
+<main>
+
+<h2>Cliënten van REST web-API’s</h2>
+<p>
+  In de vorige opgave maakte je kennis met REST web-API’s.
+  Een centraal principe van REST is dat de server slechts één API aanbiedt
+  die door verschillende types cliënten kan gebruikt worden.
+  In deze opgave implementeren we webtoepassingen
+  die deze API gebruiken.
+</p>
+
+<p>
+  Een belangrijke uitdaging in deze opgave
+  is om te leren hoe je cliënten voor een REST API schrijft.
+  Hierbij is het belangrijk dat je de REST-principes in het achterhoofd houdt,
+  in het bijzonder dat de toepassing wordt bestuurd via hypermedia.
+  Dit betekent dat er <em>geen</em> hard-gecodeerde URL's in je broncode mogen staan,
+  met uitzondering van één begin-URL.
+  De volledige communicatie tussen jouw cliënt en de server
+  moet gebeuren via hypermedia,
+  dus door het volgen van links.
+</p>
+
+<p>
+  Om er zeker van te zijn dat de API die je gebruikt
+  de REST-principes correct implementeert,
+  gebruiken we voor deze opgave een voorbeeldimplementatie van opgave 1.
+  Deze API is beschikbaar via <a href="https://groep40.webdev.stud.atlantis.ugent.be/">https://groep40.webdev.stud.atlantis.ugent.be/</a>.
+  Zoals je kan zien, worden enkel de JSON-representaties aangeboden.
+  Je kan deze resources bekijken door de URL’s die je tegenkomt in de adresbalk van je browser te plakken.
+  De toepassingen die je ontwikkelt, zullen ook gebruik maken van deze URL’s.
+  Aangezien deze API voor iedereen openstaat,
+  resetten we de inhoud iedere dag.
+  Gewijzigde data wordt dus maximaal 24 uur bewaard.
+  Experimenteer alvast met deze API,
+  bijvoorbeeld via de browser en/of met curl.
+</p>
+
+<h2>Webtoepassingen ontwikkelen</h2>
+<p>
+  Om een webtoepassing te ontwikkelen
+  gebruik je HTML voor de basisstructuur,
+  CSS voor de opmaak op verschillende schermgroottes
+  en JavaScript voor de interactie met de reeds bestaande web-API.
+</p>
+<p>
+  Qua CSS verwachten we dat je toepassing <em>responsief</em> is;
+  dat wil zeggen dat deze de besturingselementen zodanig aanpast
+  dat deze vlot leesbaar zijn op kleine en grote schermen.
+  Je kan dit doen met het sleutelwoord <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media"><code>@media</code></a>.
+  De meeste browsers hebben ook een optie om websites te bekijken in verschillende formaten,
+  zodat je dit makkelijk kan testen.
+</p>
+<p>
+  Aangezien jullie allemaal gebruik maken van dezelfde API kan het zijn dat je op hetzelfde moment als iemand anders een aanpassing probeert te doen.
+  Om te voorkomen dat je per ongeluk een aanpassing overschrijft die je niet eens hebt gezien,
+  kan je in HTTP gebruik maken van zogenaamde <em>preconditions</em>.
+  Daarmee kan je expliciet zeggen welke versie van een document je wil aanpassen.
+  De API vereist dat je hier gebruik van maakt,
+  dus lees zeker bij over de <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag">ETag</a>
+  en <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Match">If-Match</a> headers.
+</p>
+<p>
+  Je toepassing kan <em>single-page</em> zijn
+  (met één HTML-bestand),
+  of <em>multi-page</em>
+  (met dan typisch een HTML-bestand per type resource).
+</p>
+
+<h2>API handleiding</h2>
+<p>
+  Data uitlezen van de API doe je met GET.
+  Er zijn 3 soorten pagina's:
+</p>
+<ul>
+  <li>De startpagina. Deze bevat links naar pagina's voor alle specifieke model pagina's.</li>
+  <li>Een model pagina. Deze bevat een oplijsting van alle object pagina's die overeenkomen met dit model.</li>
+  <li>Een object pagina. Deze bevat alle informatie over een specifiek object.</li>
+</ul>
+
+<p>
+  Nieuwe objecten aanmaken doe je met een POST naar een model pagina.
+  Elke model pagina bevat een veld <code>requiredFields</code>.
+  Deze duidt aan welke velden verwacht worden als je een nieuw object aanmaakt.
+  Er is ook een <code>optionalFields</code> veld dat aanduidt welke extra velden je mag meesturen.
+</p>
+
+<p>
+  Objecten aanpassen doe je met PUT of PATCH.
+  Met PUT moet je een volledig nieuw object doorsturen en worden dezelfde verwacht als bij een POST.
+  Met PATCH kan je een object doorsturen dat niet alle velden bevat.
+  Alleen de aanwezige velden worden vervangen.
+  Ten slotte kan je een object verwijderen met DELETE.
+</p>
+
+<p>
+  De API antwoordt met <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status">HTTP status codes</a>
+  om aan te duiden of een aanvraag succesvol was of niet.
+  Indien er een probleem is, kan je de statuscode en bijhorende foutmelding gebruiken
+  om uit te vissen wat er nu precies foutloopt.
+</p>
+
+<p>
+  Om objecten aan te maken of aan te passen moet je je authoriseren.
+  Dit doe je door een <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization">Authorization</a>
+  header mee te sturen met je request met waarde <code>Bearer $TOKEN</code>.
+  Elke groep heeft een eigen token die je zal opgestuurd krijgen.
+</p>
+
+<h2>Taken</h2>
+
+<h3>Een responsieve webtoepassing bouwen</h3>
+<p>
+  Waar de toepassing in Opgave 1 nagenoeg volledig op de server werd uitgevoerd,
+  plaatsen we in deze taak de verantwoordelijkheid voor de gebruikersinteractie op de cliënt.
+</p>
+<p>
+  De bedoeling is om een webtoepassing te bouwen die toelaat
+  om de publieke API te bedienen.
+  De functionaliteit van deze toepassing is gelijkaardig
+  aan de toepassing uit de vorige opgave,
+  met het verschil dat de onderliggende functionaliteit wordt aangeboden door een externe API.
+  Concreet verwachten we dat een gebruiker deze handelingen kan uitvoeren:
+</p>
+<ul>
+  <li>
+    <strong>gebruikers</strong> weergeven, aanmaken, bewerken en verwijderen
+  </li>
+  <li>
+    <strong>audioboeken</strong> weergeven, aanmaken, bewerken en verwijderen.
+    In tegenstelling tot bij de vorige opgave kunnen audioboeken wel permanent verwijderd worden.
+  </li>
+  <li>
+    <strong>genres</strong> weergeven, aanmaken, bewerken en verwijderen
+  </li>
+  <li>
+    <strong>afspeelposities</strong> weergeven, aanmaken, bewerken en verwijderen
+  </li>
+  <li>
+    <strong>beoordelingen</strong> weergeven, aanmaken, bewerken en verwijderen
+  </li>
+</ul>
+<p>
+  Hou er rekening mee dat er in de API ook velden zijn
+  die niet rechtstreeks door de client kunnen aangepast worden.
+  Zo worden er bijvoorbeeld bij een gebruiker de corresponderende wagens meegestuurd,
+  maar om dit aan te passen zou je een nieuwe wagen moeten aanmaken, of een bestaande verwijderen.
+</p>
+<p>
+  Gebruik een van de volgende JavaScript-raamwerken:
+</p>
+  <ul>
+    <li>React</li>
+    <li>Vue.js</li>
+    <li>Angular</li>
+  </ul>
+<p>
+  Om je toepassing te testen,
+  kan je een lokale webserver draaien zoals <a href="https://github.com/zeit/serve">serve</a>.
+  Uit veiligheidsoverwegingen van je browser
+  werken namelijk niet alle functies
+  als je een HTML-bestand rechtstreeks van het bestandssysteem laadt.
+</p>
+<p>
+  Let erop dat je toepassing werkt op kleine en grote schermen;
+  gebruik <strong>responsive CSS</strong> om elementen te herschalen waar nodig.
+  Alle menu-elementen die tegen elkaar gedrukt worden op een klein scherm is geen responsief design.
+  Zorg er in de plaats voor dat de menu-elementen verdwijnen achter een knop op een klein scherm.
+</p>
+<p>
+  Hou rekening met de niet-functionele vereiste
+  dat <strong>hypermedia je toepassing moet aandrijven</strong>:
+  slechts één URL mag hardgecodeerd zijn,
+  de overige resources moeten gevonden worden door links te volgen.
+  Als je ergens in je code API URL's split of zelf samenstelt,
+  ben je waarschijnlijk fout bezig.
+</p>
+<p>
+  De nadruk ligt <em>niet</em> op de gebruikersinterface,
+  maar des te meer op de communicatie met de API.
+  Je mag veronderstellen dat de toepassing
+  constant een internetverbinding ter beschikking heeft.
+  Precieze inputvalidatie is <em>niet</em> nodig voor deze Opgave;
+  vertrouw op de foutafhandeling van de server,
+  maar geef wel een duidelijke indicatie van slagen of falen op de pagina.
+  De foutmeldingen van de API mag daarvoor gebruikt worden zonder aanpassing.
+</p>
+<p>
+  Zorg ervoor dat alle pagina's naar elkaar kunnen linken.
+  Zo moet het mogelijk zijn om op de pagina van een wagen te klikken op de verkoper,
+  om zo op de pagina van die gebruiker terecht te komen.
+  Er mogen ook geen URL’s of ID’s zichtbaar zijn voor de gebruiker.
+  Bijvoorbeeld: op die pagina van de wagen moet de naam van de eigenaar zichtbaar zijn en niet de URL.
+</p>
+<p>
+  Er is geen limiet op hoeveel data er in de API kan zitten,
+  dus zorg er voor dat je website ook vlot kan omgaan met een lijst van duizenden elementen.
+  Maak gebruik van asynchrone acties die de pagina aanpassen terwijl de data wordt ingeladen.
+</p>
+<p>
+  Hou rekening met de verschillende foutcodes waar de server mee antwoordt
+  en zorg dat je website die correct kan afhandelen.
+  Zo kan het bijvoorbeeld gebeuren dat een resource wordt aangepast of verwijderd
+  door iemand anders terwijl een gebruiker op een pagina zit om die zelf aan te passen.
+</p>
+
+<h3>De webtoepassing bouwen met een ander raamwerk</h3>
+<p>
+  Voor de tweede taak, bouw je een toepassing
+  die aan dezelfde vereisten voldoet als de eerste,
+  maar dan met een ander raamwerk.
+  Je mag kiezen uit de bovenstaande,
+  of een eigen raamwerk naar keuze
+  (of zelfs zonder raamwerk, als je dat wil).
+  Zorg wel dat je raamwerk echt verschillend zijn,
+  Next.js is bijvoorbeeld niet verschillend van React.
+</p>
+<p>
+  Hergebruik zoveel mogelijk tussen de raamwerken,
+  om jezelf werk uit te sparen.
+  De bedoeling is vooral om de <em>developer experience</em>
+  van verschillende raamwerken te ervaren.
+</p>
+
+<h2>Indienen</h2>
+<p>
+  Werk samen op <a href="https://github.ugent.be/">UGent GitHub</a>
+  en zorg ervoor dat je oplossing enkel zichtbaar is voor je eigen team.
+  Maak een apart GitHub-project aan voor elke website.
+  Dien je oplossing in ten laatste op 17 april via <a href="https://ufora.ugent.be/">Ufora</a>
+  als een zip-bestand met daarin:
+</p>
+<ul>
+  <li>
+    je <strong>eerste webtoepassing</strong> in de submap <code>web1</code>, <strong>zonder node_modules</strong>,
+    <br>
+    met tevens je <code>.git</code>-map hiervan (≥10 commits)
+    <br>
+    en een statische versie van je website toegankelijk via <code>web1/dist/</code>,
+  </li>
+  <li>
+    je <strong>tweede webtoepassing</strong> in de submap <code>web2</code>, <strong>zonder node_modules</strong>,
+    <br>
+    met tevens je <code>.git</code>-map hiervan (≥10 commits)
+    <br>
+    en een statische versie van je website toegankelijk via <code>web2/dist/</code>,
+  </li>
+</ul>
+<p>
+  Zorg er voor dat je de statische versie van je websites indient in de <code>dist</code> map!
+  De sites zullen getest worden door een lokale webserver naar die <code>dist</code> map te laten wijzen.
+  Er zullen geen angular/react/vue/etc. commando's uitgevoerd worden om de website werkende te krijgen.
+</p>
+
+<h2>Beoordelingscriteria</h2>
+<p>
+  De verbetering zal gebeuren door in de <code>dist</code> folder van elke website <code>serve --single</code> uit te voeren.
+  Je kan dit dus zelf eenvoudig testen. Er zal voor elke site gekeken worden naar onder andere de volgende criteria:
+</p>
+<ul>
+  <li>
+    Kunnen objecten bekeken/aangemaakt/aangepast/verwijderd worden?
+  </li>
+  <li>
+    Worden foutmeldingen correct afgehandeld en weergegeven op de pagina?
+  </li>
+  <li>
+    Is er voor elk object een detailpagina die correct linkt naar de relevante objecten?
+  </li>
+  <li>
+    Wordt er gebruik gemaakt van responsive design. Verdwijnen de menu knoppen bijvoorbeeld op een kleiner scherm.
+  </li>
+  <li>
+    Werkt de site correct in verschillende browsers?
+  </li>
+  <li>
+    Maakt de site correct gebruik van de JSON-paden en werkt die nog als de URL-structuur verandert?
+  </li>
+  <li>
+    Stuurt de applicatie de correcte <em>precondition</em> headers mee.
+  </li>
+  <li>
+    Er wordt niet gekeken naar visueel design, maar een minimum aan gebruiker experience wordt wel verwacht.
+    Klik dus wat rond op je website en zie of die het gebruiksgemak heeft dat je zelf zou verwachten.
+  </li>
+</ul>
+</main>
+</body>
+</html>
