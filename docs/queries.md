@@ -2,31 +2,46 @@
 
 This document provides example SPARQL queries that leverage the semantic links between Terraces, Restaurants, and Events in the Sun-Seeker dataset.
 
-## 1. Events at a sunny terrace of an Italian Restaurant
-This query finds all events taking place at a terrace linked to a restaurant that serves Italian cuisine, filtered by sun intensity.
+## 1. Events at a sunny Italian Restaurant
+Since Restaurants in our database have their own sun-intensity data, we can find events directly at zonnige Italianen.
 
 ```sparql
 PREFIX schema: <https://schema.org/>
 PREFIX zt: <http://api.sun-seeker.be/vocab#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
-SELECT ?eventTitle ?terrasName ?restaurantName ?intensity WHERE {
+SELECT ?eventTitle ?restaurantName ?intensity WHERE {
   # 1. Start from the event
+  ?event a schema:Event ;
+         schema:name ?eventTitle ;
+         schema:location ?restaurant .
+  
+  # 2. Link to the restaurant
+  ?restaurant a schema:Restaurant ;
+              schema:name ?restaurantName ;
+              schema:servesCuisine "Italian" ;
+              zt:sunIntensity ?intensity .
+  
+  FILTER(?intensity > 80)
+}
+```
+
+## 2. Events at a sunny Café (Terras)
+This query finds events at independent cafés/bars that are currently very sunny.
+
+```sparql
+PREFIX schema: <https://schema.org/>
+PREFIX zt: <http://api.sun-seeker.be/vocab#>
+
+SELECT ?eventTitle ?cafeName ?intensity WHERE {
   ?event a schema:Event ;
          schema:name ?eventTitle ;
          schema:location ?terras .
   
-  # 2. Link to the terrace
   ?terras a zt:Terras ;
-          schema:name ?terrasName ;
+          schema:name ?cafeName ;
           zt:sunIntensity ?intensity .
   
-  # 3. Link to the restaurant (if defined in OSM or internal zt:belongsTo)
-  # Note: If linked via osmUri, we can federate with OSM tags
-  ?terras owl:sameAs ?osmTerras .
-  
-  # Example: Filter for intensity > 80
-  FILTER(?intensity > 80)
+  FILTER(?intensity > 90)
 }
 ```
 
