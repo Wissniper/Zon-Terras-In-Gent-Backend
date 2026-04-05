@@ -29,6 +29,16 @@ block content
       p Coordinaten: [#{terras.location.coordinates[0]}, #{terras.location.coordinates[1]}]
       p: a(href=`/api/search/nearby/${terras.location.coordinates[1]}/${terras.location.coordinates[0]}/1`) In de buurt
 
+  if events && events.length
+    section.events
+      h3 Events op dit terras
+      ul
+        each event in events
+          li
+            strong= new Date(event.date_start).toLocaleDateString('nl-BE')
+            | : 
+            a(href=`/api/events/${event.uuid}`)= event.title
+
   if links && links.length
     hr
     nav
