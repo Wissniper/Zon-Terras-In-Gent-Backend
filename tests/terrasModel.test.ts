@@ -18,7 +18,7 @@ describe('Terras Model Tests', () => {
     intensity: 70
   };
 
-//Test verplichte velden
+    //Test verplichte velden
     it('zou een terras succesvol moeten aanmaken met alle verplichte velden', async () => {
         const terras = new Terras(validTerrasData);
         const savedTerras = await terras.save();
@@ -33,7 +33,7 @@ describe('Terras Model Tests', () => {
         await expect(invalidTerras.save()).rejects.toThrow();
     });
 
-//Test duplicate identifier
+    //Test duplicate identifier
     it('zou een duplicate identifier moeten weigeren', async () => {
         await new Terras(validTerrasData).save();
         const duplicate = new Terras(validTerrasData);
@@ -41,7 +41,7 @@ describe('Terras Model Tests', () => {
         await expect(duplicate.save()).rejects.toThrow();
     });
 
-//Test location.type accepts only "Point"
+    //Test location.type accepts only "Point"
     it('zou moeten falen als location.type geen "Point" is', async () => {
         const invalidLocation = {
         ...validTerrasData,
@@ -51,12 +51,12 @@ describe('Terras Model Tests', () => {
         await expect(terras.save()).rejects.toThrow();
     });
   
-//Test 2dsphere index & location
+    //Test 2dsphere index & location
     it('zou de GeoJSON locatie correct moeten opslaan', async () => {
         const terras = new Terras(validTerrasData);
         await terras.save();
         
-    //Controleer of de index bestaat
+        //Controleer of de index bestaat
         const indexes = Terras.schema.indexes();
         const has2dsphere = indexes.some((idx: { location: string; }[]) => idx[0].location === '2dsphere');
         expect(has2dsphere).toBe(true);
@@ -70,5 +70,4 @@ describe('Terras Model Tests', () => {
         expect(savedTerras.createdAt).toBeDefined();
         expect(savedTerras.updatedAt).toBeDefined();
     });
-
 });
