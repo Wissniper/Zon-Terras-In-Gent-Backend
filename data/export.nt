@@ -11427,3 +11427,84 @@
 <http://api.sun-seeker.be/event/25652091-c6c4-4b01-9e96-7f42196e0940#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.725989 51.045084)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
 <http://api.sun-seeker.be/event/25652091-c6c4-4b01-9e96-7f42196e0940> <https://schema.org/startDate> "2026-02-01T00:00:00.000Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
 <http://api.sun-seeker.be/event/25652091-c6c4-4b01-9e96-7f42196e0940> <https://schema.org/endDate> "2030-12-31T00:00:00.000Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5> <http://purl.org/dc/terms/identifier> "72bf3d9e-e407-4138-b546-129852b16fd5" .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5> <http://www.w3.org/2002/07/owl#sameAs> <https://www.openstreetmap.org/node/12345> .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5> <https://schema.org/name> "Café Den Turk" .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5> <https://schema.org/address> "Botermarkt 1, 9000 Gent" .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5#geometry> .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terras/72bf3d9e-e407-4138-b546-129852b16fd5> <http://api.sun-seeker.be/vocab#sunIntensity> "85"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde> <http://purl.org/dc/terms/identifier> "f1137bbd-fdeb-4278-9a0c-f2792d214cde" .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde> <https://schema.org/name> "Sunny Terrace" .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde#geometry> .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terras/f1137bbd-fdeb-4278-9a0c-f2792d214cde> <http://api.sun-seeker.be/vocab#sunIntensity> "90"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Event> .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <http://purl.org/dc/terms/identifier> "b19fe89a-8e8c-4924-bb69-1154817bee07" .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <https://schema.org/name> "Jazz on the Terrace" .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07#geometry> .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <https://schema.org/startDate> "2026-04-05T00:59:01.866Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <https://schema.org/endDate> "2026-04-05T00:59:01.866Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/event/b19fe89a-8e8c-4924-bb69-1154817bee07> <https://schema.org/location> <http://api.sun-seeker.be/terrass/f1137bbd-fdeb-4278-9a0c-f2792d214cde> .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c> <http://purl.org/dc/terms/identifier> "ad14da4a-fb3b-4318-81bb-62f1cf540a6c" .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c> <http://www.w3.org/2002/07/owl#sameAs> <https://www.openstreetmap.org/node/12345> .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c> <https://schema.org/name> "Café Den Turk" .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c> <https://schema.org/address> "Botermarkt 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c#geometry> .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/ad14da4a-fb3b-4318-81bb-62f1cf540a6c> <http://api.sun-seeker.be/vocab#sunIntensity> "85"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f> <http://purl.org/dc/terms/identifier> "66a56189-0b97-4e53-b5ec-4bfcca4c235f" .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f> <https://schema.org/name> "Sunny Terrace" .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f#geometry> .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f> <http://api.sun-seeker.be/vocab#sunIntensity> "90"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Event> .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <http://purl.org/dc/terms/identifier> "3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a" .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <https://schema.org/name> "Jazz on the Terrace" .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a#geometry> .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <https://schema.org/startDate> "2026-04-05T00:59:18.574Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <https://schema.org/endDate> "2026-04-05T00:59:18.574Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/3cefac4b-67b6-440f-bfeb-7bafb3ac8c5a> <https://schema.org/location> <http://api.sun-seeker.be/terrasen/66a56189-0b97-4e53-b5ec-4bfcca4c235f> .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013> <http://purl.org/dc/terms/identifier> "209525b6-2db9-40de-a7ef-9fa9a0c24013" .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013> <http://www.w3.org/2002/07/owl#sameAs> <https://www.openstreetmap.org/node/12345> .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013> <https://schema.org/name> "Café Den Turk" .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013> <https://schema.org/address> "Botermarkt 1, 9000 Gent" .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013#geometry> .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/209525b6-2db9-40de-a7ef-9fa9a0c24013> <http://api.sun-seeker.be/vocab#sunIntensity> "85"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://api.sun-seeker.be/vocab#Terras> .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f> <http://purl.org/dc/terms/identifier> "158e7334-405f-4b66-ba80-373d264a0f0f" .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f> <https://schema.org/name> "Sunny Terrace" .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f#geometry> .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f> <http://api.sun-seeker.be/vocab#sunIntensity> "90"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Event> .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <http://purl.org/dc/terms/identifier> "13928ee9-b174-4ab2-b72b-e2f03508ed95" .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <https://schema.org/name> "Jazz on the Terrace" .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <https://schema.org/address> "Korenmarkt" .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <http://www.opengis.net/ont/geosparql#hasGeometry> <http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95#geometry> .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95#geometry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.opengis.net/ont/geosparql#Point> .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95#geometry> <http://www.opengis.net/ont/geosparql#asWKT> "POINT(3.72 51.05)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <https://schema.org/startDate> "2026-04-05T00:59:28.617Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <https://schema.org/endDate> "2026-04-05T00:59:28.617Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://api.sun-seeker.be/events/13928ee9-b174-4ab2-b72b-e2f03508ed95> <https://schema.org/location> <http://api.sun-seeker.be/terrasen/158e7334-405f-4b66-ba80-373d264a0f0f> .
