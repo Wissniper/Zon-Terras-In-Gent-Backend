@@ -23,15 +23,20 @@ export function createGetAll<T extends Document>(
 ) {
   return async (req: Request, res: Response) => {
     try {
-      // 1. Start met het basisfilter voor soft-delete
+    
       const filter: any = { isDeleted: { $ne: true } };
 
-      // 2. Voeg dynamisch alle query parameters toe aan het filter
       if (req.query) {
-        Object.assign(filter, req.query);
+        Object.entries(req.query).forEach(([key, value]) => {
+          // Als de query parameter 'name' is, gebruik dan een case-insensitive regex
+          if (key === 'name' && typeof value === 'string') {
+            filter[key] = { $regex: value, $options: 'i' };
+          } else {
+            filter[key] = value;
+          }
+        });
       }
 
-      // 3. Voer de zoekopdracht uit met het gecombineerde filter
       const items = await model.find(filter).sort(defaultSort);
       
       const resource = model.modelName.toLowerCase();
