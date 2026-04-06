@@ -56,5 +56,10 @@ export const patchTerras = patchOne(Terras);
 // Soft delete: terras wordt onzichtbaar maar data blijft bewaard
 // Cascade: verwijder alle gekoppelde zondata
 export const deleteTerras = softDelete(Terras, async (id) => {
-  await SunData.deleteMany({ locationRef: id, locationType: "Terras" });
+  const terras = await Terras.findOne(
+    isValidObjectId(id) ? { _id: id } : { uuid: id }
+  );
+  if (terras) {
+    await SunData.deleteMany({ locationRef: terras._id, locationType: "Terras" });
+  }
 });

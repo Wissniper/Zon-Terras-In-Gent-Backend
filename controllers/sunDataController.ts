@@ -203,8 +203,14 @@ export const getCachedSunData = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid locationType. Use: Terras, Restaurant, or Event" });
     }
 
+    // Resolve UUID to ObjectId for the locationRef query
+    const modelMap: Record<string, any> = { Terras, Restaurant, Event };
+    const model = modelMap[locationType];
+    const entity = await model.findOne(buildIdQuery(locationId));
+    const refId = entity ? entity._id : locationId;
+
     const data = await SunData.find({
-      locationRef: locationId,
+      locationRef: refId,
       locationType,
     }).sort({ dateTime: -1 });
 
