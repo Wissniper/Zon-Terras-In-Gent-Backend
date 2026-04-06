@@ -56,5 +56,10 @@ export const patchRestaurant = patchOne(Restaurant);
 // Soft delete: restaurant wordt onzichtbaar maar data blijft bewaard
 // Cascade: verwijder alle gekoppelde zondata
 export const deleteRestaurant = softDelete(Restaurant, async (id) => {
-  await SunData.deleteMany({ locationRef: id, locationType: "Restaurant" });
+  const restaurant = await Restaurant.findOne(
+    isValidObjectId(id) ? { _id: id } : { uuid: id }
+  );
+  if (restaurant) {
+    await SunData.deleteMany({ locationRef: restaurant._id, locationType: "Restaurant" });
+  }
 });

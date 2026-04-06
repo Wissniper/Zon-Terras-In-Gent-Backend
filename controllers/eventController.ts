@@ -61,7 +61,12 @@ export const patchEvent = patchOne(Event);
 // Soft delete: event wordt gemarkeerd als verwijderd
 // Cascade: verwijder alle gekoppelde zondata
 export const deleteEvent = softDelete(Event, async (id) => {
-  await SunData.deleteMany({ locationRef: id, locationType: "Event" });
+  const event = await Event.findOne(
+    isValidObjectId(id) ? { _id: id } : { uuid: id }
+  );
+  if (event) {
+    await SunData.deleteMany({ locationRef: event._id, locationType: "Event" });
+  }
 });
 
 // Helper: geeft start en einde van een dag terug
