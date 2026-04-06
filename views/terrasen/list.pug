@@ -10,7 +10,7 @@ block content
         strong= terras.name
         p Locatie: #{terras.address}
         p.sun-score Zon-intensiteit: #{terras.intensity}%
-        a(href=`/api/terrasen/${terras._id}`) Bekijk details
+        a(href=`/api/terrasen/${terras.uuid}`) Bekijk details
 
   if links && links.length
     hr

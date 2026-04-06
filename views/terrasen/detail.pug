@@ -13,17 +13,31 @@ block content
     p
       strong Zon-intensiteit:
       | 
-      a(href=`/api/sun/terras/${terras._id}`) #{terras.intensity}% Bekijk details 
+      a(href=`/api/sun/terras/${terras.uuid}`) #{terras.intensity}% Bekijk details 
     if terras.url
       p
         strong Site:
         a(href=terras.url target="_blank") Bezoek website
+    if terras.osmUri
+      p
+        strong OpenStreetMap:
+        a(href=terras.osmUri target="_blank") Bekijk op OSM
 
   if terras.location && terras.location.coordinates
     section.geo
       h3 Locatiegegevens
       p Coordinaten: [#{terras.location.coordinates[0]}, #{terras.location.coordinates[1]}]
       p: a(href=`/api/search/nearby/${terras.location.coordinates[1]}/${terras.location.coordinates[0]}/1`) In de buurt
+
+  if events && events.length
+    section.events
+      h3 Events op dit terras
+      ul
+        each event in events
+          li
+            strong= new Date(event.date_start).toLocaleDateString('nl-BE')
+            | : 
+            a(href=`/api/events/${event.uuid}`)= event.title
 
   if links && links.length
     hr

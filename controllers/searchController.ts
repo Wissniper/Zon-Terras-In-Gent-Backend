@@ -3,6 +3,7 @@ import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
 import { buildGeoStage, buildSunDataLookup, buildRangeFilter } from "./baseController.js";
+import { toCollectionLd } from "../contexts/jsonld.js";
 
 /**
  * GET /api/search/terrasen
@@ -54,6 +55,9 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json(
+        toCollectionLd("terras", terrasen, req.originalUrl)
+      ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('terrasen/list', responseData),
       'default': () => res.status(406).send('Not Acceptable')
@@ -117,6 +121,9 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json(
+        toCollectionLd("restaurant", restaurants, req.originalUrl)
+      ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('restaurants/list', responseData),
       'default': () => res.status(406).send('Not Acceptable')
@@ -175,12 +182,118 @@ export const searchEvents = async (req: Request, res: Response) => {
     };
 
     res.format({
+      'application/ld+json': () => res.status(200).json(
+        toCollectionLd("event", events, req.originalUrl)
+      ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('events/list', responseData),
       'default': () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
     res.status(500).json({ message: "Error searching events", error });
+  }
+};
+
+/**
+ * GET /api/search/semantic
+ *   ?cuisine=italian
+ *   ?minIntensity=80
+ *   ?type=restaurant (of terras)
+ * 
+ * "Vind alle events bij een Italiaans restaurant met zon-intensiteit > 80"
+ */
+export const searchSemantic = async (req: Request, res: Response) => {
+  try {
+    const { cuisine, minIntensity, type } = req.query;
+
+    const pipeline: any[] = [];
+
+    // 1. Start bij Events
+    pipeline.push({ $match: { isDeleted: { $ne: true } } });
+
+    // 2. Filter op locationType als meegegeven
+    if (type) {
+      pipeline.push({ $match: { locationType: (type as string).toLowerCase() } });
+    }
+
+    // 3. Join met Restaurants (voor cuisine en intensity)
+    pipeline.push({
+      $lookup: {
+        from: "restaurants",
+        localField: "locationRef",
+        foreignField: "uuid",
+        as: "venueRestaurant"
+      }
+    });
+
+    // 4. Join met Terrassen (voor intensity)
+    pipeline.push({
+      $lookup: {
+        from: "terras", // Let op: collectienaam in MongoDB is vaak kleine letter meervoud
+        localField: "locationRef",
+        foreignField: "uuid",
+        as: "venueTerras"
+      }
+    });
+
+    // 5. Voeg een veld toe dat de gevonden venue bevat
+    pipeline.push({
+      $addFields: {
+        venue: {
+          $cond: {
+            if: { $eq: ["$locationType", "restaurant"] },
+            then: { $arrayElemAt: ["$venueRestaurant", 0] },
+            else: { $arrayElemAt: ["$venueTerras", 0] }
+          }
+        }
+      }
+    });
+
+    // 6. Filter op de eigenschappen van de venue
+    const venueMatch: any = { "venue.isDeleted": { $ne: true } };
+    
+    if (cuisine) {
+      venueMatch["venue.cuisine"] = { $regex: cuisine as string, $options: "i" };
+    }
+    
+    if (minIntensity) {
+      venueMatch["venue.intensity"] = { $gte: Number(minIntensity) };
+    }
+
+    pipeline.push({ $match: venueMatch });
+
+    // 7. Sorteer op datum
+    pipeline.push({ $sort: { date_start: 1 } });
+
+    // 8. Schoon de output op (verwijder tijdelijke join velden)
+    pipeline.push({
+      $project: {
+        venueRestaurant: 0,
+        venueTerras: 0
+      }
+    });
+
+    const results = await Event.aggregate(pipeline);
+
+    const responseData = {
+      count: results.length,
+      events: results,
+      links: [
+        { rel: "self", href: req.originalUrl },
+        { rel: "events", href: "/api/events" }
+      ]
+    };
+
+    res.format({
+      'application/ld+json': () => res.status(200).json(
+        toCollectionLd("event", results, req.originalUrl)
+      ),
+      'application/json': () => res.status(200).json(responseData),
+      'text/html': () => res.render('events/list', responseData),
+      'default': () => res.status(406).send('Not Acceptable')
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error performing semantic search", error });
   }
 };
 
