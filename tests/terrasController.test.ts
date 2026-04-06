@@ -8,7 +8,7 @@ beforeAll(async () => await connect());
 afterEach(async () => await clearDatabase());
 afterAll(async () => await closeDatabase());
 
-describe('Terras Controller Logic Tests (#73)', () => {
+describe('Terras Controller Logic Tests', () => {
 
 //getAllTerrasen filters by ?intensity=
   it('getAllTerrasen filters by ?intensity=', async () => {
