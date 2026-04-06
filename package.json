@@ -30,6 +30,9 @@
     "start": "node dist/app.js",
     "dev": "nodemon --exec ts-node app.ts",
     "export-rdf": "node --loader ts-node/esm scripts/exportRdf.ts",
+    "seed:restaurants": "node --loader ts-node/esm scripts/seed/seedRestaurants.ts",
+    "seed:events": "node --loader ts-node/esm scripts/seed/seedEvents.ts",
+    "seed:terrassen": "node --loader ts-node/esm scripts/seed/seedTerrassen.ts",
     "build": "npm ci && tsc && npm prune --omit=dev"
   }
 }
