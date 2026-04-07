@@ -168,7 +168,8 @@ function createGetSunForEntity(config: {
         'text/html': () => res.render('sun/display', responseData),
         'default': () => res.status(406).send('Not Acceptable')
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("DEBUG INTERNAL ERROR:", error.message, error.stack);
       res.status(500).json({ message: `Error fetching sun data for ${config.responseKey}`, error });
     }
   };
