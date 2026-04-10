@@ -1,7 +1,9 @@
 import { jest, describe, it, expect, beforeAll, afterAll, afterEach } from '@jest/globals';
 import request from 'supertest';
-import app from '../app.js';
+import { createTestApp } from './testApp.js';
 import { connect, clearDatabase, closeDatabase } from './database.helper.js';
+
+const app = createTestApp();
 import Event from '../models/eventModel.js';
 import Terras from '../models/terrasModel.js';
 

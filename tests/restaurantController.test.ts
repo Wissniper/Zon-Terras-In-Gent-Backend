@@ -1,6 +1,8 @@
 import request from 'supertest';
-import app from '../app.js';
+import { createTestApp } from './testApp.js';
 import { connect, clearDatabase, closeDatabase } from './database.helper.js';
+
+const app = createTestApp();
 import Restaurant from '../models/restaurantModel.js';
 
 beforeAll(async () => await connect());
