@@ -10,7 +10,8 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["jest"]
   },
   "include": ["**/*.ts", "models/terrasModel.ts"],
   "exclude": ["node_modules", "dist"]

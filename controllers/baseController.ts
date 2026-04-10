@@ -23,7 +23,22 @@ export function createGetAll<T extends Document>(
 ) {
   return async (req: Request, res: Response) => {
     try {
-      const items = await model.find({ isDeleted: { $ne: true } }).sort(defaultSort);
+    
+      const filter: any = { isDeleted: { $ne: true } };
+
+      if (req.query) {
+        Object.entries(req.query).forEach(([key, value]) => {
+          // Als de query parameter 'name' is, gebruik dan een case-insensitive regex
+          if (key === 'name' && typeof value === 'string') {
+            filter[key] = { $regex: value, $options: 'i' };
+          } else {
+            filter[key] = value;
+          }
+        });
+      }
+
+      const items = await model.find(filter).sort(defaultSort);
+      
       const resource = model.modelName.toLowerCase();
       const plural = resourcePlurals[resource] || `${resource}s`;
 
