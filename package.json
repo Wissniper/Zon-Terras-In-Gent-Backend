@@ -9,6 +9,7 @@
     "openmeteo": "^1.2.3",
     "pug": "^3.0.3",
     "suncalc3": "^2.0.5",
+    "supertest": "^7.2.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -17,6 +18,7 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "^25.3.3",
     "@types/node-cron": "^3.0.11",
+    "@types/supertest": "^7.2.0",
     "@types/uuid": "^10.0.0",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.0.1",
@@ -30,6 +32,9 @@
     "start": "node dist/app.js",
     "dev": "nodemon --exec ts-node app.ts",
     "export-rdf": "node --loader ts-node/esm scripts/exportRdf.ts",
-    "build": "npm ci && tsc && npm prune --omit=dev"
+    "seed:restaurants": "node --loader ts-node/esm scripts/seed/seedRestaurants.ts",
+    "seed:events": "node --loader ts-node/esm scripts/seed/seedEvents.ts",
+    "seed:terrassen": "node --loader ts-node/esm scripts/seed/seedTerrassen.ts",
+    "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev"
   }
 }

@@ -31,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Database connection
+if (process.env.NODE_ENV !== 'test') {
 const mongoURI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db";
 mongoose
@@ -41,6 +42,7 @@ mongoose
     startWeatherCron();
   })
   .catch((err) => console.error("MongoDB error:", err));
+}
 
 // Root redirect
 app.get("/", (req: Request, res: Response) => {
@@ -50,17 +52,16 @@ app.get("/", (req: Request, res: Response) => {
 // API index with content negotiation
 app.get("/api", (req: Request, res: Response) => {
   const responseData = {
-    message: "API is operational",
+    message: "Zon-Terras-In-Gent API is operational",
     version: "1.0.0",
-    links: [
-      { rel: "self", href: "/api" },
-      { rel: "terrasen", href: "/api/terrasen" },
-      { rel: "restaurants", href: "/api/restaurants" },
-      { rel: "events", href: "/api/events" },
-      { rel: "sun", href: "/api/sun" },
-      { rel: "search", href: "/api/search" },
-      { rel: "weather", href: "/api/weather" },
-    ],
+    endpoints: {
+      terrasen: "/api/terrasen",
+      restaurants: "/api/restaurants",
+      events: "/api/events",
+      sun: "/api/sun",
+      search: "/api/search",
+      weather: "/api/weather"
+    }
   };
   res.format({
     "application/json": () => res.json(responseData),
@@ -90,3 +91,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
+export default app;
