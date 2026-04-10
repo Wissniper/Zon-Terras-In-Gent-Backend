@@ -48,10 +48,7 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     const responseData = {
       count: terrasen.length, 
       terrasen: terrasen,
-      links: [
-          { rel: "self", href: req.originalUrl },
-          { rel: "collection", href: "/api/terrasen" }
-      ]
+      
     };
 
     res.format({
@@ -114,10 +111,7 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     const responseData = {
       count: restaurants.length, 
       restaurants: restaurants, 
-      links: [
-          { rel: "self", href: req.originalUrl }, 
-          { rel: "collection", href: "/api/restaurants" } 
-      ]
+      
     };
 
     res.format({
@@ -175,10 +169,7 @@ export const searchEvents = async (req: Request, res: Response) => {
     const responseData = {
       count: events.length, 
       events: events, 
-      links: [
-          { rel: "self", href: req.originalUrl }, 
-          { rel: "collection", href: "/api/events" } 
-      ]
+     
     };
 
     res.format({
@@ -338,12 +329,7 @@ export const searchNearby = async (req: Request, res: Response) => {
         restaurants: restaurants,
         events: events,
       },
-      links: [
-        { rel: "self", href: `/api/search/nearby/${lat}/${lng}/${radius}` },
-        { rel: "terrasen", href: "/api/terrasen" },
-        { rel: "restaurants", href: "/api/restaurants" },
-        { rel: "events", href: "/api/events" }
-      ]
+      
     };
     
 

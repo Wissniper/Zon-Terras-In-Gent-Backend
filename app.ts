@@ -52,17 +52,16 @@ app.get("/", (req: Request, res: Response) => {
 // API index with content negotiation
 app.get("/api", (req: Request, res: Response) => {
   const responseData = {
-    message: "API is operational",
+    message: "Zon-Terras-In-Gent API is operational",
     version: "1.0.0",
-    links: [
-      { rel: "self", href: "/api" },
-      { rel: "terrasen", href: "/api/terrasen" },
-      { rel: "restaurants", href: "/api/restaurants" },
-      { rel: "events", href: "/api/events" },
-      { rel: "sun", href: "/api/sun" },
-      { rel: "search", href: "/api/search" },
-      { rel: "weather", href: "/api/weather" },
-    ],
+    endpoints: {
+      terrasen: "/api/terrasen",
+      restaurants: "/api/restaurants",
+      events: "/api/events",
+      sun: "/api/sun",
+      search: "/api/search",
+      weather: "/api/weather"
+    }
   };
   res.format({
     "application/json": () => res.json(responseData),
