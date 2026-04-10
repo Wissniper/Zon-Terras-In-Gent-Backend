@@ -1,6 +1,9 @@
 import request from 'supertest';
 import app from '../app.js';
 import { connect, clearDatabase, closeDatabase } from './database.helper.js';
+import Terras from '../models/terrasModel.js';
+import SunData from '../models/sunDataModel.js';
+import Weather from '../models/weatherModel.js';
 
 beforeAll(async () => await connect());
 afterEach(async () => await clearDatabase());
@@ -46,9 +49,75 @@ it('getSunPosition calculates sun data for known coordinates/time', async () => 
     expect(response.body.message).toBe('Terras not found');
   });
 
-//Test caching logic (getOrCreateCache)
-  it.skip('getOrCreateCache creates new entry and returns existing when cached', async () => {
-    // TODO
+//getOrCreateCache creates new entry when not cached
+  it('getOrCreateCache creates new entry when not cached', async () => {
+    const terras = await Terras.create({
+      name: 'Cache Test Terras',
+      address: 'Gent',
+      intensity: 50,
+      location: { type: 'Point', coordinates: [3.72, 51.05] },
+    });
+
+    // Seed Weather so fetchWeatherData reads from DB instead of making an HTTP call
+    await Weather.create({
+      timestamp: new Date(),
+      temperature: 20,
+      cloudCover: 10,
+      cloudFactor: 8,
+      uvIndex: 3,
+      windspeed: 15,
+      location: { type: 'Point', coordinates: [3.72, 51.05] },
+    });
+
+    const response = await request(app)
+      .get(`/api/sun/terras/${terras.uuid}`)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toBe(200);
+
+    const count = await SunData.countDocuments({ locationRef: terras._id, locationType: 'Terras' });
+    expect(count).toBe(1);
+  });
+
+//getOrCreateCache returns existing entry when already cached
+  it('getOrCreateCache returns existing entry when already cached', async () => {
+    const terras = await Terras.create({
+      name: 'Cache Test Terras',
+      address: 'Gent',
+      intensity: 50,
+      location: { type: 'Point', coordinates: [3.72, 51.05] },
+    });
+
+    // Pre-create a fresh SunData entry — updatedAt will be now, so isStale = false
+    const cacheDate = new Date();
+    cacheDate.setMinutes(0, 0, 0);
+    await SunData.create({
+      locationRef: terras._id,
+      locationType: 'Terras',
+      dateTime: cacheDate,
+      intensity: 77,
+      azimuth: 2.5,
+      altitude: 0.8,
+      goldenHour: {
+        dawnStart: new Date(),
+        dawnEnd: new Date(),
+        duskStart: new Date(),
+        duskEnd: new Date(),
+      },
+    });
+
+    const response = await request(app)
+      .get(`/api/sun/terras/${terras.uuid}`)
+      .set('Accept', 'application/json');
+
+    expect(response.status).toBe(200);
+
+    // No new entry should have been created
+    const count = await SunData.countDocuments({ locationRef: terras._id, locationType: 'Terras' });
+    expect(count).toBe(1);
+
+    // The cached intensity should be returned unchanged
+    expect(response.body.sunData.intensity).toBe(77);
   });
 
 //getCachedSunData validates locationType enum
