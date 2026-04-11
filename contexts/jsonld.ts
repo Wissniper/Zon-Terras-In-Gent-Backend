@@ -33,7 +33,6 @@ export const TERRAS_CONTEXT = {
 export const RESTAURANT_CONTEXT = {
   ...BASE_CONTEXT,
   cuisine: "schema:servesCuisine",
-  rating: "schema:aggregateRating",
   phone: "schema:telephone",
   website: "schema:url",
   openingHours: "schema:openingHours",

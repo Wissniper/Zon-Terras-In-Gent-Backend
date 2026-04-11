@@ -108,7 +108,6 @@ async function seedRestaurants() {
           },
           $setOnInsert: {
             intensity: 0,
-            rating: 0,
             isDeleted: false,
           },
         },

@@ -14,8 +14,8 @@ describe('Restaurant Controller Logic Tests', () => {
 //getAllRestaurants filters by ?intensity=
   it('getAllRestaurants filters by ?intensity=', async () => {
     await Restaurant.create([
-      { uuid: 'r-high', name: 'Zonnig Restaurant', rating: 3, cuisine: 'Italian', intensity: 90, address: 'Gent', location: { type: 'Point', coordinates: [3.7, 51.0] } },
-      { uuid: 'r-low', name: 'Schaduw Restaurant', rating: 1, cuisine: 'Italian', intensity: 10, address: 'Gent', location: { type: 'Point', coordinates: [3.7, 51.0] } }
+      { uuid: 'r-high', name: 'Zonnig Restaurant', cuisine: 'Italian', intensity: 90, address: 'Gent', location: { type: 'Point', coordinates: [3.7, 51.0] } },
+      { uuid: 'r-low', name: 'Schaduw Restaurant', cuisine: 'Italian', intensity: 10, address: 'Gent', location: { type: 'Point', coordinates: [3.7, 51.0] } }
     ]);
 
     const response = await request(app)
@@ -43,10 +43,9 @@ describe('Restaurant Controller Logic Tests', () => {
 
 //getRestaurantsByName does case-insensitive search via getAll
   it('getRestaurantsByName does case-insensitive search via query param', async () => {
-    await Restaurant.create({ 
-      uuid: 'r-123', 
+    await Restaurant.create({
+      uuid: 'r-123',
       name: 'Het Gouden Bord',
-      rating: 4,
       cuisine: 'Italian',
       intensity: 50, 
       address: 'Gent', 

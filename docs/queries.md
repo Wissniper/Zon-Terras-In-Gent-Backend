@@ -66,16 +66,15 @@ ORDER BY ?startDate
 PREFIX schema: <https://schema.org/>
 PREFIX zt: <http://api.sun-seeker.be/vocab#>
 
-SELECT ?restaurantName ?rating ?intensity WHERE {
+SELECT ?restaurantName ?intensity WHERE {
   ?restaurant a schema:Restaurant ;
-              schema:name ?restaurantName ;
-              schema:aggregateRating ?rating .
+              schema:name ?restaurantName .
   
   # If we have the zt:hasTerras link implemented
   ?restaurant zt:hasTerras ?terras .
   ?terras zt:sunIntensity ?intensity .
 
-  FILTER(?rating > 4.0)
+  FILTER(?intensity > 50)
 }
 ORDER BY DESC(?intensity)
 ```

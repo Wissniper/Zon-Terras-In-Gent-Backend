@@ -126,7 +126,6 @@ describe('syncRestaurantData', () => {
       cuisine: 'Italian',
       address: 'Gent',
       intensity: 0,
-      rating: 0,
       location: { type: 'Point', coordinates: [3.72, 51.05] },
     });
 

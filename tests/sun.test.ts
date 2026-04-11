@@ -26,7 +26,6 @@ const validRestaurant = {
   name: 'Terras Restaurant',
   address: 'Veldstraat 10, 9000 Gent',
   cuisine: 'Belgian',
-  rating: 4.0,
   location: { type: 'Point', coordinates: [3.72, 51.054] },
   intensity: 70,
 };

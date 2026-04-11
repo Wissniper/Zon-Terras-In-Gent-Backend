@@ -20,7 +20,7 @@ npm run seed:restaurants
 - **Target collection:** `restaurants`
 - **Unique key:** `osmUri` (e.g. `https://www.openstreetmap.org/node/12345`)
 - **Mapped fields:** name, address, cuisine, phone, website, openingHours, takeaway, location (GeoJSON)
-- **Defaults on insert:** `intensity: 0`, `rating: 0`, `isDeleted: false`
+- **Defaults on insert:** `intensity: 0`, `isDeleted: false`
 
 ### Terrassen
 

@@ -114,7 +114,6 @@ export async function syncRestaurantData() {
         },
         $setOnInsert: {
           intensity: 0,
-          rating: 0,
           isDeleted: false,
         },
       },

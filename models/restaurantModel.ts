@@ -8,7 +8,6 @@ export interface RestaurantDocument extends Document {
     name: string;
     address: string;
     cuisine: string;
-    rating: number; // rating out of 5
     phone?: string;
     website?: string;
     openingHours?: string;
@@ -29,7 +28,6 @@ const RestaurantSchema = new Schema(
     name: { type: String, required: true },
     address: { type: String, required: true },
     cuisine: { type: String, required: true },
-    rating: { type: Number, required: true, min: 0, max: 5 },
     phone: { type: String },
     website: { type: String },
     openingHours: { type: String },
@@ -54,8 +52,6 @@ const RestaurantSchema = new Schema(
 );
 
 RestaurantSchema.index({ location: "2dsphere" }); 
-
-RestaurantSchema.index({ rating: -1 }); // create an index on the rating field for faster queries when sorting by rating
 
 RestaurantSchema.index({ intensity: -1 }); // create an index on the intensity field for faster queries when sorting by intensity
 

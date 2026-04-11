@@ -66,7 +66,6 @@ describe('docToTriples', () => {
       name: 'Pizzeria Roma',
       address: 'Veldstraat 10, Gent',
       cuisine: 'Italian',
-      rating: 4.5,
       phone: '+32 9 123 45 67',
       openingHours: 'Mo-Fr 11:00-22:00',
       location: { type: 'Point', coordinates: [3.72, 51.054] },
@@ -83,13 +82,6 @@ describe('docToTriples', () => {
       const triples = docToTriples('restaurant', restaurantDoc);
       expect(triples).toContainEqual(
         expect.stringContaining('servesCuisine> "Italian"')
-      );
-    });
-
-    it('generates rating triple', () => {
-      const triples = docToTriples('restaurant', restaurantDoc);
-      expect(triples).toContainEqual(
-        expect.stringContaining('aggregateRating> "4.5"')
       );
     });
 
