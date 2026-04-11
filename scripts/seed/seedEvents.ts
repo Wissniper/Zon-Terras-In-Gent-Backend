@@ -80,7 +80,7 @@ async function seedEvents() {
   console.log("[SeedEvents] Starting event seeding via Visit Gent API...");
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-gent");
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db");
     console.log("[SeedEvents] Connected to MongoDB.");
 
     const records = await fetchAllEvents();

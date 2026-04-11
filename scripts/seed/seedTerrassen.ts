@@ -56,7 +56,7 @@ async function seedTerrassen() {
   console.log("[SeedTerrassen] Starting terrassen seeding via Overpass API...");
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-gent");
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db");
     console.log("[SeedTerrassen] Connected to MongoDB.");
 
     console.log("[SeedTerrassen] Querying Overpass API for cafés, bars, and pubs in Gent...");
