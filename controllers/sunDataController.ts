@@ -33,7 +33,12 @@ async function getOrCreateCache(
   if (!isStale) return cached;
 
   // Ensure fresh weather data is available, then recalculate
-  await fetchWeatherData(lat, lng);
+  // skip weather fetch if the external API is unreachable (e.g. firewall)
+  try {
+    await fetchWeatherData(lat, lng);
+  } catch (weatherErr: any) {
+    console.warn("fetchWeatherData failed, continuing without fresh weather data:", weatherErr.message);
+  }
   const cloudFactor = await getCloudFactor(lat, lng);
   const sun = calculateSunData(dateTime, lat, lng, cloudFactor);
 
@@ -164,7 +169,10 @@ function createGetSunForEntity(config: {
       });
     } catch (error: any) {
       console.error("DEBUG INTERNAL ERROR:", error.message, error.stack);
-      res.status(500).json({ message: `Error fetching sun data for ${config.responseKey}`, error });
+      res.status(500).json({
+        message: `Error fetching sun data for ${config.responseKey}`,
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   };
 }
