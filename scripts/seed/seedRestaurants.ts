@@ -60,7 +60,7 @@ async function seedRestaurants() {
   console.log("[SeedRestaurants] Starting restaurant seeding via Overpass API...");
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-gent");
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db");
     console.log("[SeedRestaurants] Connected to MongoDB.");
 
     console.log("[SeedRestaurants] Querying Overpass API...");
