@@ -49,8 +49,8 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd /home/ubuntu/sun-seeker-backend
-            git restore data/export.nt node_modules/.package-lock.json package-lock.json 2>/dev/null || true
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             npm run build
             sudo systemctl restart sun-seeker-api
             sudo systemctl is-active --quiet sun-seeker-api && echo "Service restarted successfully" || (echo "Service failed to restart" && exit 1)
