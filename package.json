@@ -22,7 +22,7 @@
     "@types/uuid": "^10.0.0",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.0.1",
-    "nodemon": "^3.1.11",
+    "nodemon": "^3.1.14",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
@@ -30,7 +30,7 @@
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "node dist/app.js",
-    "dev": "nodemon --exec ts-node app.ts",
+    "dev": "nodemon --exec \"node --loader ts-node/esm\" app.ts",
     "export-rdf": "node --loader ts-node/esm scripts/exportRdf.ts",
     "seed:restaurants": "node --loader ts-node/esm scripts/seed/seedRestaurants.ts",
     "seed:events": "node --loader ts-node/esm scripts/seed/seedEvents.ts",

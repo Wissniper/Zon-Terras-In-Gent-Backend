@@ -5,6 +5,13 @@ import { docToTriples, syncToTriplestore } from "./rdfExporter.js";
 
 const QLEVER_ENDPOINT = process.env.QLEVER_OSM_ENDPOINT || "https://qlever.dev/api/osm-planet";
 
+const GENT_BBOX = { latMin: 50.99, latMax: 51.12, lngMin: 3.64, lngMax: 3.82 };
+
+function isInGent(lat: number, lng: number): boolean {
+  return lat > GENT_BBOX.latMin && lat < GENT_BBOX.latMax &&
+         lng > GENT_BBOX.lngMin && lng < GENT_BBOX.lngMax;
+}
+
 /**
  * SPARQL query: haal cafés, bars en pubs op in Gent via QLever (OSM als RDF).
  * Vereist: naam, geo
@@ -79,7 +86,7 @@ export async function syncTerrasData() {
   const parsed: ParsedTerras[] = [];
   for (const b of bindings) {
     const t = parseBinding(b);
-    if (t) parsed.push(t);
+    if (t && isInGent(t.lat, t.lng)) parsed.push(t);
   }
 
   const duplicates = findDuplicates(parsed as any);
