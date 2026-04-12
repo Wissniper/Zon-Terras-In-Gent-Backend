@@ -70,7 +70,7 @@ async function updateIntensityForLocation(lat: number, lng: number): Promise<voi
 
 // Start cron jobs:
 // - Weerdata + intensiteit: elke 15 minuten
-export function startWeatherCron() {
+export function startWeatherCron(io?: any) {
   cron.schedule("*/15 * * * *", async () => {
     try {
       const locations = await getUniqueLocations();
@@ -97,6 +97,15 @@ export function startWeatherCron() {
       }
 
       console.log("[WeatherCron] Weather data and intensities updated");
+
+      if (io) {
+        io.emit('weather_update', {
+          timestamp: new Date().toISOString(),
+          message: "Nieuwe weerdata beschikbaar"
+        });
+        console.log("[WeatherCron] Socket update verzonden naar frontend");
+      }
+      
     } catch (error) {
       console.error("[Cron] Error:", error);
     }

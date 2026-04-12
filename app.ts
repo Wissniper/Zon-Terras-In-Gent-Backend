@@ -12,6 +12,9 @@ import searchRoutes from "./routes/searchRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
 
+import { Server } from "socket.io";
+import http from "http";
+
 dotenv.config();
 
 // Fix for __dirname in ES modules
@@ -20,6 +23,10 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
+const server = http.createServer(app);
+const io = new Server(server, {  
+  cors: { origin: "*" }  
+});
 
 // View engine setup
 app.set("view engine", "pug");
@@ -39,7 +46,7 @@ mongoose
   .then(() => {
     console.log("MongoDB connected to:", mongoURI);
     // Start de cron job pas nadat de database verbinding er is
-    startWeatherCron();
+    startWeatherCron(io);
   })
   .catch((err) => console.error("MongoDB error:", err));
 }
@@ -88,7 +95,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).send("Something broke!");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
 
