@@ -21,7 +21,8 @@ block content
   - const sun = sunData || {}
   - const azVal = sun.azimuth !== undefined ? sun.azimuth : (position && position.azimuth)
   - const altVal = sun.altitude !== undefined ? sun.altitude : (position && position.altitude)
-  - const intVal = sun.intensity !== undefined ? sun.intensity : intensity
+  - const entityIntensity = (terras && terras.intensity !== undefined) ? terras.intensity : (restaurant && restaurant.intensity !== undefined) ? restaurant.intensity : (event && event.intensity !== undefined) ? event.intensity : undefined
+  - const intVal = entityIntensity !== undefined ? entityIntensity : (sun.intensity !== undefined ? sun.intensity : intensity)
   - const gh = sun.goldenHour || goldenHour || {}
   - const dt = sun.dateTime || dateTime
 
@@ -32,8 +33,8 @@ block content
     .stat-card
       h3 Zonpositie
       if azVal !== undefined
-        p Azimuth: #{azVal.toFixed(2)} rad
-        p Hoogte: #{altVal.toFixed(2)} rad
+        p Azimuth: #{(azVal * 180 / Math.PI).toFixed(1)}°
+        p Hoogte: #{(altVal * 180 / Math.PI).toFixed(1)}°
 
   if gh.dawnStart
     section.golden-hour

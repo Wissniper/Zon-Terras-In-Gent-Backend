@@ -15,6 +15,8 @@ function buildIdQuery(id: string | string[]) {
 
 const CACHE_MAX_AGE_MS = 15 * 60 * 1000; // 15 minutes
 
+const entityModelMap: Record<string, any> = { Terras, Restaurant, Event };
+
 /** Helper: get or create cached sun data for a location, recalculating if stale (>15 min) */
 async function getOrCreateCache(
   locationRef: any,
@@ -51,6 +53,9 @@ async function getOrCreateCache(
     altitude: sun.position.altitude,
     goldenHour: sun.goldenHour,
   };
+
+  // Keep the entity's own intensity field in sync with the freshly calculated value
+  await entityModelMap[locationType].updateOne({ _id: locationRef }, { $set: { intensity: sun.intensity } });
 
   if (cached) {
     await SunData.updateOne({ _id: cached._id }, { $set: sunFields });
@@ -151,7 +156,7 @@ function createGetSunForEntity(config: {
       const cached = await getOrCreateCache(entity._id, config.locationType, lat, lng, dateTime);
 
       const responseData = {
-        [config.responseKey]: { uuid: entity.uuid, name: entity[config.nameField], address: entity.address },
+        [config.responseKey]: { uuid: entity.uuid, name: entity[config.nameField], address: entity.address, intensity: entity.intensity },
         sunData: cached,
       };
 

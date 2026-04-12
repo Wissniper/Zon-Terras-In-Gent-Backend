@@ -7,8 +7,7 @@ export function calculateSunData(dateTime: Date, lat: number, lng: number, cloud
   const position = SunCalc.getPosition(dateTime, lat, lng);
   const times = SunCalc.getSunTimes(dateTime, lat, lng);
 
-  const altitudeDegrees = position.altitude * (180 / Math.PI);
-  let intensity = Math.max(0, Math.min(100, Math.round(altitudeDegrees / 90 * 100)));
+  let intensity = Math.max(0, Math.min(100, Math.round(Math.sin(position.altitude) * 100)));
 
   // cloudFactor = cloudCover * 0.8 (bv. 50% bewolking = 40% reductie)
   if (cloudFactor !== undefined && cloudFactor > 0) {
