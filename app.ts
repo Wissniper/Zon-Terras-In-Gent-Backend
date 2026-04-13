@@ -24,8 +24,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 const server = http.createServer(app);
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL]
+  : ["https://api.sun-seeker.be", "http://localhost:5173"];
+
 const io = new Server(server, {
-  cors: { origin: process.env.FRONTEND_URL || "https://api.sun-seeker.be" }
+  cors: { origin: allowedOrigins },
 });
 
 // View engine setup
@@ -38,17 +42,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Database connection
-if (process.env.NODE_ENV !== 'test') {
-const mongoURI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db";
-mongoose
-  .connect(mongoURI)
-  .then(() => {
-    console.log("MongoDB connected to:", mongoURI);
-    // Start de cron job pas nadat de database verbinding er is
-    startWeatherCron(io);
-  })
-  .catch((err) => console.error("MongoDB error:", err));
+if (process.env.NODE_ENV !== "test") {
+  const mongoURI =
+    process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db";
+  mongoose
+    .connect(mongoURI)
+    .then(() => {
+      console.log("MongoDB connected to:", mongoURI);
+      // Start de cron job pas nadat de database verbinding er is
+      startWeatherCron(io);
+    })
+    .catch((err) => console.error("MongoDB error:", err));
 }
 
 // Root redirect
@@ -67,8 +71,8 @@ app.get("/api", (req: Request, res: Response) => {
       events: "/api/events",
       sun: "/api/sun",
       search: "/api/search",
-      weather: "/api/weather"
-    }
+      weather: "/api/weather",
+    },
   };
   res.format({
     "application/json": () => res.json(responseData),
