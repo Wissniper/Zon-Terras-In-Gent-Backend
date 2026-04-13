@@ -13,6 +13,9 @@ import weatherRoutes from "./routes/weatherRoutes.js";
 import gent3dRoutes from "./routes/gent3dRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
 
+import { Server } from "socket.io";
+import http from "http";
+
 dotenv.config();
 
 // Fix for __dirname in ES modules
@@ -21,6 +24,14 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
+const server = http.createServer(app);
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL]
+  : ["https://api.sun-seeker.be", "http://localhost:5173"];
+
+const io = new Server(server, {
+  cors: { origin: allowedOrigins },
+});
 
 // View engine setup
 app.set("view engine", "pug");
@@ -32,17 +43,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Database connection
-if (process.env.NODE_ENV !== 'test') {
-const mongoURI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db";
-mongoose
-  .connect(mongoURI)
-  .then(() => {
-    console.log("MongoDB connected to:", mongoURI);
-    // Start de cron job pas nadat de database verbinding er is
-    startWeatherCron();
-  })
-  .catch((err) => console.error("MongoDB error:", err));
+if (process.env.NODE_ENV !== "test") {
+  const mongoURI =
+    process.env.MONGODB_URI || "mongodb://localhost:27017/zon-terras-db";
+  mongoose
+    .connect(mongoURI)
+    .then(() => {
+      console.log("MongoDB connected to:", mongoURI);
+      // Start de cron job pas nadat de database verbinding er is
+      startWeatherCron(io);
+    })
+    .catch((err) => console.error("MongoDB error:", err));
 }
 
 // Root redirect
@@ -62,9 +73,9 @@ app.get("/api", (req: Request, res: Response) => {
       sun: "/api/sun",
       search: "/api/search",
       weather: "/api/weather",
-<<<<<<< HEAD
       gent3d: "/api/gent3d"
     }
+    },
   };
   res.format({
     "application/json": () => res.json(responseData),
@@ -92,7 +103,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).send("Something broke!");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
 
