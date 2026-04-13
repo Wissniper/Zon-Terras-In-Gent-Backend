@@ -10,6 +10,7 @@ import sunDataRoutes from "./routes/sunDataRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
+import gent3dRoutes from "./routes/gent3dRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
 
 dotenv.config();
@@ -60,7 +61,8 @@ app.get("/api", (req: Request, res: Response) => {
       events: "/api/events",
       sun: "/api/sun",
       search: "/api/search",
-      weather: "/api/weather"
+      weather: "/api/weather",
+      gent3d: "/api/gent3d"
     }
   };
   res.format({
@@ -81,6 +83,7 @@ app.use("/api/sun", sunDataRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/weather", weatherRoutes);
+app.use("/api/gent3d", gent3dRoutes);
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

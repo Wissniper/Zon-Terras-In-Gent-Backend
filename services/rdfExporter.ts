@@ -96,7 +96,6 @@ export function docToTriples(entityType: string, doc: any): string[] {
 
     if (entityType === "restaurant") {
         if (doc.cuisine) triples.push(`<${baseUri}> <https://schema.org/servesCuisine> ${lit(doc.cuisine)} .`);
-        if (doc.rating !== undefined) triples.push(`<${baseUri}> <https://schema.org/aggregateRating> ${dtLit(doc.rating, "decimal")} .`);
         if (doc.phone) triples.push(`<${baseUri}> <https://schema.org/telephone> ${lit(doc.phone)} .`);
         if (doc.openingHours) triples.push(`<${baseUri}> <https://schema.org/openingHours> ${lit(doc.openingHours)} .`);
         if (doc.takeaway !== undefined) triples.push(`<${baseUri}> <http://api.sun-seeker.be/vocab#offersTakeaway> ${dtLit(doc.takeaway, "boolean")} .`);

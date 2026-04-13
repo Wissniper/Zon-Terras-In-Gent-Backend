@@ -68,14 +68,13 @@ export const searchTerrasen = async (req: Request, res: Response) => {
  * GET /api/search/restaurants
  *   ?q=pizza                   — zoek op naam
  *   ?cuisine=italian           — filter op keuken
- *   ?minRating=3&maxRating=5   — bereik op rating
  *   ?minIntensity=50           — minimum zonintensiteit
  *   ?maxIntensity=100          — maximum zonintensiteit
  *   ?lat=51.05&lng=3.72&radius=1  — binnen straal (km)
  */
 export const searchRestaurants = async (req: Request, res: Response) => {
   try {
-    const { q, cuisine, minRating, maxRating, minIntensity, maxIntensity, lat, lng, radius } = req.query;
+    const { q, cuisine, minIntensity, maxIntensity, lat, lng, radius } = req.query;
 
     const pipeline: any[] = [];
 
@@ -93,9 +92,6 @@ export const searchRestaurants = async (req: Request, res: Response) => {
       match.cuisine = { $regex: cuisine as string, $options: "i" };
     }
 
-    const ratingRange = buildRangeFilter(minRating as string, maxRating as string);
-    if (ratingRange) match.rating = ratingRange;
-
     const intensityRange = buildRangeFilter(minIntensity as string, maxIntensity as string);
     if (intensityRange) match.intensity = intensityRange;
 
@@ -104,7 +100,7 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     }
 
     pipeline.push(...buildSunDataLookup("Restaurant"));
-    pipeline.push({ $sort: { rating: -1 } });
+    pipeline.push({ $sort: { intensity: -1 } });
 
     const restaurants = await Restaurant.aggregate(pipeline);
 

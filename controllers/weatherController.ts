@@ -13,7 +13,11 @@ export const getWeatherByParams = async (req: Request, res: Response) => {
 
         res.status(200).json({
             weather: weather,
-           
+            links: {
+                self: `/api/weather/${lat}/${lng}`,
+                byLocation: `/api/weather/by-location?lat=${lat}&lng=${lng}`,
+                inRadius: `/api/weather/in-radius?lat=${lat}&lng=${lng}&radius=5`,
+            },
         });
     } catch (error) {
         res.status(500).json({ message: "Error in weather integration", error });

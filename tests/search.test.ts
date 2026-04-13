@@ -22,7 +22,6 @@ const restaurant = {
   name: 'Café Italiano',
   address: 'Veldstraat 10, Gent',
   cuisine: 'Italian',
-  rating: 4.5,
   location: { type: 'Point', coordinates: [3.7200, 51.0540] },
   intensity: 75,
 };
@@ -108,12 +107,6 @@ describe('GET /api/search/restaurants', () => {
     expect(res.body.count).toBe(0);
   });
 
-  it('filters by rating range', async () => {
-    await request(app).post('/api/restaurants').send(restaurant); // rating 4.5
-    const res = await request(app).get('/api/search/restaurants?minRating=4&maxRating=5');
-    expect(res.status).toBe(200);
-    expect(res.body.count).toBe(1);
-  });
 });
 
 describe('GET /api/search/events', () => {

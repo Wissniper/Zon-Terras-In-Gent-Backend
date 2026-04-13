@@ -3,6 +3,7 @@ import { fetchWeatherData } from "./weatherService.js";
 import { syncTerrasData } from "./terrasDataFetcher.js";
 import { syncRestaurantData } from "./restaurantDataFetcher.js";
 import { syncEventData } from "./eventDataFetcher.js";
+import { calculateSunData, getCloudFactor } from "./sunService.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
@@ -43,8 +44,32 @@ async function getUniqueLocations(): Promise<{ lat: number; lng: number }[]> {
   return locations;
 }
 
+// Half a grid cell in degrees — used to find all documents that round to a given grid point
+const COORD_EPSILON = 0.0005;
+
+/**
+ * Berekent de huidige zonintensiteit voor een locatie en schrijft die terug
+ * naar alle Terras-, Restaurant- en Event-documenten op die locatie.
+ */
+async function updateIntensityForLocation(lat: number, lng: number): Promise<void> {
+  const cloudFactor = await getCloudFactor(lat, lng);
+  const { intensity } = calculateSunData(new Date(), lat, lng, cloudFactor);
+
+  // Zoek alle documenten waarvan de (afgeronde) coördinaten overeenkomen met dit grid-punt
+  const coordQuery = {
+    "location.coordinates.0": { $gte: lng - COORD_EPSILON, $lte: lng + COORD_EPSILON },
+    "location.coordinates.1": { $gte: lat - COORD_EPSILON, $lte: lat + COORD_EPSILON },
+  };
+
+  await Promise.all([
+    Terras.updateMany({ ...coordQuery, isDeleted: { $ne: true } }, { $set: { intensity } }),
+    Restaurant.updateMany({ ...coordQuery, isDeleted: { $ne: true } }, { $set: { intensity } }),
+    Event.updateMany({ ...coordQuery, isDeleted: { $ne: true } }, { $set: { intensity } }),
+  ]);
+}
+
 // Start cron jobs:
-// - Weerdata: elke 15 minuten
+// - Weerdata + intensiteit: elke 15 minuten
 export function startWeatherCron() {
   cron.schedule("*/15 * * * *", async () => {
     try {
@@ -62,17 +87,36 @@ export function startWeatherCron() {
         try {
           await fetchWeatherData(lat, lng);
         } catch (err) {
-          console.error(`[WeatherCron] Failed for ${lat},${lng}:`, err);
+          console.warn(`[WeatherCron] Weather fetch failed for ${lat},${lng}, continuing with cached data:`, err);
+        }
+        try {
+          await updateIntensityForLocation(lat, lng);
+        } catch (err) {
+          console.error(`[WeatherCron] Intensity update failed for ${lat},${lng}:`, err);
         }
       }
 
-      console.log("[WeatherCron] Weather data updated");
+      console.log("[WeatherCron] Weather data and intensities updated");
     } catch (error) {
       console.error("[Cron] Error:", error);
     }
   });
 
   console.log("[Cron] Scheduled weather + sun update every 15 minutes");
+
+  // Direct bij startup intensiteiten berekenen (zonder weer-API)
+  getUniqueLocations().then(async (locations) => {
+    if (locations.length === 0) return;
+    console.log(`[WeatherCron] Initialising intensity for ${locations.length} locations`);
+    for (const { lat, lng } of locations) {
+      try {
+        await updateIntensityForLocation(lat, lng);
+      } catch (err) {
+        console.error(`[WeatherCron] Initial intensity failed for ${lat},${lng}:`, err);
+      }
+    }
+    console.log("[WeatherCron] Initial intensities set");
+  }).catch((err) => console.error("[WeatherCron] Initial intensity init failed:", err));
 
   // Terras + restaurant sync: elke maandag om 03:00 's nachts
   cron.schedule("0 3 * * 1", async () => {

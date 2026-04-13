@@ -6,7 +6,7 @@ import { createGetAll, createOne, updateOne, patchOne, softDelete } from "./base
 import { toLd } from "../contexts/jsonld.js";
 import { isValidObjectId } from "mongoose";
 
-export const getAllRestaurants = createGetAll(Restaurant, { rating: -1 });
+export const getAllRestaurants = createGetAll(Restaurant, { name: 1 });
 
 export const getRestaurantById = async (req: Request, res: Response) => {
   try {

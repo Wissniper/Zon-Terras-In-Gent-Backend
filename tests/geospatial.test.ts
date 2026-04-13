@@ -62,8 +62,8 @@ describe('Geospatial Query Tests', () => {
       { name: 'Terras Ver',      address: 'Gent', intensity: 60, location: { type: 'Point', coordinates: [FAR.lng,  FAR.lat]  } },
     ]);
     await Restaurant.create([
-      { name: 'Restaurant Dichtbij', address: 'Gent', cuisine: 'Belgian', rating: 4, intensity: 60, location: { type: 'Point', coordinates: [NEAR.lng, NEAR.lat] } },
-      { name: 'Restaurant Ver',      address: 'Gent', cuisine: 'Italian', rating: 3, intensity: 40, location: { type: 'Point', coordinates: [FAR.lng,  FAR.lat]  } },
+      { name: 'Restaurant Dichtbij', address: 'Gent', cuisine: 'Belgian', intensity: 60, location: { type: 'Point', coordinates: [NEAR.lng, NEAR.lat] } },
+      { name: 'Restaurant Ver',      address: 'Gent', cuisine: 'Italian', intensity: 40, location: { type: 'Point', coordinates: [FAR.lng,  FAR.lat]  } },
     ]);
 
     const terrasRes = await request(app)
@@ -91,7 +91,7 @@ describe('Geospatial Query Tests', () => {
         location: { type: 'Point', coordinates: [NEAR.lng, NEAR.lat] },
       }),
       Restaurant.create({
-        name: 'Restaurant', address: 'Gent', cuisine: 'Belgian', rating: 4, intensity: 50,
+        name: 'Restaurant', address: 'Gent', cuisine: 'Belgian', intensity: 50,
         location: { type: 'Point', coordinates: [NEAR.lng, NEAR.lat] },
       }),
       Event.create({
@@ -106,7 +106,7 @@ describe('Geospatial Query Tests', () => {
         location: { type: 'Point', coordinates: [FAR.lng, FAR.lat] },
       }),
       Restaurant.create({
-        name: 'Ver Restaurant', address: 'Gent', cuisine: 'Italian', rating: 3, intensity: 40,
+        name: 'Ver Restaurant', address: 'Gent', cuisine: 'Italian', intensity: 40,
         location: { type: 'Point', coordinates: [FAR.lng, FAR.lat] },
       }),
       Event.create({

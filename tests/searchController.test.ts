@@ -41,21 +41,20 @@ it('searchTerrasen combines text, intensity, and geo filters', async () => {
     expect(response.body.terrasen[0].name).toMatch(/Korenmarkt/i);
   });
 
-//searchRestaurants filters by cuisine, rating range, intensity range
-it('searchRestaurants filters by cuisine, rating, and intensity', async () => {
+//searchRestaurants filters by cuisine and intensity range
+it('searchRestaurants filters by cuisine and intensity', async () => {
     await Restaurant.create({
       uuid: 'r-search-1',
       name: 'Pizza Place',
       cuisine: 'Italian',
       address: 'Gent',
-      rating: 4.5,
       intensity: 65,
       location: { type: 'Point', coordinates: [3.72, 51.05] },
       isDeleted: false
     });
 
     const response = await request(app)
-      .get('/api/search/restaurants?cuisine=italian&minRating=4&minIntensity=60')
+      .get('/api/search/restaurants?cuisine=italian&minIntensity=60')
       .set('Accept', 'application/json');
 
     expect(response.status).toBe(200);
@@ -94,7 +93,7 @@ it('searchNearby returns all 3 entity types in one response', async () => {
     
     await Promise.all([
       Terras.create({ uuid: 't-near', name: 'T', address: 'Gent', location: commonLoc, intensity: 50 }),
-      Restaurant.create({ uuid: 'r-near', name: 'R', cuisine: 'Italian', address: 'Gent', location: commonLoc, intensity: 50, rating: 3 }),
+      Restaurant.create({ uuid: 'r-near', name: 'R', cuisine: 'Italian', address: 'Gent', location: commonLoc, intensity: 50 }),
       Event.create({ uuid: 'e-near', title: 'E', address: 'Gent', location: commonLoc, date_start: new Date(), date_end: new Date() })
     ]);
 

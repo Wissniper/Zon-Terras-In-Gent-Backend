@@ -11,7 +11,6 @@ describe('Restaurant Model Tests', () => {
     name: 'De Gouden Saté',
     address: 'Sint-Pietersplein 1, 9000 Gent',
     cuisine: 'Belgian',
-    rating: 4.5,
     uuid: 'bc90f23d-4c3e-42c2-9a3d-82b3c4d5e6f7', //uuid string
     location: { type: 'Point', coordinates: [3.726, 51.041] },
     intensity: 85
@@ -30,17 +29,6 @@ describe('Restaurant Model Tests', () => {
   it('zou moeten falen als verplichte velden ontbreken', async () => {
     const invalidRestaurant = new Restaurant({ cuisine: 'Italian' });
     await expect(invalidRestaurant.save()).rejects.toThrow();
-  });
-
-  //Test rating (min 0, max 5)
-  it('zou een error moeten geven als de rating lager is dan 0', async () => {
-    const lowRating = new Restaurant({ ...validRestaurantData, rating: -1 });
-    await expect(lowRating.save()).rejects.toThrow();
-  });
-
-  it('zou een error moeten geven als de rating hoger is dan 5', async () => {
-    const highRating = new Restaurant({ ...validRestaurantData, rating: 6 });
-    await expect(highRating.save()).rejects.toThrow();
   });
 
   //Test duplicate identifier
@@ -63,11 +51,10 @@ describe('Restaurant Model Tests', () => {
   });
 
   //Test overige indexes
-  it('zou indexes moeten hebben op rating, intensity, name en cuisine', () => {
+  it('zou indexes moeten hebben op intensity, name en cuisine', () => {
     const indexes = Restaurant.schema.indexes();
     const indexedFields = indexes.map((idx: {}[]) => Object.keys(idx[0])).flat();
-        
-    expect(indexedFields).toContain('rating');
+
     expect(indexedFields).toContain('intensity');
     expect(indexedFields).toContain('name');
     expect(indexedFields).toContain('cuisine');

@@ -8,7 +8,6 @@ const validRestaurant = {
   name: 'Pizzeria Roma',
   address: 'Veldstraat 10, 9000 Gent',
   cuisine: 'Italian',
-  rating: 4.2,
   location: { type: 'Point', coordinates: [3.72, 51.054] },
   intensity: 65,
 };
@@ -47,12 +46,6 @@ describe('POST /api/restaurants', () => {
     expect(res.status).toBe(400);
   });
 
-  it('returns 400 when rating is out of range', async () => {
-    const res = await request(app)
-      .post('/api/restaurants')
-      .send({ ...validRestaurant, rating: 6 });
-    expect(res.status).toBe(400);
-  });
 });
 
 describe('GET /api/restaurants/:id', () => {
@@ -82,11 +75,10 @@ describe('PUT /api/restaurants/:id', () => {
     const created = await request(app).post('/api/restaurants').send(validRestaurant);
     const uuid = created.body.uuid;
 
-    const updated = { ...validRestaurant, name: 'La Dolce Vita', rating: 5 };
+    const updated = { ...validRestaurant, name: 'La Dolce Vita' };
     const res = await request(app).put(`/api/restaurants/${uuid}`).send(updated);
     expect(res.status).toBe(200);
     expect(res.body.name).toBe('La Dolce Vita');
-    expect(res.body.rating).toBe(5);
   });
 
   it('returns 404 when updating a non-existent restaurant', async () => {
@@ -102,16 +94,16 @@ describe('PATCH /api/restaurants/:id', () => {
     const created = await request(app).post('/api/restaurants').send(validRestaurant);
     const uuid = created.body.uuid;
 
-    const res = await request(app).patch(`/api/restaurants/${uuid}`).send({ rating: 3.5 });
+    const res = await request(app).patch(`/api/restaurants/${uuid}`).send({ intensity: 80 });
     expect(res.status).toBe(200);
-    expect(res.body.rating).toBe(3.5);
+    expect(res.body.intensity).toBe(80);
     expect(res.body.cuisine).toBe(validRestaurant.cuisine);
   });
 
   it('returns 404 when patching a non-existent restaurant', async () => {
     const res = await request(app)
       .patch('/api/restaurants/00000000-0000-4000-8000-000000000000')
-      .send({ rating: 3 });
+      .send({ intensity: 50 });
     expect(res.status).toBe(404);
   });
 });
