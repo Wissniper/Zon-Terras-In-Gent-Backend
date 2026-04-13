@@ -62,6 +62,7 @@ app.get("/api", (req: Request, res: Response) => {
       sun: "/api/sun",
       search: "/api/search",
       weather: "/api/weather",
+<<<<<<< HEAD
       gent3d: "/api/gent3d"
     }
   };
