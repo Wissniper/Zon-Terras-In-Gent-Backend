@@ -74,7 +74,6 @@ app.get("/api", (req: Request, res: Response) => {
       search: "/api/search",
       weather: "/api/weather",
       gent3d: "/api/gent3d"
-    }
     },
   };
   res.format({
