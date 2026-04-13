@@ -70,7 +70,7 @@ async function updateIntensityForLocation(lat: number, lng: number): Promise<voi
 
 // Start cron jobs:
 // - Weerdata + intensiteit: elke 15 minuten
-export function startWeatherCron(io?: any) {
+export function startWeatherCron(io?: import("socket.io").Server) {
   cron.schedule("*/15 * * * *", async () => {
     try {
       const locations = await getUniqueLocations();
