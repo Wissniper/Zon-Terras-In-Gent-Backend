@@ -35,6 +35,7 @@
     "seed:restaurants": "node --loader ts-node/esm scripts/seed/seedRestaurants.ts",
     "seed:events": "node --loader ts-node/esm scripts/seed/seedEvents.ts",
     "seed:terrassen": "node --loader ts-node/esm scripts/seed/seedTerrassen.ts",
-    "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev"
+    "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev",
+    "fetch:gent3d": "node --loader ts-node/esm scripts/fetchGent3d.ts"
   }
 }
