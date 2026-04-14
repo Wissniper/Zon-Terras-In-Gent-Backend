@@ -54,4 +54,5 @@ jobs:
             npm run build
             sudo systemctl restart sun-seeker-api
             sudo systemctl is-active --quiet sun-seeker-api && echo "Service restarted successfully" || (echo "Service failed to restart" && exit 1)
+            npm run fetch:gent3d
           EOF
