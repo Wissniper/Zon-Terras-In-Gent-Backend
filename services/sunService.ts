@@ -30,10 +30,10 @@ export function calculateSunData(dateTime: Date, lat: number, lng: number, cloud
 
 // Haal de meest recente cloudFactor op voor een locatie
 export async function getCloudFactor(lat: number, lng: number): Promise<number | undefined> {
-  const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
   const weather = await Weather.findOne({
     "location.coordinates": [lng, lat],
-    timestamp: { $gte: fifteenMinAgo },
+    timestamp: { $gte: oneHourAgo },
   });
   return weather?.cloudFactor as number | undefined;
 }
