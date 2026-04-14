@@ -12,10 +12,10 @@ import { validateID } from "../middleware/validation.js";
 const router = express.Router();
 
 router.get("/", getAllTerrasen);
-router.post("/", createTerras);
+// router.post("/", createTerras);
 router.get("/:id", validateID, getTerrasById);
-router.put("/:id", validateID, updateTerras);
-router.patch("/:id", validateID, patchTerras);
-router.delete("/:id", validateID, deleteTerras);
+// router.put("/:id", validateID, updateTerras);
+// router.patch("/:id", validateID, patchTerras);
+// router.delete("/:id", validateID, deleteTerras);
 
 export default router;
