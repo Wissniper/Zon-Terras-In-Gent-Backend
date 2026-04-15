@@ -12,6 +12,8 @@ import searchRoutes from "./routes/searchRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
 import gent3dRoutes from "./routes/gent3dRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
+import cors from "cors";
+
 
 import { Server } from "socket.io";
 import http from "http";
@@ -41,6 +43,8 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(cors()); // Staat verzoeken van je frontend (5173) toe naar je backend (3000)
 
 // Database connection
 if (process.env.NODE_ENV !== "test") {
