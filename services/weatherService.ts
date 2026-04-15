@@ -8,11 +8,11 @@ import Weather from "../models/weatherModel.js";
  */
 export const fetchWeatherData = async (lat: number, lng: number) => {
     // Check of er recente data is (minder dan 15 minuten oud)
-    const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
     const cached = await Weather.findOne({
         "location.coordinates": [lng, lat],
-        timestamp: { $gte: fifteenMinAgo },
+        timestamp: { $gte: oneHourAgo },
     });
 
     if (cached) {

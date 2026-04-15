@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -40,6 +41,7 @@ app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
 // Middleware
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));

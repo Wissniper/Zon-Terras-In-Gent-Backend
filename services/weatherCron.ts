@@ -7,6 +7,7 @@ import { calculateSunData, getCloudFactor } from "./sunService.js";
 import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
+import Weather from "../models/weatherModel.js";
 
 // Rond coördinaten af naar een raster van ~111m
 // Zo worden nabijgelegen locaties gegroepeerd en maken we minder API calls
@@ -69,9 +70,9 @@ async function updateIntensityForLocation(lat: number, lng: number): Promise<voi
 }
 
 // Start cron jobs:
-// - Weerdata + intensiteit: elke 15 minuten
+// - Weerdata + intensiteit: elk uur
 export function startWeatherCron(io?: import("socket.io").Server) {
-  cron.schedule("*/15 * * * *", async () => {
+  cron.schedule("0 * * * *", async () => {
     try {
       const locations = await getUniqueLocations();
 
@@ -82,10 +83,21 @@ export function startWeatherCron(io?: import("socket.io").Server) {
 
       console.log(`[WeatherCron] Fetching weather for ${locations.length} locations at ${new Date().toISOString()}`);
 
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
       // Sequentieel ophalen om rate limits te respecteren
       for (const { lat, lng } of locations) {
         try {
-          await fetchWeatherData(lat, lng);
+          const recentData = await Weather.findOne({
+            "location.coordinates": [lng, lat],
+            timestamp: { $gte: oneHourAgo },
+          }).lean();
+
+          if (recentData) {
+            console.log(`[WeatherCron] Skipping API call for ${lat},${lng} — cached data is fresh`);
+          } else {
+            await fetchWeatherData(lat, lng);
+          }
         } catch (err) {
           console.warn(`[WeatherCron] Weather fetch failed for ${lat},${lng}, continuing with cached data:`, err);
         }
@@ -111,7 +123,7 @@ export function startWeatherCron(io?: import("socket.io").Server) {
     }
   });
 
-  console.log("[Cron] Scheduled weather + sun update every 15 minutes");
+  console.log("[Cron] Scheduled weather + sun update every hour");
 
   // Direct bij startup intensiteiten berekenen (zonder weer-API)
   getUniqueLocations().then(async (locations) => {
