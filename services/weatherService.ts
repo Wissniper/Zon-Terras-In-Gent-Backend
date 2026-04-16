@@ -8,36 +8,27 @@ import Weather from "../models/weatherModel.js";
  */
 export const fetchWeatherData = async (lat: number, lng: number) => {
     // Check of er recente data is (minder dan 15 minuten oud)
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
 
     const cached = await Weather.findOne({
         "location.coordinates": [lng, lat],
-        timestamp: { $gte: oneHourAgo },
+        timestamp: { $gte: fifteenMinAgo },
     });
 
     if (cached) {
         return cached;
     }
 
-    // Haal verse data op van Open-Meteo
-    const params = {
-        latitude: lat,
-        longitude: lng,
-        hourly: ["temperature_2m", "wind_speed_10m", "uv_index", "cloud_cover"],
-        timezone: "auto",
-    };
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m,uv_index,cloud_cover&timezone=auto`;
+    const response = await fetch(url);
+    const data = await response.json();
 
-    const url = process.env.OPENMETEO_URL || "https://api.open-meteo.com/v1/forecast";
-    const responses = await fetchWeatherApi(url, params);
+    if (!data.current) throw new Error("Geen actuele data beschikbaar");
 
-    const response = responses[0];
-    const hourly = response.hourly()!;
-
-    // Haal de waarden op voor het huidige uur (index 0)
-    const temperature = hourly.variables(0)!.valuesArray()![0];
-    const windspeed = hourly.variables(1)!.valuesArray()![0];
-    const uvIndex = hourly.variables(2)!.valuesArray()![0];
-    const cloudCover = hourly.variables(3)!.valuesArray()![0];
+    const temperature = data.current.temperature_2m;
+    const windspeed = data.current.wind_speed_10m; 
+    const uvIndex = data.current.uv_index;
+    const cloudCover = data.current.cloud_cover;
 
     // cloudFactor: vermenigvuldig cloudCover met 0.8 om de impact op zonintensiteit te berekenen.
     // Bv. 50% bewolking = 40% reductie van de zonintensiteit.

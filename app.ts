@@ -13,7 +13,6 @@ import searchRoutes from "./routes/searchRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
 import gent3dRoutes from "./routes/gent3dRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
-import cors from "cors";
 
 
 import { Server } from "socket.io";
@@ -30,7 +29,7 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 const allowedOrigins = process.env.FRONTEND_URL
   ? [process.env.FRONTEND_URL]
-  : ["https://api.sun-seeker.be", "http://localhost:5173"];
+  : ["https://api.sun-seeker.be", "http://localhost:5173", "http://127.0.0.1:5173"];
 
 const io = new Server(server, {
   cors: { origin: allowedOrigins },
@@ -45,8 +44,6 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-
-app.use(cors()); // Staat verzoeken van je frontend (5173) toe naar je backend (3000)
 
 // Database connection
 if (process.env.NODE_ENV !== "test") {
