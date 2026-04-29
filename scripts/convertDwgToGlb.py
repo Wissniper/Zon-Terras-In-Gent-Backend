@@ -8,27 +8,34 @@ import Mesh
 import importDWG
 
 def convert(input_path, output_path):
-    print(f"Converting {input_path} to {output_path}...")
-    
-    # Create new document
-    doc = App.newDocument("Conversion")
-    
-    # Import DWG
-    importDWG.insert(input_path, "Conversion")
-    doc.recompute()
-    
-    # Collect all meshable objects
-    objs = []
-    for obj in doc.Objects:
-        if hasattr(obj, "Shape") or hasattr(obj, "Mesh"):
-            objs.append(obj)
-    
-    if not objs:
-        print("No renderable objects found in DWG.")
+    if not os.path.isfile(input_path):
+        print(f"Error: input file not found: {input_path}", file=sys.stderr)
         sys.exit(1)
-        
-    # Export to intermediate GLB (FreeCAD Mesh module handles this)
-    Mesh.export(objs, output_path)
+
+    print(f"Converting {input_path} to {output_path}...")
+
+    doc = App.newDocument("Conversion")
+
+    try:
+        importDWG.insert(input_path, "Conversion")
+    except Exception as e:
+        print(f"Error: failed to import DWG: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    doc.recompute()
+
+    objs = [obj for obj in doc.Objects if hasattr(obj, "Shape") or hasattr(obj, "Mesh")]
+
+    if not objs:
+        print("Error: no renderable objects found in DWG.", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        Mesh.export(objs, output_path)
+    except Exception as e:
+        print(f"Error: failed to export GLB: {e}", file=sys.stderr)
+        sys.exit(1)
+
     print("Intermediate GLB exported successfully.")
 
 if __name__ == "__main__":
