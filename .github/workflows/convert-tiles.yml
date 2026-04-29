@@ -1,0 +1,24 @@
+name: Convert 3D Tiles
+
+on:
+  push:
+    paths:
+      - 'Zon-Terras-In-Gent-Backend/data/dwg/**.dwg'
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Converter Image
+        run: docker build -t dwg-converter -f Zon-Terras-In-Gent-Backend/Dockerfile.converter Zon-Terras-In-Gent-Backend
+
+      - name: Run Conversion
+        run: ./Zon-Terras-In-Gent-Backend/scripts/convert-all.sh
+
+      - name: Commit and Push GLB Files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: auto-convert DWG to GLB"
+          file_pattern: 'Zon-Terras-In-Gent-Backend/public/tiles/*.glb'
