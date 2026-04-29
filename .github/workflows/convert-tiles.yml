@@ -10,12 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Get changed DWG files
+        id: changed
+        run: |
+          files=$(git diff-tree --no-commit-id -r --name-only --diff-filter=AM HEAD \
+            | grep '^Zon-Terras-In-Gent-Backend/data/dwg/.*\.dwg$' \
+            | xargs -I{} basename {})
+          echo "files=$files" >> "$GITHUB_OUTPUT"
 
       - name: Build Converter Image
         run: docker build -t dwg-converter -f Zon-Terras-In-Gent-Backend/Dockerfile.converter Zon-Terras-In-Gent-Backend
 
       - name: Run Conversion
-        run: ./Zon-Terras-In-Gent-Backend/scripts/convert-all.sh
+        working-directory: Zon-Terras-In-Gent-Backend
+        run: ./scripts/convert-all.sh ${{ steps.changed.outputs.files }}
 
       - name: Commit and Push GLB Files
         uses: stefanzweifel/git-auto-commit-action@v4
