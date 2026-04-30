@@ -4,6 +4,8 @@
 #   ./convert-all.sh              — convert missing or stale files
 #   ./convert-all.sh a.dwg b.dwg — convert specific files only
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 INPUT_DIR="data/dwg"
 OUTPUT_DIR="public/tiles"
 
@@ -25,10 +27,7 @@ convert_file() {
 
     if needs_conversion "$f" "$glb"; then
         echo "Converting $filename..."
-        docker run --rm \
-            -v "$(pwd)/data/dwg":/data/in \
-            -v "$(pwd)/public/tiles":/data/out \
-            dwg-converter "/data/in/$filename" "/data/out/$stem.glb"
+        bash "$SCRIPT_DIR/entrypoint.sh" "$f" "$glb"
     else
         echo "Skipping $filename (up to date)"
     fi

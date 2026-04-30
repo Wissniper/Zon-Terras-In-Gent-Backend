@@ -17,7 +17,8 @@ dwg2dxf "$DWG_IN" -o "$TEMP_DXF"
 ls -lh "$TEMP_DXF"
 
 echo "Phase 2: Converting DXF → OBJ via ezdxf..."
-python3 /app/convert.py --input "$TEMP_DXF" --output "$TEMP_OBJ"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+python3 "$SCRIPT_DIR/convertDwgToGlb.py" --input "$TEMP_DXF" --output "$TEMP_OBJ"
 ls -lh "$TEMP_OBJ"
 
 echo "Phase 3: Converting OBJ → GLB..."

@@ -47,16 +47,31 @@ fi
 dwg_count=$(find "$DWG_DIR" -maxdepth 1 -name "*.dwg" -o -name "*.DWG" 2>/dev/null | wc -l | tr -d ' ')
 echo "Extracted $dwg_count DWG file(s) into $DWG_DIR"
 
-# ── Step 3: Build converter image if absent ───────────────────────────────────
+# ── Step 3: Check/install native converter dependencies ───────────────────────
 echo ""
 echo "═══════════════════════════════════════════════════════════"
-echo " Step 3: Checking converter Docker image"
+echo " Step 3: Checking converter dependencies"
 echo "═══════════════════════════════════════════════════════════"
-if ! docker image inspect dwg-converter > /dev/null 2>&1; then
-  echo "Image not found — building dwg-converter..."
-  docker build -t dwg-converter -f "$PROJECT_DIR/Dockerfile.converter" "$PROJECT_DIR"
+
+if ! command -v dwg2dxf &> /dev/null; then
+  echo "LibreDWG not found — installing..."
+  sudo bash "$SCRIPT_DIR/install-libredwg.sh"
 else
-  echo "dwg-converter image already present."
+  echo "dwg2dxf already installed."
+fi
+
+if ! python3 -c "import ezdxf" 2>/dev/null; then
+  echo "ezdxf not found — installing..."
+  pip3 install --quiet ezdxf
+else
+  echo "ezdxf already installed."
+fi
+
+if ! command -v obj2gltf &> /dev/null; then
+  echo "obj2gltf not found — installing..."
+  npm install -g obj2gltf gltf-pipeline
+else
+  echo "obj2gltf already installed."
 fi
 
 # ── Step 4: Convert DWG → GLB ────────────────────────────────────────────────
