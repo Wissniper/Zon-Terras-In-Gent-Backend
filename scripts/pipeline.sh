@@ -24,7 +24,9 @@ echo "════════════════════════�
 mkdir -p "$DWG_DIR"
 
 if ! command -v unzip &> /dev/null; then
-  echo "Error: 'unzip' is not installed. Please run: brew install unzip" >&2
+  echo "Error: 'unzip' is not installed." >&2
+  echo "  macOS: brew install unzip" >&2
+  echo "  Ubuntu/Debian: sudo apt-get install -y unzip" >&2
   exit 1
 fi
 
