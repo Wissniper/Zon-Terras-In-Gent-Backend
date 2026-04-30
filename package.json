@@ -41,7 +41,7 @@
     "seed:events": "node --loader ts-node/esm scripts/seed/seedEvents.ts",
     "seed:terrassen": "node --loader ts-node/esm scripts/seed/seedTerrassen.ts",
     "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev",
-    "fetch:gent3d": "node --loader ts-node/esm scripts/fetchGent3d.ts",
+    "fetch:gent3d": "node dist/scripts/fetchGent3d.js",
     "pipeline:gent3d": "bash scripts/pipeline.sh"
   }
 }
