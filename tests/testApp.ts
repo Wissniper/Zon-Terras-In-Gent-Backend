@@ -5,6 +5,7 @@ import eventRoutes from '../routes/eventRoutes.js';
 import searchRoutes from '../routes/searchRoutes.js';
 import sunDataRoutes from '../routes/sunDataRoutes.js';
 import weatherRoutes from '../routes/weatherRoutes.js';
+import gent3dRoutes from '../routes/gent3dRoutes.js';
 
 export function createTestApp() {
   const app = express();
@@ -24,5 +25,6 @@ export function createTestApp() {
   app.use('/api/search', searchRoutes);
   app.use('/api/sun', sunDataRoutes);
   app.use('/api/weather', weatherRoutes);
+  app.use('/api/gent3d', gent3dRoutes);
   return app;
 }
