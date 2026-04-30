@@ -1,6 +1,8 @@
 import request from 'supertest';
 import { connect, closeDatabase, clearDatabase } from './database.helper';
 import { createTestApp } from './testApp';
+import Event from '../models/eventModel';
+import Terras from '../models/terrasModel';
 
 const app = createTestApp();
 
@@ -32,7 +34,7 @@ describe('GET /api/events', () => {
   });
 
   it('returns all events', async () => {
-    await request(app).post('/api/events').send(validEvent);
+    await Event.create(validEvent);
     const res = await request(app).get('/api/events');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
@@ -41,46 +43,16 @@ describe('GET /api/events', () => {
 });
 
 describe('POST /api/events', () => {
-  it('creates an event and returns 201', async () => {
+  it('returns 404 because the route is disabled', async () => {
     const res = await request(app).post('/api/events').send(validEvent);
-    expect(res.status).toBe(201);
-    expect(res.body.title).toBe(validEvent.title);
-    expect(res.body.uuid).toBeDefined();
-  });
-
-  it('returns 400 for missing required fields', async () => {
-    const res = await request(app).post('/api/events').send({ title: 'Missing fields' });
-    expect(res.status).toBe(400);
-  });
-
-  it('creates an event linked to a terras via locationRef', async () => {
-    const terrasRes = await request(app).post('/api/terrasen').send(validTerras);
-    const terrasUuid = terrasRes.body.uuid;
-
-    const res = await request(app).post('/api/events').send({
-      ...validEvent,
-      locationRef: terrasUuid,
-      locationType: 'terras',
-    });
-    expect(res.status).toBe(201);
-    expect(res.body.locationRef).toBe(terrasUuid);
-    expect(res.body.locationType).toBe('terras');
-  });
-
-  it('returns 400 when locationRef points to a non-existent terras', async () => {
-    const res = await request(app).post('/api/events').send({
-      ...validEvent,
-      locationRef: '00000000-0000-4000-8000-000000000000',
-      locationType: 'terras',
-    });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
   });
 });
 
 describe('GET /api/events/:id', () => {
   it('returns an event by UUID', async () => {
-    const created = await request(app).post('/api/events').send(validEvent);
-    const uuid = created.body.uuid;
+    const created = await Event.create(validEvent);
+    const uuid = created.uuid;
 
     const res = await request(app).get(`/api/events/${uuid}`);
     expect(res.status).toBe(200);
@@ -107,15 +79,14 @@ describe('GET /api/events/today', () => {
       date_end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 20, 0, 0).toISOString(),
     };
 
-    await request(app).post('/api/events').send(eventToday);
+    await Event.create(eventToday);
     const res = await request(app).get('/api/events/today');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
   });
 
   it('returns no events when none overlap with today', async () => {
-    // Event far in the future
-    await request(app).post('/api/events').send(validEvent);
+    await Event.create(validEvent);
     const res = await request(app).get('/api/events/today');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(0);
@@ -136,7 +107,7 @@ describe('GET /api/events/with-terrasen', () => {
       date_end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 20, 0, 0).toISOString(),
     };
 
-    await request(app).post('/api/events').send(eventToday);
+    await Event.create(eventToday);
     const res = await request(app).get('/api/events/with-terrasen');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
@@ -145,53 +116,31 @@ describe('GET /api/events/with-terrasen', () => {
 });
 
 describe('PUT /api/events/:id', () => {
-  it('fully replaces an event', async () => {
-    const created = await request(app).post('/api/events').send(validEvent);
-    const uuid = created.body.uuid;
+  it('returns 404 because the route is disabled', async () => {
+    const created = await Event.create(validEvent);
+    const uuid = created.uuid;
 
     const updated = { ...validEvent, title: 'Updated Festival' };
     const res = await request(app).put(`/api/events/${uuid}`).send(updated);
-    expect(res.status).toBe(200);
-    expect(res.body.title).toBe('Updated Festival');
-  });
-
-  it('returns 404 when updating a non-existent event', async () => {
-    const res = await request(app)
-      .put('/api/events/00000000-0000-4000-8000-000000000000')
-      .send(validEvent);
     expect(res.status).toBe(404);
   });
 });
 
 describe('PATCH /api/events/:id', () => {
-  it('partially updates an event', async () => {
-    const created = await request(app).post('/api/events').send(validEvent);
-    const uuid = created.body.uuid;
+  it('returns 404 because the route is disabled', async () => {
+    const created = await Event.create(validEvent);
+    const uuid = created.uuid;
 
     const res = await request(app).patch(`/api/events/${uuid}`).send({ title: 'Patched Title' });
-    expect(res.status).toBe(200);
-    expect(res.body.title).toBe('Patched Title');
-    expect(res.body.address).toBe(validEvent.address);
+    expect(res.status).toBe(404);
   });
 });
 
 describe('DELETE /api/events/:id', () => {
-  it('soft-deletes an event', async () => {
-    const created = await request(app).post('/api/events').send(validEvent);
-    const uuid = created.body.uuid;
+  it('returns 404 because the route is disabled', async () => {
+    const created = await Event.create(validEvent);
+    const uuid = created.uuid;
 
-    const deleteRes = await request(app).delete(`/api/events/${uuid}`);
-    expect(deleteRes.status).toBe(200);
-
-    const listRes = await request(app).get('/api/events');
-    expect(listRes.body.count).toBe(0);
-  });
-
-  it('returns 404 when deleting an already-deleted event', async () => {
-    const created = await request(app).post('/api/events').send(validEvent);
-    const uuid = created.body.uuid;
-
-    await request(app).delete(`/api/events/${uuid}`);
     const res = await request(app).delete(`/api/events/${uuid}`);
     expect(res.status).toBe(404);
   });

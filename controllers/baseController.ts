@@ -125,7 +125,7 @@ export function updateOne<T extends Document>(model: Model<T>) {
       const item = await model.findOneAndReplace(
         { ...buildIdQuery(req.params.id), isDeleted: { $ne: true } } as any,
         body,
-        { new: true, runValidators: true }
+        { returnDocument: "after", runValidators: true }
       );
       if (!item) {
         return res.status(404).json({ message: `${model.modelName} not found` });
@@ -148,7 +148,7 @@ export function patchOne<T extends Document>(model: Model<T>) {
       const item = await model.findOneAndUpdate(
         { ...buildIdQuery(req.params.id), isDeleted: { $ne: true } } as any,
         { $set: body },
-        { new: true, runValidators: true }
+        { returnDocument: "after", runValidators: true }
       );
       if (!item) {
         return res.status(404).json({ message: `${model.modelName} not found` });
@@ -174,7 +174,7 @@ export function softDelete<T extends Document>(
       const item = await model.findOneAndUpdate(
         { ...buildIdQuery(req.params.id), isDeleted: { $ne: true } } as any,
         { isDeleted: true, deletedAt: new Date() },
-        { new: true }
+        { returnDocument: "after" }
       );
       if (!item) {
         return res.status(404).json({ message: `${model.modelName} not found` });

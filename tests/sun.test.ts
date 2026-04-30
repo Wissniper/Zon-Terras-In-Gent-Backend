@@ -12,6 +12,9 @@ jest.unstable_mockModule('../services/weatherService', () => ({
 const { default: request } = await import('supertest');
 const { connect, closeDatabase, clearDatabase } = await import('./database.helper');
 const { createTestApp } = await import('./testApp');
+const { default: Terras } = await import('../models/terrasModel');
+const { default: Restaurant } = await import('../models/restaurantModel');
+const { default: Event } = await import('../models/eventModel');
 
 const app = createTestApp();
 
@@ -62,8 +65,8 @@ describe('GET /api/sun/:lat/:lng/:time', () => {
 
 describe('GET /api/sun/terras/:terrasId', () => {
   it('returns sun data for an existing terras', async () => {
-    const created = await request(app).post('/api/terrasen').send(validTerras);
-    const uuid = created.body.uuid;
+    const created = await Terras.create(validTerras);
+    const uuid = created.uuid;
 
     const res = await request(app).get(`/api/sun/terras/${uuid}`);
     expect(res.status).toBe(200);
@@ -81,16 +84,16 @@ describe('GET /api/sun/terras/:terrasId', () => {
   });
 
   it('accepts an optional ?time= query param', async () => {
-    const created = await request(app).post('/api/terrasen').send(validTerras);
-    const uuid = created.body.uuid;
+    const created = await Terras.create(validTerras);
+    const uuid = created.uuid;
 
     const res = await request(app).get(`/api/sun/terras/${uuid}?time=2026-06-21T12:00:00Z`);
     expect(res.status).toBe(200);
   });
 
   it('returns 400 for an invalid ?time= query param', async () => {
-    const created = await request(app).post('/api/terrasen').send(validTerras);
-    const uuid = created.body.uuid;
+    const created = await Terras.create(validTerras);
+    const uuid = created.uuid;
 
     const res = await request(app).get(`/api/sun/terras/${uuid}?time=not-a-date`);
     expect(res.status).toBe(400);
@@ -99,8 +102,8 @@ describe('GET /api/sun/terras/:terrasId', () => {
 
 describe('GET /api/sun/restaurant/:restaurantId', () => {
   it('returns sun data for an existing restaurant', async () => {
-    const created = await request(app).post('/api/restaurants').send(validRestaurant);
-    const uuid = created.body.uuid;
+    const created = await Restaurant.create(validRestaurant);
+    const uuid = created.uuid;
 
     const res = await request(app).get(`/api/sun/restaurant/${uuid}`);
     expect(res.status).toBe(200);
@@ -115,14 +118,14 @@ describe('GET /api/sun/restaurant/:restaurantId', () => {
 
 describe('GET /api/sun/event/:eventId', () => {
   it('returns sun data for an existing event', async () => {
-    const eventRes = await request(app).post('/api/events').send({
-      title: 'Sun Test Event',
-      address: 'Korenmarkt 1, Gent',
-      date_start: '2026-06-01T10:00:00.000Z',
-      date_end: '2026-06-01T18:00:00.000Z',
-      location: { type: 'Point', coordinates: [3.7218, 51.0536] },
+    const event = await Event.create({
+      title: 'Jazz Night',
+      address: 'Sint-Baafsplein 1, Gent',
+      date_start: '2026-06-01T20:00:00.000Z',
+      date_end: '2026-06-01T23:00:00.000Z',
+      location: { type: 'Point', coordinates: [3.722, 51.053] },
     });
-    const uuid = eventRes.body.uuid;
+    const uuid = event.uuid;
 
     const res = await request(app).get(`/api/sun/event/${uuid}`);
     expect(res.status).toBe(200);
@@ -142,8 +145,8 @@ describe('GET /api/sun/cache/:locationType/:locationId', () => {
   });
 
   it('returns 200 with empty cache for valid location', async () => {
-    const created = await request(app).post('/api/terrasen').send(validTerras);
-    const uuid = created.body.uuid;
+    const created = await Terras.create(validTerras);
+    const uuid = created.uuid;
 
     const res = await request(app).get(`/api/sun/cache/Terras/${uuid}`);
     expect(res.status).toBe(200);
