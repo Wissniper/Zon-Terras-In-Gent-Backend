@@ -12,6 +12,7 @@ export interface Gent3dTileDocument extends Document {
   errorMessage?: string;
   lastDownloadedAt?: Date;
   year?: number;            // parsed from filename (2009 or 2013)
+  glbPath?: string;         // relative or absolute path to the generated GLB
 }
 
 const Gent3dTileSchema = new Schema(
@@ -33,6 +34,7 @@ const Gent3dTileSchema = new Schema(
     errorMessage:     { type: String },
     lastDownloadedAt: { type: Date },
     year:             { type: Number },
+    glbPath:          { type: String },
   },
   { timestamps: true }
 );
