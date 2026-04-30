@@ -13,6 +13,7 @@ import searchRoutes from "./routes/searchRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
 import gent3dRoutes from "./routes/gent3dRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
+import { startTilePipeline } from "./services/tilePipeline.js";
 
 
 import { Server } from "socket.io";
@@ -55,6 +56,7 @@ if (process.env.NODE_ENV !== "test") {
       console.log("MongoDB connected to:", mongoURI);
       // Start de cron job pas nadat de database verbinding er is
       startWeatherCron(io);
+      startTilePipeline();
     })
     .catch((err) => console.error("MongoDB error:", err));
 }

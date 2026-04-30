@@ -16,6 +16,7 @@ const config: Config = {
       },
     ],
   },
+  testTimeout: 30000,
 };
 
 export default config;

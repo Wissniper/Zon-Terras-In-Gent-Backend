@@ -1,6 +1,9 @@
 import request from 'supertest';
 import { connect, closeDatabase, clearDatabase } from './database.helper';
 import { createTestApp } from './testApp';
+import Terras from '../models/terrasModel';
+import Restaurant from '../models/restaurantModel';
+import Event from '../models/eventModel';
 
 const app = createTestApp();
 
@@ -40,8 +43,8 @@ afterAll(async () => await closeDatabase());
 
 describe('GET /api/search/terrasen', () => {
   it('returns all terrasen when no filters applied', async () => {
-    await request(app).post('/api/terrasen').send(terrasA);
-    await request(app).post('/api/terrasen').send(terrasB);
+    await Terras.create(terrasA);
+    await Terras.create(terrasB);
 
     const res = await request(app).get('/api/search/terrasen');
     expect(res.status).toBe(200);
@@ -49,8 +52,8 @@ describe('GET /api/search/terrasen', () => {
   });
 
   it('filters by name with ?q=', async () => {
-    await request(app).post('/api/terrasen').send(terrasA);
-    await request(app).post('/api/terrasen').send(terrasB);
+    await Terras.create(terrasA);
+    await Terras.create(terrasB);
 
     const res = await request(app).get('/api/search/terrasen?q=Zonnig');
     expect(res.status).toBe(200);
@@ -59,8 +62,8 @@ describe('GET /api/search/terrasen', () => {
   });
 
   it('filters to sunny only with ?sunnyOnly=true', async () => {
-    await request(app).post('/api/terrasen').send(terrasA); // intensity 90
-    await request(app).post('/api/terrasen').send(terrasB); // intensity 20
+    await Terras.create(terrasA); // intensity 90
+    await Terras.create(terrasB); // intensity 20
 
     const res = await request(app).get('/api/search/terrasen?sunnyOnly=true');
     expect(res.status).toBe(200);
@@ -69,8 +72,8 @@ describe('GET /api/search/terrasen', () => {
   });
 
   it('filters by intensity range', async () => {
-    await request(app).post('/api/terrasen').send(terrasA); // 90
-    await request(app).post('/api/terrasen').send(terrasB); // 20
+    await Terras.create(terrasA); // 90
+    await Terras.create(terrasB); // 20
 
     const res = await request(app).get('/api/search/terrasen?minIntensity=50&maxIntensity=100');
     expect(res.status).toBe(200);
@@ -80,28 +83,28 @@ describe('GET /api/search/terrasen', () => {
 
 describe('GET /api/search/restaurants', () => {
   it('returns all restaurants when no filters applied', async () => {
-    await request(app).post('/api/restaurants').send(restaurant);
+    await Restaurant.create(restaurant);
     const res = await request(app).get('/api/search/restaurants');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
   });
 
   it('filters by name with ?q=', async () => {
-    await request(app).post('/api/restaurants').send(restaurant);
+    await Restaurant.create(restaurant);
     const res = await request(app).get('/api/search/restaurants?q=Italiano');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
   });
 
   it('filters by cuisine', async () => {
-    await request(app).post('/api/restaurants').send(restaurant);
+    await Restaurant.create(restaurant);
     const res = await request(app).get('/api/search/restaurants?cuisine=Italian');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
   });
 
   it('returns empty when cuisine does not match', async () => {
-    await request(app).post('/api/restaurants').send(restaurant);
+    await Restaurant.create(restaurant);
     const res = await request(app).get('/api/search/restaurants?cuisine=Japanese');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(0);
@@ -111,28 +114,28 @@ describe('GET /api/search/restaurants', () => {
 
 describe('GET /api/search/events', () => {
   it('returns all events when no filters applied', async () => {
-    await request(app).post('/api/events').send(futureEvent);
+    await Event.create(futureEvent);
     const res = await request(app).get('/api/search/events');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
   });
 
   it('filters events by title with ?q=', async () => {
-    await request(app).post('/api/events').send(futureEvent);
+    await Event.create(futureEvent);
     const res = await request(app).get('/api/search/events?q=Jazz');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
   });
 
   it('returns empty when title does not match', async () => {
-    await request(app).post('/api/events').send(futureEvent);
+    await Event.create(futureEvent);
     const res = await request(app).get('/api/search/events?q=Classical');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(0);
   });
 
   it('filters events by date', async () => {
-    await request(app).post('/api/events').send(futureEvent);
+    await Event.create(futureEvent);
     const res = await request(app).get('/api/search/events?date=2026-06-01');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
@@ -147,10 +150,10 @@ describe('GET /api/search/semantic', () => {
   });
 
   it('finds events linked to restaurants matching cuisine filter', async () => {
-    const restRes = await request(app).post('/api/restaurants').send(restaurant);
-    const restUuid = restRes.body.uuid;
+    const rest = await Restaurant.create(restaurant);
+    const restUuid = rest.uuid;
 
-    await request(app).post('/api/events').send({
+    await Event.create({
       ...futureEvent,
       locationRef: restUuid,
       locationType: 'restaurant',
@@ -164,8 +167,8 @@ describe('GET /api/search/semantic', () => {
 
 describe('GET /api/search/nearby/:lat/:lng/:radius', () => {
   it('returns counts for all resource types', async () => {
-    await request(app).post('/api/terrasen').send(terrasA);
-    await request(app).post('/api/restaurants').send(restaurant);
+    await Terras.create(terrasA);
+    await Restaurant.create(restaurant);
 
     const res = await request(app).get('/api/search/nearby/51.0536/3.7218/5');
     expect(res.status).toBe(200);

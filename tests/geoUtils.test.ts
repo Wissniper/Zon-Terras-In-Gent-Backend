@@ -1,4 +1,4 @@
-import { haversineDistance, findDuplicates } from '../services/geoUtils.js';
+import { haversineDistance, findDuplicates, lambert72ToWgs84, wgs84ToLambert72, getRelativePosition } from '../services/geoUtils.js';
 
 describe('haversineDistance', () => {
   it('returns 0 for identical points', () => {
@@ -109,3 +109,39 @@ describe('findDuplicates', () => {
     expect(dupes.has(2)).toBe(true);
   });
 });
+
+describe("geoUtils", () => {
+  test("Gravensteen landmark conversion", () => {
+    // 104860, 193910 are Lambert 72 coordinates for near Gravensteen
+    const [lat, lng] = lambert72ToWgs84(104860, 193910);
+    
+    // Check if results are within reasonable range of Gravensteen (51.057, 3.722)
+    // Note: Exact values might vary slightly based on projection accuracy
+    expect(lat).toBeCloseTo(51.053, 2); 
+    expect(lng).toBeCloseTo(3.725, 2);
+    
+    const [x, y] = wgs84ToLambert72(lat, lng);
+    expect(x).toBeCloseTo(104860, 0);
+    expect(y).toBeCloseTo(193910, 0);
+  });
+});
+
+describe('getRelativePosition', () => {
+  it('calculates relative position correctly', () => {
+    // Belfort Gent: 51.0543, 3.7252 -> L72: 105131, 193358 (approx)
+    // Vaknummer 105_193 starts at 105000, 193000
+    const [relX, relY] = getRelativePosition(51.0543, 3.7252, '105_193');
+    const [expectedX, expectedY] = wgs84ToLambert72(51.0543, 3.7252);
+    expect(relX).toBeCloseTo(expectedX - 105000, 5);
+    expect(relY).toBeCloseTo(expectedY - 193000, 5);
+  });
+
+  it('handles different vaknummers', () => {
+    // Coordinate at X=99500, Y=193500
+    const [lat, lng] = lambert72ToWgs84(99500, 193500);
+    const [relX, relY] = getRelativePosition(lat, lng, '099_193');
+    expect(relX).toBeCloseTo(500, 1);
+    expect(relY).toBeCloseTo(500, 1);
+  });
+});
+

@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { connect, closeDatabase, clearDatabase } from './database.helper';
 import { createTestApp } from './testApp';
+import Restaurant from '../models/restaurantModel';
 
 const app = createTestApp();
 
@@ -25,7 +26,7 @@ describe('GET /api/restaurants', () => {
   });
 
   it('returns all non-deleted restaurants', async () => {
-    await request(app).post('/api/restaurants').send(validRestaurant);
+    await Restaurant.create(validRestaurant);
     const res = await request(app).get('/api/restaurants');
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
@@ -34,24 +35,16 @@ describe('GET /api/restaurants', () => {
 });
 
 describe('POST /api/restaurants', () => {
-  it('creates a restaurant and returns 201', async () => {
+  it('returns 404 because the route is disabled', async () => {
     const res = await request(app).post('/api/restaurants').send(validRestaurant);
-    expect(res.status).toBe(201);
-    expect(res.body.name).toBe(validRestaurant.name);
-    expect(res.body.uuid).toBeDefined();
+    expect(res.status).toBe(404);
   });
-
-  it('returns 400 for missing required fields', async () => {
-    const res = await request(app).post('/api/restaurants').send({ name: 'Incomplete' });
-    expect(res.status).toBe(400);
-  });
-
 });
 
 describe('GET /api/restaurants/:id', () => {
   it('returns a restaurant by UUID', async () => {
-    const created = await request(app).post('/api/restaurants').send(validRestaurant);
-    const uuid = created.body.uuid;
+    const created = await Restaurant.create(validRestaurant);
+    const uuid = created.uuid;
 
     const res = await request(app).get(`/api/restaurants/${uuid}`);
     expect(res.status).toBe(200);
@@ -71,60 +64,31 @@ describe('GET /api/restaurants/:id', () => {
 });
 
 describe('PUT /api/restaurants/:id', () => {
-  it('fully replaces a restaurant', async () => {
-    const created = await request(app).post('/api/restaurants').send(validRestaurant);
-    const uuid = created.body.uuid;
+  it('returns 404 because the route is disabled', async () => {
+    const created = await Restaurant.create(validRestaurant);
+    const uuid = created.uuid;
 
     const updated = { ...validRestaurant, name: 'La Dolce Vita' };
     const res = await request(app).put(`/api/restaurants/${uuid}`).send(updated);
-    expect(res.status).toBe(200);
-    expect(res.body.name).toBe('La Dolce Vita');
-  });
-
-  it('returns 404 when updating a non-existent restaurant', async () => {
-    const res = await request(app)
-      .put('/api/restaurants/00000000-0000-4000-8000-000000000000')
-      .send(validRestaurant);
     expect(res.status).toBe(404);
   });
 });
 
 describe('PATCH /api/restaurants/:id', () => {
-  it('partially updates a restaurant', async () => {
-    const created = await request(app).post('/api/restaurants').send(validRestaurant);
-    const uuid = created.body.uuid;
+  it('returns 404 because the route is disabled', async () => {
+    const created = await Restaurant.create(validRestaurant);
+    const uuid = created.uuid;
 
     const res = await request(app).patch(`/api/restaurants/${uuid}`).send({ intensity: 80 });
-    expect(res.status).toBe(200);
-    expect(res.body.intensity).toBe(80);
-    expect(res.body.cuisine).toBe(validRestaurant.cuisine);
-  });
-
-  it('returns 404 when patching a non-existent restaurant', async () => {
-    const res = await request(app)
-      .patch('/api/restaurants/00000000-0000-4000-8000-000000000000')
-      .send({ intensity: 50 });
     expect(res.status).toBe(404);
   });
 });
 
 describe('DELETE /api/restaurants/:id', () => {
-  it('soft-deletes a restaurant', async () => {
-    const created = await request(app).post('/api/restaurants').send(validRestaurant);
-    const uuid = created.body.uuid;
+  it('returns 404 because the route is disabled', async () => {
+    const created = await Restaurant.create(validRestaurant);
+    const uuid = created.uuid;
 
-    const deleteRes = await request(app).delete(`/api/restaurants/${uuid}`);
-    expect(deleteRes.status).toBe(200);
-
-    const listRes = await request(app).get('/api/restaurants');
-    expect(listRes.body.count).toBe(0);
-  });
-
-  it('returns 404 when deleting an already-deleted restaurant', async () => {
-    const created = await request(app).post('/api/restaurants').send(validRestaurant);
-    const uuid = created.body.uuid;
-
-    await request(app).delete(`/api/restaurants/${uuid}`);
     const res = await request(app).delete(`/api/restaurants/${uuid}`);
     expect(res.status).toBe(404);
   });

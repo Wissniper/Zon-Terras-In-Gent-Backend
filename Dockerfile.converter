@@ -1,0 +1,55 @@
+FROM ubuntu:22.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Build dependencies for LibreDWG
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    autoconf \
+    automake \
+    libtool \
+    texinfo \
+    gettext \
+    pkg-config \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build LibreDWG to get the dwg2dxf utility
+RUN git clone --depth 1 https://github.com/LibreDWG/libredwg.git /tmp/libredwg \
+    && cd /tmp/libredwg \
+    && ./autogen.sh \
+    && ./configure --disable-bindings --disable-python \
+    && make -j$(nproc) \
+    && make install
+
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy LibreDWG binaries from builder
+COPY --from=builder /usr/local/bin/dwg2dxf /usr/local/bin/
+COPY --from=builder /usr/local/lib/libredwg* /usr/local/lib/
+RUN ldconfig
+
+# Python DXF parser
+RUN pip3 install --no-cache-dir ezdxf
+
+# Node.js 3D conversion tools
+RUN npm install -g obj2gltf gltf-pipeline
+
+WORKDIR /app
+
+COPY scripts/convertDwgToGlb.py /app/convert.py
+COPY scripts/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
