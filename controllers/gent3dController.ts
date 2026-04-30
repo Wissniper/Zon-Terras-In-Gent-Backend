@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import fs from "fs";
+import path from "path";
 import Gent3dTile from "../models/gent3dTileModel.js";
 
 /**
@@ -79,5 +80,40 @@ export const getTileFile = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "File not available" });
   } catch (error) {
     res.status(500).json({ message: "Error serving Gent 3D tile file", error });
+  }
+};
+
+/**
+ * GET /api/gent3d/:vaknummer/glb
+ * Serve the processed GLB file from disk.
+ */
+export const getGlbFile = async (req: Request, res: Response) => {
+  try {
+    const tile = await Gent3dTile.findOne({ vaknummer: req.params.vaknummer });
+
+    if (!tile) {
+      return res.status(404).json({ message: "Tile not found" });
+    }
+
+    if (!tile.glbPath) {
+      return res.status(404).json({ message: "GLB file not yet processed" });
+    }
+
+    if (!fs.existsSync(tile.glbPath)) {
+      return res.status(404).json({ message: "GLB file not found on disk" });
+    }
+
+    // Security: Ensure path is within the public/tiles directory
+    const resolvedPath = path.resolve(tile.glbPath);
+    const allowedDir = path.resolve("public/tiles");
+
+    if (!resolvedPath.startsWith(allowedDir)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    res.setHeader("Content-Type", "model/gltf-binary");
+    return res.sendFile(resolvedPath);
+  } catch (error) {
+    res.status(500).json({ message: "Error serving GLB file", error });
   }
 };
