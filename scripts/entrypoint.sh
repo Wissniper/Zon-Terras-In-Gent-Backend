@@ -13,7 +13,7 @@ if [ -z "$DWG_IN" ] || [ -z "$GLB_OUT" ]; then
 fi
 
 echo "Phase 1: Converting DWG → DXF..."
-dwg2dxf "$DWG_IN" -o "$TEMP_DXF" 2>/dev/null
+dwg2dxf -y "$DWG_IN" -o "$TEMP_DXF" 2>/dev/null
 ls -lh "$TEMP_DXF"
 
 echo "Phase 2: Converting DXF → OBJ via ezdxf..."
@@ -26,7 +26,12 @@ obj2gltf -i "$TEMP_OBJ" -o "$TEMP_GLB"
 ls -lh "$TEMP_GLB"
 
 echo "Phase 4: Applying Draco compression..."
-gltf-pipeline -i "$TEMP_GLB" -o "$GLB_OUT" -d
+if gltf-pipeline -i "$TEMP_GLB" -o "$GLB_OUT" -d; then
+    echo "Draco compression applied."
+else
+    echo "Warning: Draco compression failed, using uncompressed GLB." >&2
+    cp "$TEMP_GLB" "$GLB_OUT"
+fi
 
 rm -f "$TEMP_DXF" "$TEMP_OBJ" "$TEMP_GLB"
 echo "Done: $GLB_OUT"

@@ -125,14 +125,33 @@ def _faces_via_raw(path):
 
 # ── OBJ writer ────────────────────────────────────────────────────────────────
 
+def _is_degenerate(a, b, c):
+    ax = a.x if hasattr(a, "x") else a[0]
+    ay = a.y if hasattr(a, "y") else a[1]
+    az = a.z if hasattr(a, "z") else a[2]
+    bx = b.x if hasattr(b, "x") else b[0]
+    by = b.y if hasattr(b, "y") else b[1]
+    bz = b.z if hasattr(b, "z") else b[2]
+    cx = c.x if hasattr(c, "x") else c[0]
+    cy = c.y if hasattr(c, "y") else c[1]
+    cz = c.z if hasattr(c, "z") else c[2]
+    ux, uy, uz = bx - ax, by - ay, bz - az
+    vx, vy, vz = cx - ax, cy - ay, cz - az
+    nx = uy * vz - uz * vy
+    ny = uz * vx - ux * vz
+    nz = ux * vy - uy * vx
+    return (nx * nx + ny * ny + nz * nz) < 1e-10
+
+
 def _write_obj(faces, output_path):
     vertices = []
     triangles = []
     for v0, v1, v2, v3 in faces:
         base = len(vertices)
         vertices.extend([v0, v1, v2, v3])
-        triangles.append((base, base + 1, base + 2))
-        if v2 != v3:
+        if not _is_degenerate(v0, v1, v2):
+            triangles.append((base, base + 1, base + 2))
+        if v2 != v3 and not _is_degenerate(v0, v2, v3):
             triangles.append((base, base + 2, base + 3))
 
     with open(output_path, "w") as f:
