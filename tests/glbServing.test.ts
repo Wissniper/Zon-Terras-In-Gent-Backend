@@ -92,7 +92,7 @@ describe('GLB Serving Integration Tests', () => {
       .get(`/api/gent3d/${vaknummer}/glb`);
 
     expect(response.status).toBe(404);
-    expect(response.body.message).toBe(' GLB file record exists but file is missing from disk');
+    expect(response.body.message).toBe('GLB file record exists but file is missing from disk');
   });
 
   it('GET /api/gent3d/:vaknummer/glb returns 403 for directory traversal attempt', async () => {
