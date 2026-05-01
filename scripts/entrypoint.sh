@@ -13,7 +13,7 @@ if [ -z "$DWG_IN" ] || [ -z "$GLB_OUT" ]; then
 fi
 
 echo "Phase 1: Converting DWG → DXF..."
-dwg2dxf "$DWG_IN" -o "$TEMP_DXF"
+dwg2dxf "$DWG_IN" -o "$TEMP_DXF" 2>/dev/null
 ls -lh "$TEMP_DXF"
 
 echo "Phase 2: Converting DXF → OBJ via ezdxf..."

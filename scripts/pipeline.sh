@@ -62,14 +62,14 @@ fi
 
 if ! python3 -c "import ezdxf" 2>/dev/null; then
   echo "ezdxf not found — installing..."
-  pip3 install --quiet ezdxf
+  pip3 install --quiet --break-system-packages ezdxf
 else
   echo "ezdxf already installed."
 fi
 
 if ! command -v obj2gltf &> /dev/null; then
   echo "obj2gltf not found — installing..."
-  npm install -g obj2gltf gltf-pipeline
+  sudo npm install -g obj2gltf gltf-pipeline
 else
   echo "obj2gltf already installed."
 fi
