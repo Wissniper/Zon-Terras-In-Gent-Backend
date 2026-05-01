@@ -99,22 +99,33 @@ def _faces_via_raw(path):
                         elif vc == "73": vdata["i2"] = int(vv)
                         elif vc == "74": vdata["i3"] = int(vv)
                         k += 1
-                    if "x" in vdata:
-                        pos_verts.append((vdata["x"], vdata["y"], vdata["z"]))
-                    if "i0" in vdata:
+                    
+                    # A VERTEX in a Polyface Mesh is either a location (flag 64) or a face record (flag 128)
+                    # We use the presence of coordinates as a heuristic for locations.
+                    if any(c in vdata for c in ["x", "y", "z"]):
+                        pos_verts.append((vdata.get("x", 0.0), vdata.get("y", 0.0), vdata.get("z", 0.0)))
+                    
+                    if any(c in vdata for c in ["i0", "i1", "i2", "i3"]):
                         face_recs.append(vdata)
                     j = k
                     continue
                 j += 1
 
             for fr in face_recs:
+                # Indices in DXF are 1-based. abs() because negative means hidden edge.
                 fi = [abs(fr.get(f"i{n}", 0)) for n in range(4)]
-                if fi[0] and fi[1] and fi[2]:
+                
+                # Safety check: must have at least 3 valid vertex indices
+                if all(0 < i <= len(pos_verts) for i in fi[:3]):
                     v0 = pos_verts[fi[0] - 1]
                     v1 = pos_verts[fi[1] - 1]
                     v2 = pos_verts[fi[2] - 1]
-                    v3 = pos_verts[fi[3] - 1] if fi[3] else v2
+                    # v3 is optional (can be 0 or same as v2)
+                    v3 = pos_verts[fi[3] - 1] if (0 < fi[3] <= len(pos_verts)) else v2
                     faces.append((v0, v1, v2, v3))
+                else:
+                    # Log skip for debugging if needed
+                    pass
             i = j
             continue
 
