@@ -74,7 +74,7 @@ describe('GLB Serving Integration Tests', () => {
       .get(`/api/gent3d/${vaknummer}/glb`);
 
     expect(response.status).toBe(404);
-    expect(response.body.message).toBe('GLB file not yet processed');
+    expect(response.body.message).toBe('GLB file not yet processed or found on disk');
   });
 
   it('GET /api/gent3d/:vaknummer/glb returns 404 if file missing from disk', async () => {
@@ -92,7 +92,7 @@ describe('GLB Serving Integration Tests', () => {
       .get(`/api/gent3d/${vaknummer}/glb`);
 
     expect(response.status).toBe(404);
-    expect(response.body.message).toBe('GLB file not found on disk');
+    expect(response.body.message).toBe(' GLB file record exists but file is missing from disk');
   });
 
   it('GET /api/gent3d/:vaknummer/glb returns 403 for directory traversal attempt', async () => {
