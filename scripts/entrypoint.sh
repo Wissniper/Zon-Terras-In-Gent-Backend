@@ -1,37 +1,47 @@
 #!/bin/bash
-set -e
+# Robust conversion script: continues on error, logs failures.
 
 DWG_IN="$1"
 GLB_OUT="$2"
-TEMP_DXF="/tmp/temp.dxf"
-TEMP_OBJ="/tmp/temp.obj"
-TEMP_GLB="/tmp/temp.glb"
+TEMP_DXF="/tmp/temp_$(basename "$DWG_IN").dxf"
+TEMP_OBJ="/tmp/temp_$(basename "$DWG_IN").obj"
+TEMP_GLB="/tmp/temp_$(basename "$DWG_IN").glb"
 
 if [ -z "$DWG_IN" ] || [ -z "$GLB_OUT" ]; then
     echo "Usage: $0 <input.dwg> <output.glb>" >&2
     exit 1
 fi
 
-echo "Phase 1: Converting DWG → DXF..."
-dwg2dxf -y "$DWG_IN" -o "$TEMP_DXF" 2>/dev/null
-ls -lh "$TEMP_DXF"
+echo "  Phase 1: DWG → DXF..."
+if ! dwg2dxf -y "$DWG_IN" -o "$TEMP_DXF" 2>/tmp/dwg2dxf_err.log; then
+    echo "  ERROR: dwg2dxf failed for $DWG_IN" >&2
+    rm -f "$TEMP_DXF"
+    exit 1
+fi
 
-echo "Phase 2: Converting DXF → OBJ via ezdxf..."
+echo "  Phase 2: DXF → OBJ..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-python3 "$SCRIPT_DIR/convertDwgToGlb.py" --input "$TEMP_DXF" --output "$TEMP_OBJ"
-ls -lh "$TEMP_OBJ"
+if ! python3 "$SCRIPT_DIR/convertDwgToGlb.py" --input "$TEMP_DXF" --output "$TEMP_OBJ"; then
+    echo "  ERROR: DXF to OBJ conversion failed for $DWG_IN" >&2
+    rm -f "$TEMP_DXF" "$TEMP_OBJ"
+    exit 1
+fi
 
-echo "Phase 3: Converting OBJ → GLB..."
-obj2gltf -i "$TEMP_OBJ" -o "$TEMP_GLB"
-ls -lh "$TEMP_GLB"
+echo "  Phase 3: OBJ → GLB..."
+if ! obj2gltf -i "$TEMP_OBJ" -o "$TEMP_GLB" 2>/tmp/obj2gltf_err.log; then
+    echo "  ERROR: obj2gltf failed for $DWG_IN" >&2
+    rm -f "$TEMP_DXF" "$TEMP_OBJ" "$TEMP_GLB"
+    exit 1
+fi
 
-echo "Phase 4: Applying Draco compression..."
-if gltf-pipeline -i "$TEMP_GLB" -o "$GLB_OUT" -d; then
-    echo "Draco compression applied."
+echo "  Phase 4: Draco compression..."
+if gltf-pipeline -i "$TEMP_GLB" -o "$GLB_OUT" -d 2>/dev/null; then
+    echo "  Draco compression applied."
 else
-    echo "Warning: Draco compression failed, using uncompressed GLB." >&2
+    echo "  Warning: Draco failed, using uncompressed GLB." >&2
     cp "$TEMP_GLB" "$GLB_OUT"
 fi
 
 rm -f "$TEMP_DXF" "$TEMP_OBJ" "$TEMP_GLB"
-echo "Done: $GLB_OUT"
+echo "  Done: $(basename "$GLB_OUT")"
+exit 0

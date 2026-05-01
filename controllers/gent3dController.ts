@@ -89,24 +89,47 @@ export const getTileFile = async (req: Request, res: Response) => {
  */
 export const getGlbFile = async (req: Request, res: Response) => {
   try {
-    const tile = await Gent3dTile.findOne({ vaknummer: req.params.vaknummer });
+    const { vaknummer } = req.params;
+    const tile = await Gent3dTile.findOne({ vaknummer });
 
     if (!tile) {
       return res.status(404).json({ message: "Tile not found" });
     }
 
-    if (!tile.glbPath) {
-      return res.status(404).json({ message: "GLB file not yet processed" });
+    let glbPath = tile.glbPath;
+
+    // Fallback: If glbPath is missing from DB, try to find it on disk using naming convention
+    if (!glbPath) {
+      const xStr = tile.xCoord.toString().padStart(6, "0");
+      const yStr = tile.yCoord.toString().padStart(6, "0");
+      const pattern = `${xStr}_${yStr}`; // e.g. "103000_192000"
+      
+      const allowedDir = path.resolve("public/tiles");
+      if (fs.existsSync(allowedDir)) {
+        const files = fs.readdirSync(allowedDir);
+        // Look for building (Geb_) or terrain (Trn_)
+        const match = files.find(f => f.includes(pattern) && f.endsWith(".glb"));
+        
+        if (match) {
+          glbPath = path.join("public/tiles", match);
+          // Auto-repair the DB
+          tile.glbPath = glbPath;
+          await tile.save();
+        }
+      }
     }
 
-    if (!fs.existsSync(tile.glbPath)) {
-      return res.status(404).json({ message: "GLB file not found on disk" });
+    if (!glbPath) {
+      return res.status(404).json({ message: "GLB file not yet processed or found on disk" });
+    }
+
+    const resolvedPath = path.resolve(glbPath);
+    if (!fs.existsSync(resolvedPath)) {
+      return res.status(404).json({ message: "GLB file record exists but file is missing from disk" });
     }
 
     // Security: Ensure path is within the public/tiles directory
-    const resolvedPath = path.resolve(tile.glbPath);
     const allowedDir = path.resolve("public/tiles");
-
     if (!resolvedPath.startsWith(allowedDir)) {
       return res.status(403).json({ message: "Access denied" });
     }

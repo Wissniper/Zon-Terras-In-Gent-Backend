@@ -34,15 +34,36 @@ convert_file() {
 }
 
 if [ "$#" -gt 0 ]; then
-    # Specific files passed (e.g. from GitHub Actions diff)
+    # Specific files passed
     for f in "$@"; do
         convert_file "$INPUT_DIR/$(basename -- "$f")"
     done
 else
     # No args: scan all DWGs
-    for f in "$INPUT_DIR"/*.dwg; do
-        [ -e "$f" ] && convert_file "$f"
+    success_count=0
+    fail_count=0
+    skip_count=0
+
+    # Sort files to ensure predictable progress
+    files=$(find "$INPUT_DIR" -maxdepth 1 -name "*.dwg" -o -name "*.DWG" | sort)
+    total=$(echo "$files" | wc -l)
+    current=0
+
+    for f in $files; do
+        current=$((current + 1))
+        filename=$(basename "$f")
+        echo "[$current/$total] Processing $filename..."
+        
+        if convert_file "$f"; then
+            if [ $? -eq 0 ]; then
+                success_count=$((success_count + 1))
+            fi
+        else
+            fail_count=$((fail_count + 1))
+        fi
     done
 fi
 
+echo ""
 echo "Batch conversion complete."
+echo "Summary: $success_count succeeded, $fail_count failed, $skip_count skipped."

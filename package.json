@@ -42,6 +42,7 @@
     "seed:terrassen": "node --loader ts-node/esm scripts/seed/seedTerrassen.ts",
     "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev",
     "fetch:gent3d": "node dist/scripts/fetchGent3d.js",
+    "sync:gent3d": "node dist/scripts/sync-tiles.js",
     "pipeline:gent3d": "bash scripts/pipeline.sh"
   }
 }
