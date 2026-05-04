@@ -45,3 +45,6 @@ Thumbs.db
 
 data/
 data/export.nt
+
+# Docker local dev — contains service-name overrides; may hold secrets in future
+.env.docker
