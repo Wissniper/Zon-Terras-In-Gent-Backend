@@ -45,3 +45,5 @@ Thumbs.db
 
 data/
 data/export.nt
+
+*.glb

@@ -35,14 +35,14 @@
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "node dist/app.js",
-    "dev": "nodemon --exec \"node --loader ts-node/esm\" app.ts",
+    "dev": "nodemon --exec \"node --experimental-global-webcrypto --loader ts-node/esm\" app.ts",
     "export-rdf": "node --loader ts-node/esm scripts/exportRdf.ts",
     "seed:restaurants": "node --loader ts-node/esm scripts/seed/seedRestaurants.ts",
     "seed:events": "node --loader ts-node/esm scripts/seed/seedEvents.ts",
     "seed:terrassen": "node --loader ts-node/esm scripts/seed/seedTerrassen.ts",
     "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev",
-    "fetch:gent3d": "node dist/scripts/fetchGent3d.js",
-    "sync:gent3d": "node dist/scripts/sync-tiles.js",
+    "fetch:gent3d": "node --loader ts-node/esm scripts/fetchGent3d.ts",
+    "sync:gent3d": "node --loader ts-node/esm scripts/sync-tiles.ts",
     "pipeline:gent3d": "bash scripts/pipeline.sh"
   }
 }
