@@ -1,0 +1,36 @@
+services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.docker
+    volumes:
+      # Source code — hot reload via nodemon (DX-01)
+      - .:/app
+      # Isolate Linux node_modules from macOS host build (D-03)
+      - /app/node_modules
+      # Pipeline data persistence (DX-02)
+      - ./data:/app/data
+      - ./public/tiles:/app/public/tiles
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:
