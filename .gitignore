@@ -10,6 +10,7 @@ yarn-error.log*
 .env.*.local
 .ge*
 .cl*
+.pl*
 
 # Logs
 logs/
