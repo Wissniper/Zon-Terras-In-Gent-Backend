@@ -1,3 +1,4 @@
+// @ts-ignore
 import SunCalc from "suncalc3";
 import mongoose from "mongoose";
 import ShadowScore from "../models/shadowScoreModel.js";

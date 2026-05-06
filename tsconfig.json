@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["jest"]
+    "types": ["jest", "node"]
   },
   "include": ["**/*.ts", "models/terrasModel.ts"],
   "exclude": ["node_modules", "dist"]
