@@ -9,7 +9,6 @@
     "mongoose": "^9.2.1",
     "node-cron": "^4.2.1",
     "openmeteo": "^1.2.3",
-    "proj4": "^2.15.0",
     "pug": "^3.0.3",
     "socket.io": "^4.8.3",
     "suncalc3": "^2.0.5",
@@ -22,7 +21,6 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "^25.3.3",
     "@types/node-cron": "^3.0.11",
-    "@types/proj4": "^2.12.3",
     "@types/supertest": "^7.2.0",
     "@types/uuid": "^10.0.0",
     "jest": "^30.3.0",
@@ -40,9 +38,6 @@
     "seed:restaurants": "node --loader ts-node/esm scripts/seed/seedRestaurants.ts",
     "seed:events": "node --loader ts-node/esm scripts/seed/seedEvents.ts",
     "seed:terrassen": "node --loader ts-node/esm scripts/seed/seedTerrassen.ts",
-    "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev",
-    "fetch:gent3d": "node --loader ts-node/esm scripts/fetchGent3d.ts",
-    "sync:gent3d": "node --loader ts-node/esm scripts/sync-tiles.ts",
-    "pipeline:gent3d": "bash scripts/pipeline.sh"
+    "build": "npm ci && tsc && cp -r views dist/ && cp -r public dist/ && npm prune --omit=dev"
   }
 }
