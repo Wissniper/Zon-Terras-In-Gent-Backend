@@ -12,7 +12,7 @@ import eventRoutes from "./routes/eventRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import weatherRoutes from "./routes/weatherRoutes.js";
 import { startWeatherCron } from "./services/weatherCron.js";
-
+import { startShadowScoreCron } from "./services/sunScoreService.js";
 
 import { Server } from "socket.io";
 import http from "http";
@@ -54,6 +54,7 @@ if (process.env.NODE_ENV !== "test") {
       console.log("MongoDB connected to:", mongoURI);
       // Start de cron job pas nadat de database verbinding er is
       startWeatherCron(io);
+      startShadowScoreCron();
     })
     .catch((err) => console.error("MongoDB error:", err));
 }
