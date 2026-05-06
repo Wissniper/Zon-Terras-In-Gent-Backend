@@ -7,6 +7,7 @@ import { Request, Response } from "express";
 import { calculateSunData, getCloudFactor } from "../services/sunService.js";
 import { fetchWeatherData } from "../services/weatherService.js";
 import { SUNDATA_CONTEXT, toLd } from "../contexts/jsonld.js";
+import { getNearestShadowScore } from "../services/shadowScoringService.js";
 
 function buildIdQuery(id: string | string[]) {
   const val = Array.isArray(id) ? id[0] : id;
@@ -155,9 +156,15 @@ function createGetSunForEntity(config: {
 
       const cached = await getOrCreateCache(entity._id, config.locationType, lat, lng, dateTime);
 
+      let shadowScore = 1.0;
+      if (config.locationType === "Terras") {
+        shadowScore = await getNearestShadowScore(entity._id, dateTime);
+      }
+      const adjustedIntensity = Math.round((cached as any).intensity * shadowScore);
+
       const responseData = {
-        [config.responseKey]: { uuid: entity.uuid, name: entity[config.nameField], address: entity.address, intensity: entity.intensity },
-        sunData: cached,
+        [config.responseKey]: { uuid: entity.uuid, name: entity[config.nameField], address: entity.address, intensity: adjustedIntensity },
+        sunData: { ...(cached as any), intensity: adjustedIntensity, shadowScore },
       };
 
       const selfHref = `${config.selfPrefix}${entity.uuid}`;
