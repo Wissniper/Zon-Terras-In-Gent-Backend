@@ -42,13 +42,9 @@ block content
         p Hoogte: #{(altVal * 180 / Math.PI).toFixed(1)}°
     if shadowScore !== undefined
       .stat-card
-        h3 Schaduwscore
-        if isNight
-          p.value Nacht
-          p (geen directe zon)
-        else
-          p.value #{sunExposurePct}% zon
-          p (#{shadowPct}% in schaduw)
+        h3 Schaduw
+        - const displayShadowPct = isNight ? 100 : shadowPct
+        p.value #{displayShadowPct}% in schaduw
 
   if gh.dawnStart
     section.golden-hour

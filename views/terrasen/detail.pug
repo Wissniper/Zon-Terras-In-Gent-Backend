@@ -17,10 +17,7 @@ block content
     if shadowScore !== undefined
       p
         strong Schaduw (nu):
-        if isNight
-          |  Nacht — geen directe zon
-        else
-          |  #{shadowPct}% in schaduw (#{Math.round(shadowScore * 100)}% zon)
+        |  #{isNight ? 100 : shadowPct}% in schaduw
     if terras.url
       p
         strong Site:
