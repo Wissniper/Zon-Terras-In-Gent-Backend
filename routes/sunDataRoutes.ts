@@ -6,12 +6,14 @@ import {
   getCachedSunData,
   getSunForEvent,
   getSunBatch,
+  triggerShadowScoreRefresh,
 } from "../controllers/sunDataController.js";
 import { validateCoords, validateID, validateLocationType, validateSunBatch, validateTimeParam, validateTimeQuery } from "../middleware/validation.js";
 
 const router = express.Router();
 
 router.post("/batch", validateSunBatch, getSunBatch);
+router.post("/refresh-shadow-scores", triggerShadowScoreRefresh);
 router.get("/terras/:terrasId", validateID, validateTimeQuery, getSunForTerras);
 router.get("/restaurant/:restaurantId", validateID, validateTimeQuery, getSunForRestaurant);
 router.get("/event/:eventId", validateID, validateTimeQuery, getSunForEvent);

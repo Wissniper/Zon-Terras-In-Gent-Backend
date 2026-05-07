@@ -24,14 +24,27 @@ export function resolveHeight(tags: Record<string, string> = {}): number {
 }
 
 export async function fetchGhentBuildings(): Promise<Building[]> {
-  const query = `[out:json];way["building"](${GHENT_BBOX});out body geom;`;
+  // [timeout:90] causes Overpass to sanitize output and avoid truncated responses on large bboxes
+  const query = `[out:json][timeout:90];way["building"](${GHENT_BBOX});out geom tags;`;
   const res = await fetch(OVERPASS_URL, {
     method: "POST",
     body: `data=${encodeURIComponent(query)}`,
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json",
+      "User-Agent": "ZonTerrasInGent/1.0",
+    },
   });
   if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
-  const data = (await res.json()) as { elements: any[] };
+  const raw = await res.text();
+  let data: { elements: any[] };
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    // Strip control characters that sometimes appear in OSM tag values
+    const sanitized = raw.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "");
+    data = JSON.parse(sanitized);
+  }
   return data.elements
     .filter((el: any) => Array.isArray(el.geometry) && el.geometry.length > 0)
     .map((el: any) => ({

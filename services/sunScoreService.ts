@@ -18,28 +18,37 @@ export async function refreshShadowScores(): Promise<void> {
       timestamps.push(new Date(now.getTime() + i * 60 * 60 * 1000));
     }
 
-    const ops = terrassen.flatMap((terras) => {
-      const [lng, lat] = terras.location.coordinates;
-      return timestamps.map((ts) => {
-        const score = computeShadowScore(lat, lng, ts, buildings);
-        return {
-          updateOne: {
-            filter: { terrasRef: terras._id, timestamp: ts },
-            update: { $set: { terrasRef: terras._id, timestamp: ts, score } },
-            upsert: true,
-          },
-        };
+    // Process in batches of 10 terrasses, yielding to the event loop between each batch
+    // to prevent the synchronous shadow computation from blocking the MongoDB connection.
+    const BATCH_SIZE = 10;
+    let totalOps = 0;
+    for (let i = 0; i < terrassen.length; i += BATCH_SIZE) {
+      const batch = terrassen.slice(i, i + BATCH_SIZE);
+      const ops = batch.flatMap((terras) => {
+        const [lng, lat] = terras.location.coordinates;
+        return timestamps.map((ts) => {
+          const score = computeShadowScore(lat, lng, ts, buildings);
+          return {
+            updateOne: {
+              filter: { terrasRef: terras._id, timestamp: ts },
+              update: { $set: { terrasRef: terras._id, timestamp: ts, score } },
+              upsert: true,
+            },
+          };
+        });
       });
-    });
-
-    if (ops.length > 0) {
-      await ShadowScore.bulkWrite(ops);
+      if (ops.length > 0) {
+        await ShadowScore.bulkWrite(ops);
+        totalOps += ops.length;
+      }
+      // Yield to event loop between batches
+      await new Promise((resolve) => setImmediate(resolve));
     }
 
     const cutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
     await ShadowScore.deleteMany({ timestamp: { $lt: cutoff } });
 
-    console.log(`[SunScoreService] Refreshed ${ops.length} shadow scores for ${terrassen.length} terrasses.`);
+    console.log(`[SunScoreService] Refreshed ${totalOps} shadow scores for ${terrassen.length} terrasses.`);
   } catch (err: any) {
     console.warn("[SunScoreService] Refresh failed:", err.message);
   }

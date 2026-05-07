@@ -26,6 +26,11 @@ block content
   - const gh = sun.goldenHour || goldenHour || {}
   - const dt = sun.dateTime || dateTime
 
+  - const shadowScore = sun.shadowScore !== undefined ? sun.shadowScore : undefined
+  - const shadowPct = shadowScore !== undefined ? Math.round((1 - shadowScore) * 100) : undefined
+  - const sunExposurePct = shadowScore !== undefined ? Math.round(shadowScore * 100) : undefined
+  - const isNight = altVal !== undefined && altVal <= 0
+
   section.main-stats
     .stat-card
       h3 Intensiteit
@@ -35,6 +40,15 @@ block content
       if azVal !== undefined
         p Azimuth: #{(azVal * 180 / Math.PI).toFixed(1)}°
         p Hoogte: #{(altVal * 180 / Math.PI).toFixed(1)}°
+    if shadowScore !== undefined
+      .stat-card
+        h3 Schaduwscore
+        if isNight
+          p.value Nacht
+          p (geen directe zon)
+        else
+          p.value #{sunExposurePct}% zon
+          p (#{shadowPct}% in schaduw)
 
   if gh.dawnStart
     section.golden-hour

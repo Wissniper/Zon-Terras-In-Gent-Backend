@@ -5,6 +5,9 @@ import { Request, Response } from "express";
 import { createGetAll, createOne, updateOne, patchOne, softDelete } from "./baseController.js";
 import { toLd } from "../contexts/jsonld.js";
 import { isValidObjectId } from "mongoose";
+import { getNearestShadowScore } from "../services/shadowScoringService.js";
+// @ts-ignore
+import SunCalc from "suncalc3";
 
 export const getAllTerrasen = createGetAll(Terras, { intensity: -1 });
 
@@ -19,16 +22,26 @@ export const getTerrasById = async (req: Request, res: Response) => {
     }
 
     // Haal events op die aan dit terras gekoppeld zijn
-    const events = await Event.find({ 
-      locationRef: terras.uuid, 
+    const events = await Event.find({
+      locationRef: terras.uuid,
       locationType: "terras",
-      isDeleted: { $ne: true } 
+      isDeleted: { $ne: true }
     }).sort({ date_start: 1 });
+
+    const now = new Date();
+    const [lng, lat] = terras.location.coordinates;
+    const sunPos = (SunCalc as any).getPosition(now, lat, lng);
+    const isNight = sunPos.altitude <= 0;
+    const shadowScore = await getNearestShadowScore(terras._id, now);
+    const shadowPct = Math.round((1 - shadowScore) * 100);
 
     const selfHref = `/api/terrasen/${terras.uuid}`;
     const responseData = {
       terras: terras,
       events: events,
+      shadowScore,
+      shadowPct,
+      isNight,
       links: [
         { rel: "self", href: selfHref },
         { rel: "collection", href: "/api/terrasen" },

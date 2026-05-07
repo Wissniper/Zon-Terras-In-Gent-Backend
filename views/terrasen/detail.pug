@@ -12,8 +12,15 @@ block content
       | #{terras.address}
     p
       strong Zon-intensiteit:
-      | 
-      a(href=`/api/sun/terras/${terras.uuid}`) #{terras.intensity}% Bekijk details 
+      |
+      a(href=`/api/sun/terras/${terras.uuid}`) #{terras.intensity}% Bekijk details
+    if shadowScore !== undefined
+      p
+        strong Schaduw (nu):
+        if isNight
+          |  Nacht — geen directe zon
+        else
+          |  #{shadowPct}% in schaduw (#{Math.round(shadowScore * 100)}% zon)
     if terras.url
       p
         strong Site:

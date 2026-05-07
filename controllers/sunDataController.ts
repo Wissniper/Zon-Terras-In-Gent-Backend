@@ -8,6 +8,7 @@ import { calculateSunData, getCloudFactor } from "../services/sunService.js";
 import { fetchWeatherData } from "../services/weatherService.js";
 import { SUNDATA_CONTEXT, toLd } from "../contexts/jsonld.js";
 import { getNearestShadowScore } from "../services/shadowScoringService.js";
+import { refreshShadowScores } from "../services/sunScoreService.js";
 
 function buildIdQuery(id: string | string[]) {
   const val = Array.isArray(id) ? id[0] : id;
@@ -188,6 +189,11 @@ function createGetSunForEntity(config: {
     }
   };
 }
+
+export const triggerShadowScoreRefresh = async (req: Request, res: Response) => {
+  res.status(202).json({ message: "Shadow score refresh started" });
+  refreshShadowScores().catch((err) => console.error("[refresh] failed:", err.message));
+};
 
 export const getSunForTerras = createGetSunForEntity({
   model: Terras, paramName: "terrasId", locationType: "Terras",
