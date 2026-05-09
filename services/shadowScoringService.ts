@@ -24,6 +24,8 @@ export function resolveHeight(tags: Record<string, string> = {}): number {
     const l = parseFloat(tags["building:levels"]);
     if (!isNaN(l)) return l * 3.5;
   }
+  // Most tag-less OSM "type=house" in Ghent are 2-3 storey rowhouses (~10m).
+  // Going higher systematically over-shadows terraces in dense neighbourhoods.
   return 10;
 }
 
@@ -94,12 +96,14 @@ function pointInPolygon(point: [number, number], polygon: [number, number][]): b
  *   This gives the building's actual silhouette width (perpMin..perpMax) and depth
  *   (alongMin..alongMax) as seen from the sun.
  *
- *   The shadow occupies:
- *     along ∈ [alongMin, alongMax + shadowLength]  (building body + shadow strip behind it)
- *     perp  ∈ [perpMin, perpMax]                   (same width as the building silhouette)
+ *   The shadow region (footprint + strip behind it) occupies:
+ *     along ∈ [alongMin, alongMax + shadowLength]
+ *     perp  ∈ [perpMin, perpMax]
  *
- *   Using the real silhouette width (not the diagonal halfWidth) prevents the bloated
- *   corridors that caused every daytime score to be 0.
+ *   Points on the sun-facing side of the building have along < alongMin and are
+ *   correctly excluded. Including [alongMin, alongMax] is necessary so that a
+ *   terras tucked against / partly under a building's footprint is recognised
+ *   as shadowed.
  */
 export function computeShadowScore(
   terrasLat: number,
@@ -114,13 +118,33 @@ export function computeShadowScore(
   const metersToLat = 1 / 111320;
   const metersToLng = 1 / (111320 * Math.cos(latRad));
 
+  // OSM places café/restaurant nodes INSIDE their host building's footprint.
+  // The terras's outdoor seating is on the sidewalk just outside that wall, not
+  // under the building's own roof. Find any building that contains the terras
+  // point and exclude it so the host building does not shadow its own terras.
+  // The centroid pre-filter (halfWidth in metres) avoids running pointInPolygon
+  // against all 95k Ghent buildings.
+  let containingId = -1;
+  for (let i = 0; i < buildings.length; i++) {
+    const b = buildings[i];
+    const dcx = (b.cx - terrasLng) / metersToLng;
+    const dcy = (b.cy - terrasLat) / metersToLat;
+    if (Math.sqrt(dcx * dcx + dcy * dcy) > b.halfWidth) continue;
+    if (pointInPolygon([terrasLng, terrasLat], b.polygon)) {
+      containingId = i;
+      break;
+    }
+  }
+
   const shadowDir = pos.azimuth + Math.PI; // shadow falls opposite to sun
   const shadowSin = Math.sin(shadowDir);
   const shadowCos = Math.cos(shadowDir);
 
-  // 9 sample points on a 3×3 grid covering a 4 m × 4 m area around the terras centre.
-  // Larger spread → shadow boundaries that pass through the terras give non-binary scores.
-  const offsets = [-2, 0, 2]; // metres
+  // 9 sample points on a 3×3 grid covering a 1 m × 1 m area around the terras centre.
+  // Tight grid keeps samples on the actual terras footprint instead of drifting into
+  // adjacent buildings on narrow Ghent sidewalks. Still gives non-binary scores when
+  // a shadow boundary cuts across the terras.
+  const offsets = [-0.5, 0, 0.5]; // metres
   const samples: [number, number][] = [];
   for (const dxM of offsets) {
     for (const dyM of offsets) {
@@ -136,7 +160,9 @@ export function computeShadowScore(
   for (const sample of samples) {
     let inShadow = false;
 
-    for (const b of buildings) {
+    for (let bi = 0; bi < buildings.length; bi++) {
+      if (bi === containingId) continue;
+      const b = buildings[bi];
       // --- Fast distance pre-filter ---
       const dcx = (b.cx - sample[0]) / metersToLng;
       const dcy = (b.cy - sample[1]) / metersToLat;
@@ -166,10 +192,11 @@ export function computeShadowScore(
       const sAlong =  sx * shadowSin + sy * shadowCos;
       const sPerp  = -sx * shadowCos + sy * shadowSin;
 
-      // Shadow starts at the building's far edge (alongMax) and extends shadowLength behind it.
-      // Using alongMin would include the sun-facing side of the building — false positives.
+      // Shadow region = building footprint + strip extending shadowLength behind it.
+      // Start at alongMin (sun-facing edge of footprint) so points inside the
+      // footprint are correctly counted as shadowed.
       if (
-        sAlong >= alongMax &&
+        sAlong >= alongMin &&
         sAlong <= alongMax + shadowLength &&
         sPerp  >= perpMin &&
         sPerp  <= perpMax
@@ -182,7 +209,7 @@ export function computeShadowScore(
     if (!inShadow) clearCount++;
   }
 
-  return clearCount / 9;
+  return clearCount / samples.length;
 }
 
 export async function getNearestShadowScore(

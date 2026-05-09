@@ -28,11 +28,18 @@ export function calculateSunData(dateTime: Date, lat: number, lng: number, cloud
   };
 }
 
-// Haal de meest recente cloudFactor op voor een locatie
+// Haal de meest recente cloudFactor op voor een locatie.
+// Gebruikt $near (max 1 km) zodat float-precisieverschillen tussen callers
+// geen stille fallback naar "geen bewolking" veroorzaken.
 export async function getCloudFactor(lat: number, lng: number): Promise<number | undefined> {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
   const weather = await Weather.findOne({
-    "location.coordinates": [lng, lat],
+    location: {
+      $near: {
+        $geometry: { type: "Point", coordinates: [lng, lat] },
+        $maxDistance: 1000,
+      },
+    },
     timestamp: { $gte: oneHourAgo },
   });
   return weather?.cloudFactor as number | undefined;

@@ -11,7 +11,12 @@ export const fetchWeatherData = async (lat: number, lng: number) => {
     const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
 
     const cached = await Weather.findOne({
-        "location.coordinates": [lng, lat],
+        location: {
+            $near: {
+                $geometry: { type: "Point", coordinates: [lng, lat] },
+                $maxDistance: 1000,
+            },
+        },
         timestamp: { $gte: fifteenMinAgo },
     });
 

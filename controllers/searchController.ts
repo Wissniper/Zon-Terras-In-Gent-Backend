@@ -41,14 +41,43 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     }
 
     pipeline.push(...buildSunDataLookup("Terras"));
+
+    // Attach the most recent shadow score (≤ now) per terras so the map
+    // can render shadow-adjusted intensity without N+1 client lookups.
+    const now = new Date();
+    pipeline.push({
+      $lookup: {
+        from: "shadowscores",
+        let: { terrasId: "$_id" },
+        pipeline: [
+          { $match: { $expr: { $and: [
+            { $eq: ["$terrasRef", "$$terrasId"] },
+            { $lte: ["$timestamp", now] },
+          ] } } },
+          { $sort: { timestamp: -1 } },
+          { $limit: 1 },
+        ],
+        as: "_shadow",
+      },
+    });
+    pipeline.push({
+      $addFields: {
+        shadowScore: { $ifNull: [{ $arrayElemAt: ["$_shadow.score", 0] }, 1.0] },
+      },
+    });
+    pipeline.push({
+      $addFields: {
+        intensity: { $round: [{ $multiply: ["$intensity", "$shadowScore"] }, 0] },
+      },
+    });
+    pipeline.push({ $project: { _shadow: 0 } });
     pipeline.push({ $sort: { intensity: -1 } });
 
     const terrasen = await Terras.aggregate(pipeline);
 
     const responseData = {
-      count: terrasen.length, 
+      count: terrasen.length,
       terrasen: terrasen,
-      
     };
 
     res.format({
