@@ -9,13 +9,14 @@ export async function refreshShadowScores(): Promise<void> {
     const buildings = await fetchGhentBuildings();
     const terrassen = await Terras.find({ isDeleted: false });
 
-    const now = new Date();
-    now.setMinutes(0, 0, 0);
-    now.setMilliseconds(0);
+    // Start from midnight UTC today so past hours of the current day are always covered.
+    // Queries for any hour today (or tomorrow) will find a bracketing record.
+    const startOfDay = new Date();
+    startOfDay.setUTCHours(0, 0, 0, 0);
 
     const timestamps: Date[] = [];
     for (let i = 0; i < 48; i++) {
-      timestamps.push(new Date(now.getTime() + i * 60 * 60 * 1000));
+      timestamps.push(new Date(startOfDay.getTime() + i * 60 * 60 * 1000));
     }
 
     // Process in batches of 10 terrasses, yielding to the event loop between each batch
@@ -45,7 +46,7 @@ export async function refreshShadowScores(): Promise<void> {
       await new Promise((resolve) => setImmediate(resolve));
     }
 
-    const cutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+    const cutoff = new Date(startOfDay.getTime() - 48 * 60 * 60 * 1000);
     await ShadowScore.deleteMany({ timestamp: { $lt: cutoff } });
 
     console.log(`[SunScoreService] Refreshed ${totalOps} shadow scores for ${terrassen.length} terrasses.`);

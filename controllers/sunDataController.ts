@@ -156,16 +156,20 @@ function createGetSunForEntity(config: {
       }
 
       const cached = await getOrCreateCache(entity._id, config.locationType, lat, lng, dateTime);
+      // Normalise to plain object — spreading a Mongoose document gives internal fields ($__, _doc)
+      const cachedPlain = typeof (cached as any).toObject === "function"
+        ? (cached as any).toObject()
+        : cached;
 
       let shadowScore = 1.0;
       if (config.locationType === "Terras") {
         shadowScore = await getNearestShadowScore(entity._id, dateTime);
       }
-      const adjustedIntensity = Math.round((cached as any).intensity * shadowScore);
+      const adjustedIntensity = Math.round(cachedPlain.intensity * shadowScore);
 
       const responseData = {
         [config.responseKey]: { uuid: entity.uuid, name: entity[config.nameField], address: entity.address, intensity: adjustedIntensity },
-        sunData: { ...(cached as any), intensity: adjustedIntensity, shadowScore },
+        sunData: { ...cachedPlain, intensity: adjustedIntensity, shadowScore },
       };
 
       const selfHref = `${config.selfPrefix}${entity.uuid}`;

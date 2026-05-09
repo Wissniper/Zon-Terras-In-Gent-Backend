@@ -63,16 +63,19 @@ describe("computeShadowScore", () => {
 
   it("returns a score between 0 and 1 inclusive", () => {
     const noon = new Date("2026-06-15T11:30:00Z");
+    const polygon: [number, number][] = [
+      [LNG - 0.001, LAT - 0.001],
+      [LNG + 0.001, LAT - 0.001],
+      [LNG + 0.001, LAT + 0.001],
+      [LNG - 0.001, LAT + 0.001],
+      [LNG - 0.001, LAT - 0.001],
+    ];
     const building: Building = {
-      // A large polygon directly around the terrace
-      polygon: [
-        [LNG - 0.001, LAT - 0.001],
-        [LNG + 0.001, LAT - 0.001],
-        [LNG + 0.001, LAT + 0.001],
-        [LNG - 0.001, LAT + 0.001],
-        [LNG - 0.001, LAT - 0.001],
-      ],
+      polygon,
       height: 50,
+      cx: LNG,
+      cy: LAT,
+      halfWidth: 0.001 * 111320 * Math.sqrt(2),
     };
     const score = computeShadowScore(LAT, LNG, noon, [building]);
     expect(score).toBeGreaterThanOrEqual(0);

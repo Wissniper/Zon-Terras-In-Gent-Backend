@@ -6,10 +6,14 @@ import ShadowScore from "../models/shadowScoreModel.js";
 export interface Building {
   polygon: [number, number][]; // [lng, lat] vertices
   height: number;              // metres
+  cx: number;                  // centroid longitude (precomputed)
+  cy: number;                  // centroid latitude  (precomputed)
+  halfWidth: number;           // max distance from centroid to any vertex, metres (precomputed)
 }
 
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 const GHENT_BBOX = "51.0,3.65,51.1,3.75";
+const MAX_SHADOW_DIST = 200; // metres — buildings beyond this cannot meaningfully shadow a terras
 
 export function resolveHeight(tags: Record<string, string> = {}): number {
   if (tags.height) {
@@ -45,12 +49,26 @@ export async function fetchGhentBuildings(): Promise<Building[]> {
     const sanitized = raw.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, "");
     data = JSON.parse(sanitized);
   }
+
   return data.elements
-    .filter((el: any) => Array.isArray(el.geometry) && el.geometry.length > 0)
-    .map((el: any) => ({
-      polygon: el.geometry.map((pt: any) => [pt.lon, pt.lat] as [number, number]),
-      height: resolveHeight(el.tags ?? {}),
-    }));
+    .filter((el: any) => Array.isArray(el.geometry) && el.geometry.length >= 3)
+    .map((el: any) => {
+      const polygon: [number, number][] = el.geometry.map((pt: any) => [pt.lon, pt.lat] as [number, number]);
+      const height = resolveHeight(el.tags ?? {});
+
+      // Precompute centroid
+      const cx = polygon.reduce((s, [x]) => s + x, 0) / polygon.length;
+      const cy = polygon.reduce((s, [, y]) => s + y, 0) / polygon.length;
+
+      // Precompute half-width: max distance from centroid to any vertex, in metres
+      const halfWidth = Math.max(...polygon.map(([lng, lat]) => {
+        const dx = (lng - cx) * 111320 * Math.cos((cy * Math.PI) / 180);
+        const dy = (lat - cy) * 111320;
+        return Math.sqrt(dx * dx + dy * dy);
+      }));
+
+      return { polygon, height, cx, cy, halfWidth };
+    });
 }
 
 function pointInPolygon(point: [number, number], polygon: [number, number][]): boolean {
@@ -66,6 +84,23 @@ function pointInPolygon(point: [number, number], polygon: [number, number][]): b
   return inside;
 }
 
+/**
+ * Returns the fraction of the terras NOT in shadow (1.0 = fully in sun, 0.0 = fully in shadow).
+ *
+ * Shadow algorithm (shadow-axis bounding box):
+ *   For each nearby building B, project all its vertices onto two axes:
+ *     - along:  the shadow direction  (shadowSin, shadowCos)
+ *     - perp:   perpendicular to shadow (-shadowCos, shadowSin)
+ *   This gives the building's actual silhouette width (perpMin..perpMax) and depth
+ *   (alongMin..alongMax) as seen from the sun.
+ *
+ *   The shadow occupies:
+ *     along ∈ [alongMin, alongMax + shadowLength]  (building body + shadow strip behind it)
+ *     perp  ∈ [perpMin, perpMax]                   (same width as the building silhouette)
+ *
+ *   Using the real silhouette width (not the diagonal halfWidth) prevents the bloated
+ *   corridors that caused every daytime score to be 0.
+ */
 export function computeShadowScore(
   terrasLat: number,
   terrasLng: number,
@@ -73,38 +108,81 @@ export function computeShadowScore(
   buildings: Building[]
 ): number {
   const pos = (SunCalc as any).getPosition(datetime, terrasLat, terrasLng);
-  if (pos.altitude <= 0) return 1.0;
+  if (pos.altitude <= 0) return 1.0; // night — shadow score irrelevant, intensity already 0
 
   const latRad = (terrasLat * Math.PI) / 180;
-  const shadowPolygons: [number, number][][] = [];
+  const metersToLat = 1 / 111320;
+  const metersToLng = 1 / (111320 * Math.cos(latRad));
 
-  for (const building of buildings) {
-    const shadowLength = building.height / Math.tan(pos.altitude);
-    const shadowDir = pos.azimuth + Math.PI;
-    const dLat = shadowLength / 111320;
-    const dLng = shadowLength / (111320 * Math.cos(latRad));
-    const shadowPoly = building.polygon.map(
-      ([lng, lat]) =>
-        [lng + dLng * Math.sin(shadowDir), lat + dLat * Math.cos(shadowDir)] as [number, number]
-    );
-    shadowPolygons.push(shadowPoly);
+  const shadowDir = pos.azimuth + Math.PI; // shadow falls opposite to sun
+  const shadowSin = Math.sin(shadowDir);
+  const shadowCos = Math.cos(shadowDir);
+
+  // 9 sample points on a 3×3 grid covering a 4 m × 4 m area around the terras centre.
+  // Larger spread → shadow boundaries that pass through the terras give non-binary scores.
+  const offsets = [-2, 0, 2]; // metres
+  const samples: [number, number][] = [];
+  for (const dxM of offsets) {
+    for (const dyM of offsets) {
+      samples.push([
+        terrasLng + dxM * metersToLng,
+        terrasLat + dyM * metersToLat,
+      ]);
+    }
   }
-
-  // 5 sample points: centre + ±0.5 m offset (0.5 / 111320 ≈ 0.0000045°)
-  const d = 0.5 / 111320;
-  const samples: [number, number][] = [
-    [terrasLng, terrasLat],
-    [terrasLng, terrasLat + d],
-    [terrasLng, terrasLat - d],
-    [terrasLng + d, terrasLat],
-    [terrasLng - d, terrasLat],
-  ];
 
   let clearCount = 0;
+
   for (const sample of samples) {
-    if (!shadowPolygons.some((poly) => pointInPolygon(sample, poly))) clearCount++;
+    let inShadow = false;
+
+    for (const b of buildings) {
+      // --- Fast distance pre-filter ---
+      const dcx = (b.cx - sample[0]) / metersToLng;
+      const dcy = (b.cy - sample[1]) / metersToLat;
+      if (Math.sqrt(dcx * dcx + dcy * dcy) > MAX_SHADOW_DIST + b.halfWidth) continue;
+
+      // Shadow length capped to avoid absurd values at dawn/dusk
+      const shadowLength = Math.min(b.height / Math.tan(pos.altitude), MAX_SHADOW_DIST);
+
+      // --- Project all building vertices onto (along, perp) axes ---
+      // Vectors are relative to building centroid, in metres.
+      let alongMin = Infinity, alongMax = -Infinity;
+      let perpMin  = Infinity, perpMax  = -Infinity;
+      for (const [vlng, vlat] of b.polygon) {
+        const vx = (vlng - b.cx) / metersToLng;
+        const vy = (vlat - b.cy) / metersToLat;
+        const along =  vx * shadowSin + vy * shadowCos;
+        const perp  = -vx * shadowCos + vy * shadowSin;
+        if (along < alongMin) alongMin = along;
+        if (along > alongMax) alongMax = along;
+        if (perp  < perpMin)  perpMin  = perp;
+        if (perp  > perpMax)  perpMax  = perp;
+      }
+
+      // --- Project sample point onto same axes ---
+      const sx = (sample[0] - b.cx) / metersToLng;
+      const sy = (sample[1] - b.cy) / metersToLat;
+      const sAlong =  sx * shadowSin + sy * shadowCos;
+      const sPerp  = -sx * shadowCos + sy * shadowSin;
+
+      // Shadow starts at the building's far edge (alongMax) and extends shadowLength behind it.
+      // Using alongMin would include the sun-facing side of the building — false positives.
+      if (
+        sAlong >= alongMax &&
+        sAlong <= alongMax + shadowLength &&
+        sPerp  >= perpMin &&
+        sPerp  <= perpMax
+      ) {
+        inShadow = true;
+        break;
+      }
+    }
+
+    if (!inShadow) clearCount++;
   }
-  return clearCount / 5;
+
+  return clearCount / 9;
 }
 
 export async function getNearestShadowScore(
