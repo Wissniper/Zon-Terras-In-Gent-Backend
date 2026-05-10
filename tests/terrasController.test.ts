@@ -12,7 +12,8 @@ afterAll(async () => await closeDatabase());
 
 describe('Terras Controller Logic Tests', () => {
 
-//getAllTerrasen filters by ?intensity=
+//getAllTerrasen filters by ?intensity= on the stored value, then returns
+//a freshly computed intensity (sin(altitude_now) × cloudFactor × shadowScore).
   it('getAllTerrasen filters by ?intensity=', async () => {
     await Terras.create([
       { uuid: 't-high', name: 'Zonnig', intensity: 80, address: 'Gent', location: { type: 'Point', coordinates: [3.7, 51.0] } },
@@ -27,7 +28,8 @@ describe('Terras Controller Logic Tests', () => {
 
     const data = response.body.terrasen;
     expect(data.length).toBe(1);
-    expect(data[0].intensity).toBe(80);
+    expect(data[0].name).toBe('Zonnig');
+    expect(typeof data[0].intensity).toBe('number');
   });
 
 //getTerrasById returns 404 for unknown ID
