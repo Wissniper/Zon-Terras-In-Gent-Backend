@@ -19,6 +19,12 @@ beforeAll(async () => {
 afterEach(async () => await clearDatabase());
 afterAll(async () => await closeDatabase());
 
+// Pin sun position to a known summer-noon UTC for Ghent so `recomputeIntensities`
+// produces a deterministic sin(altitude) regardless of when CI happens to run.
+// At 51.05° N on 2026-06-15 12:00 UTC the sun is high (≈ 60°), giving an
+// intensity well above the 60-threshold the assertions rely on.
+const FIXED_DAYTIME = '2026-06-15T12:00:00Z';
+
 describe('Search Controller Logic Tests', () => {
 
 //searchTerrasen combines text, intensity, and geo filters
@@ -28,12 +34,12 @@ it('searchTerrasen combines text, intensity, and geo filters', async () => {
       name: 'Korenmarkt Terras',
       address: 'Gent',
       intensity: 70,
-      location: { type: 'Point', coordinates: [3.72, 51.05] }, 
+      location: { type: 'Point', coordinates: [3.72, 51.05] },
       isDeleted: false
     });
 
     const response = await request(app)
-      .get('/api/search/terrasen?q=koren&minIntensity=60&lat=51.05&lng=3.72&radius=2')
+      .get(`/api/search/terrasen?q=koren&minIntensity=60&lat=51.05&lng=3.72&radius=2&time=${FIXED_DAYTIME}`)
       .set('Accept', 'application/json');
 
     expect(response.status).toBe(200);
@@ -54,7 +60,7 @@ it('searchRestaurants filters by cuisine and intensity', async () => {
     });
 
     const response = await request(app)
-      .get('/api/search/restaurants?cuisine=italian&minIntensity=60')
+      .get(`/api/search/restaurants?cuisine=italian&minIntensity=60&time=${FIXED_DAYTIME}`)
       .set('Accept', 'application/json');
 
     expect(response.status).toBe(200);
