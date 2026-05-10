@@ -59,9 +59,9 @@ function nearestCloudFactor(points: WeatherPoint[], lat: number, lng: number): n
   return bestDist < ONE_KM_SQ_DEG ? points[bestIdx].cloudFactor : undefined;
 }
 
-export async function recomputeIntensities(items: any[]): Promise<void> {
+export async function recomputeIntensities(items: any[], targetTime?: Date): Promise<void> {
   if (!items || items.length === 0) return;
-  const now = new Date();
+  const when = targetTime ?? new Date();
   const weatherPoints = await loadRecentWeather();
 
   for (const it of items) {
@@ -72,7 +72,7 @@ export async function recomputeIntensities(items: any[]): Promise<void> {
     const lat = Number(coords[1]);
 
     const cf = nearestCloudFactor(weatherPoints, lat, lng);
-    const sun = calculateSunData(now, lat, lng, cf);
+    const sun = calculateSunData(when, lat, lng, cf);
     const isNight = sun.position.altitude <= 0;
     const shadowScore = typeof it.shadowScore === "number" ? it.shadowScore : 1.0;
 

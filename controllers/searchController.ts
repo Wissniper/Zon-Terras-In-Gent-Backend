@@ -17,8 +17,16 @@ import { recomputeIntensities } from "../services/intensityRefresher.js";
  */
 export const searchTerrasen = async (req: Request, res: Response) => {
   try {
-    const { q, sunnyOnly, minIntensity, maxIntensity, lat, lng, radius } = req.query;
+    const { q, sunnyOnly, minIntensity, maxIntensity, lat, lng, radius, time } = req.query;
     const bbox = parseBboxFromQuery(req.query);
+
+    // Optional `?time=ISO8601` — when supplied, intensities are recomputed at
+    // that target time so /search/* matches the time-aware leaderboard.
+    const targetTime = (() => {
+      if (typeof time !== "string" || !time) return undefined;
+      const t = new Date(time);
+      return Number.isNaN(t.getTime()) ? undefined : t;
+    })();
 
     const pipeline: any[] = [];
 
@@ -46,9 +54,9 @@ export const searchTerrasen = async (req: Request, res: Response) => {
 
     pipeline.push(...buildSunDataLookup("Terras"));
 
-    // Attach the most recent shadow score (≤ now) per terras so the map
-    // can render shadow-adjusted intensity without N+1 client lookups.
-    const now = new Date();
+    // Attach the most recent shadow score (≤ targetTime) per terras so the
+    // map and Discover render shadow-adjusted intensity without N+1 lookups.
+    const shadowCutoff = targetTime ?? new Date();
     pipeline.push({
       $lookup: {
         from: "shadowscores",
@@ -56,7 +64,7 @@ export const searchTerrasen = async (req: Request, res: Response) => {
         pipeline: [
           { $match: { $expr: { $and: [
             { $eq: ["$terrasRef", "$$terrasId"] },
-            { $lte: ["$timestamp", now] },
+            { $lte: ["$timestamp", shadowCutoff] },
           ] } } },
           { $sort: { timestamp: -1 } },
           { $limit: 1 },
@@ -73,8 +81,8 @@ export const searchTerrasen = async (req: Request, res: Response) => {
 
     const terrasen = await Terras.aggregate(pipeline);
 
-    // Replace the cached `intensity` with a fresh sin(altitude_now) × cloudFactor × shadowScore.
-    await recomputeIntensities(terrasen);
+    // Replace the cached `intensity` with a fresh sin(altitude) × cloudFactor × shadowScore.
+    await recomputeIntensities(terrasen, targetTime);
 
     // Apply intensity filters now that values are fresh.
     let filtered = terrasen;
@@ -117,8 +125,14 @@ export const searchTerrasen = async (req: Request, res: Response) => {
  */
 export const searchRestaurants = async (req: Request, res: Response) => {
   try {
-    const { q, cuisine, minIntensity, maxIntensity, lat, lng, radius } = req.query;
+    const { q, cuisine, minIntensity, maxIntensity, lat, lng, radius, time } = req.query;
     const bbox = parseBboxFromQuery(req.query);
+
+    const targetTime = (() => {
+      if (typeof time !== "string" || !time) return undefined;
+      const t = new Date(time);
+      return Number.isNaN(t.getTime()) ? undefined : t;
+    })();
 
     const pipeline: any[] = [];
 
@@ -150,7 +164,7 @@ export const searchRestaurants = async (req: Request, res: Response) => {
 
     const restaurants = await Restaurant.aggregate(pipeline);
 
-    await recomputeIntensities(restaurants);
+    await recomputeIntensities(restaurants, targetTime);
 
     let filtered = restaurants;
     const minI = minIntensity ? Number(minIntensity) : null;

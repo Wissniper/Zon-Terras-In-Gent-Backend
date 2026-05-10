@@ -29,6 +29,7 @@ export const getAllTerrasen = async (req: Request, res: Response) => {
         'north', 'south', 'east', 'west',
         'lat', 'lng', 'radius',
         'location',
+        'time',
         'limit', 'skip', 'page', 'sort',
       ]);
       Object.entries(req.query).forEach(([key, value]) => {
@@ -42,11 +43,19 @@ export const getAllTerrasen = async (req: Request, res: Response) => {
     }
 
     const terrassen = await Terras.find(filter).sort({ intensity: -1 });
-    const now = new Date();
 
-    // One aggregation: latest score ≤ now per terras
+    // Optional `?time=ISO8601` — recompute intensities at that moment.
+    const targetTime = (() => {
+      const raw = req.query?.time;
+      if (typeof raw !== 'string' || !raw) return undefined;
+      const t = new Date(raw);
+      return Number.isNaN(t.getTime()) ? undefined : t;
+    })();
+    const cutoff = targetTime ?? new Date();
+
+    // One aggregation: latest score ≤ cutoff per terras
     const scoreRows = await ShadowScore.aggregate([
-      { $match: { timestamp: { $lte: now } } },
+      { $match: { timestamp: { $lte: cutoff } } },
       { $sort: { timestamp: -1 } },
       { $group: { _id: "$terrasRef", score: { $first: "$score" }, timestamp: { $first: "$timestamp" } } },
     ]);
@@ -72,7 +81,7 @@ export const getAllTerrasen = async (req: Request, res: Response) => {
     });
 
     // ONE bulk weather lookup for the whole batch (instead of N $near queries).
-    await recomputeIntensities(enriched);
+    await recomputeIntensities(enriched, targetTime);
     // recomputeIntensities sets isNight=true on nighttime rows; reflect that in shadowPct.
     for (const e of enriched) {
       if (e.isNight) e.shadowPct = 100;

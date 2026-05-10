@@ -23,6 +23,7 @@ const RESERVED_QUERY_KEYS = new Set([
   'north', 'south', 'east', 'west',
   'lat', 'lng', 'radius',
   'location',
+  'time',
   'limit', 'skip', 'page', 'sort',
 ]);
 
