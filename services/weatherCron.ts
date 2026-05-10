@@ -155,7 +155,13 @@ export function startWeatherCron(io?: import("socket.io").Server) {
 
   console.log("[Cron] Scheduled event data sync every day at 04:00");
 
-  // Direct bij startup data ophalen als collecties leeg zijn
+  // Direct bij startup data ophalen als collecties leeg zijn.
+  // Gated: only runs when SYNC_ON_EMPTY=true. On a small VM this can stampede
+  // Overpass + Mongo for several minutes after every restart, so it's
+  // disabled by default — populate via the scheduled cron or manually.
+  if (process.env.SYNC_ON_EMPTY !== "true") {
+    return;
+  }
   Promise.all([Terras.countDocuments(), Restaurant.countDocuments(), Event.countDocuments()]).then(async ([terrasCount, restCount, eventCount]) => {
     if (terrasCount === 0) {
       console.log("[TerrasCron] Empty collection, fetching initial data");

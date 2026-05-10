@@ -85,15 +85,16 @@ export function toLd(resource: string, doc: object, selfHref: string) {
   };
 }
 
-/** Wrap a collection response in JSON-LD */
-export function toCollectionLd(resource: string, items: object[], selfHref: string) {
+/** Wrap a collection response in JSON-LD. `totalItems` defaults to items.length;
+ *  pass an explicit value when `items` is a paginated slice of a larger result. */
+export function toCollectionLd(resource: string, items: object[], selfHref: string, totalItems?: number) {
   const mapping = CONTEXT_MAP[resource];
   if (!mapping) return items;
   return {
     "@context": mapping.context,
     "@type": "hydra:Collection",
     "@id": selfHref,
-    "hydra:totalItems": items.length,
+    "hydra:totalItems": totalItems ?? items.length,
     "hydra:member": items.map((item: any) => ({
       "@type": mapping.type,
       "@id": `/api/${resource === "terras" ? "terrasen" : resource + "s"}/${item.uuid}`,

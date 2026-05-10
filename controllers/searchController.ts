@@ -6,6 +6,16 @@ import { buildGeoStage, buildSunDataLookup, buildRangeFilter, parseBboxFromQuery
 import { toCollectionLd } from "../contexts/jsonld.js";
 import { recomputeIntensities } from "../services/intensityRefresher.js";
 
+const MAX_LIMIT = 500;
+
+function paginate<T>(items: T[], q: Request["query"]): T[] {
+  const skipRaw = Number(q.skip);
+  const limitRaw = Number(q.limit);
+  const skip = Number.isFinite(skipRaw) && skipRaw > 0 ? Math.floor(skipRaw) : 0;
+  const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), MAX_LIMIT) : MAX_LIMIT;
+  return items.slice(skip, skip + limit);
+}
+
 /**
  * GET /api/search/terrasen
  *   ?q=korenmarkt              — zoek op naam
@@ -96,14 +106,17 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     }
     filtered.sort((a: any, b: any) => (b.intensity ?? 0) - (a.intensity ?? 0));
 
+    const total = filtered.length;
+    const paged = paginate(filtered, req.query);
+
     const responseData = {
-      count: filtered.length,
-      terrasen: filtered,
+      count: total,
+      terrasen: paged,
     };
 
     res.format({
       'application/ld+json': () => res.status(200).json(
-        toCollectionLd("terras", filtered, req.originalUrl)
+        toCollectionLd("terras", paged, req.originalUrl, total)
       ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('terrasen/list', responseData),
@@ -173,14 +186,17 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     if (maxI != null) filtered = filtered.filter((r: any) => (r.intensity ?? 0) <= maxI);
     filtered.sort((a: any, b: any) => (b.intensity ?? 0) - (a.intensity ?? 0));
 
+    const total = filtered.length;
+    const paged = paginate(filtered, req.query);
+
     const responseData = {
-      count: filtered.length,
-      restaurants: filtered,
+      count: total,
+      restaurants: paged,
     };
 
     res.format({
       'application/ld+json': () => res.status(200).json(
-        toCollectionLd("restaurant", filtered, req.originalUrl)
+        toCollectionLd("restaurant", paged, req.originalUrl, total)
       ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('restaurants/list', responseData),
@@ -236,15 +252,17 @@ export const searchEvents = async (req: Request, res: Response) => {
 
     const events = await Event.aggregate(pipeline);
 
+    const total = events.length;
+    const paged = paginate(events, req.query);
+
     const responseData = {
-      count: events.length, 
-      events: events, 
-     
+      count: total,
+      events: paged,
     };
 
     res.format({
       'application/ld+json': () => res.status(200).json(
-        toCollectionLd("event", events, req.originalUrl)
+        toCollectionLd("event", paged, req.originalUrl, total)
       ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('events/list', responseData),

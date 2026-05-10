@@ -5,7 +5,6 @@ import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
 import { calculateSunData, getCloudFactor } from "../services/sunService.js";
-import { fetchWeatherData } from "../services/weatherService.js";
 import { SUNDATA_CONTEXT, toLd } from "../contexts/jsonld.js";
 import { getNearestShadowScore } from "../services/shadowScoringService.js";
 import { refreshShadowScores } from "../services/sunScoreService.js";
@@ -19,8 +18,6 @@ function buildIdQuery(id: string | string[]) {
 }
 
 const CACHE_MAX_AGE_MS = 15 * 60 * 1000; // 15 minutes
-
-const entityModelMap: Record<string, any> = { Terras, Restaurant, Event };
 
 /** Helper: get or create cached sun data for a location, recalculating if stale (>15 min) */
 async function getOrCreateCache(
@@ -39,13 +36,9 @@ async function getOrCreateCache(
 
   if (!isStale) return cached;
 
-  // Ensure fresh weather data is available, then recalculate
-  // skip weather fetch if the external API is unreachable (e.g. firewall)
-  try {
-    await fetchWeatherData(lat, lng);
-  } catch (weatherErr: any) {
-    console.warn("fetchWeatherData failed, continuing without fresh weather data:", weatherErr.message);
-  }
+  // Read cloud factor from the cache (kept fresh by the hourly weather cron).
+  // Don't trigger an external API fetch per request — it serializes the
+  // request behind a slow network call and the cron handles refresh anyway.
   const cloudFactor = await getCloudFactor(lat, lng);
   const sun = calculateSunData(dateTime, lat, lng, cloudFactor);
 
@@ -59,8 +52,10 @@ async function getOrCreateCache(
     goldenHour: sun.goldenHour,
   };
 
-  // Keep the entity's own intensity field in sync with the freshly calculated value
-  await entityModelMap[locationType].updateOne({ _id: locationRef }, { $set: { intensity: sun.intensity } });
+  // Note: we deliberately do NOT mirror sun.intensity onto the entity's own
+  // `intensity` field here. The entity field is "raw, no shadow"; per-request
+  // endpoints apply shadow at read time via recomputeIntensities or
+  // getNearestShadowScore. Mirroring here would be a wasted write.
 
   // Upsert atomically — avoids a TOCTOU race where two concurrent misses both
   // try to insert and the second trips the unique index on
@@ -276,6 +271,9 @@ export const getSunBatch = async (req: Request, res: Response) => {
     }
     if (locations.length > MAX_BATCH_SIZE) {
       return res.status(400).json({ message: `Batch size exceeds limit of ${MAX_BATCH_SIZE}` });
+    }
+    if (locations.length === 0) {
+      return res.status(200).json({ count: 0, results: [] });
     }
 
     // Bulk-load weather once, then nearest-neighbour lookup per location.
