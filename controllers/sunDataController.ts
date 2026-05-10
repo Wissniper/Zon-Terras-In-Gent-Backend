@@ -9,6 +9,9 @@ import { fetchWeatherData } from "../services/weatherService.js";
 import { SUNDATA_CONTEXT, toLd } from "../contexts/jsonld.js";
 import { getNearestShadowScore } from "../services/shadowScoringService.js";
 import { refreshShadowScores } from "../services/sunScoreService.js";
+import { loadRecentWeather, nearestCloudFactor } from "../services/intensityRefresher.js";
+
+const MAX_BATCH_SIZE = 100;
 
 function buildIdQuery(id: string | string[]) {
   const val = Array.isArray(id) ? id[0] : id;
@@ -271,13 +274,23 @@ export const getSunBatch = async (req: Request, res: Response) => {
     if (!Array.isArray(locations)) {
       return res.status(400).json({ message: "Invalid request body. Expected { locations: [{ lat, lng, time }] }" });
     }
+    if (locations.length > MAX_BATCH_SIZE) {
+      return res.status(400).json({ message: `Batch size exceeds limit of ${MAX_BATCH_SIZE}` });
+    }
+
+    // Bulk-load weather once, then nearest-neighbour lookup per location.
+    // Same path /api/search/* uses, so intensities here match the rest of
+    // the app for nearby entities (cloud-factor-aware, but no shadow score —
+    // the batch endpoint takes raw coords, not entity refs).
+    const weatherPoints = await loadRecentWeather();
 
     const results = locations.map(loc => {
-      const dateTime = new Date(loc.time);
+      const dateTime = loc.time === "now" ? new Date() : new Date(loc.time);
       if (isNaN(dateTime.getTime())) {
         return { error: `Invalid time format for location (${loc.lat}, ${loc.lng})` };
       }
-      const sun = calculateSunData(dateTime, loc.lat, loc.lng);
+      const cf = nearestCloudFactor(weatherPoints, loc.lat, loc.lng);
+      const sun = calculateSunData(dateTime, loc.lat, loc.lng, cf);
       return {
         latitude: loc.lat,
         longitude: loc.lng,

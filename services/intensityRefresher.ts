@@ -28,7 +28,7 @@ interface WeatherPoint {
   cloudFactor: number;
 }
 
-async function loadRecentWeather(): Promise<WeatherPoint[]> {
+export async function loadRecentWeather(): Promise<WeatherPoint[]> {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
   const docs = await Weather.find(
     { timestamp: { $gte: oneHourAgo } },
@@ -43,7 +43,7 @@ async function loadRecentWeather(): Promise<WeatherPoint[]> {
     }));
 }
 
-function nearestCloudFactor(points: WeatherPoint[], lat: number, lng: number): number | undefined {
+export function nearestCloudFactor(points: WeatherPoint[], lat: number, lng: number): number | undefined {
   if (points.length === 0) return undefined;
   let bestIdx = 0;
   let bestDist = Infinity;
