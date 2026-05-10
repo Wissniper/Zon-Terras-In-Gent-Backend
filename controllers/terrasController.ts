@@ -3,7 +3,7 @@ import SunData from "../models/sunDataModel.js";
 import Event from "../models/eventModel.js";
 import ShadowScore from "../models/shadowScoreModel.js";
 import { Request, Response } from "express";
-import { createOne, updateOne, patchOne, softDelete } from "./baseController.js";
+import { createOne, updateOne, patchOne, softDelete, parseBboxFromQuery, buildBboxFilter } from "./baseController.js";
 import { toLd, toCollectionLd } from "../contexts/jsonld.js";
 import { isValidObjectId } from "mongoose";
 import { getNearestShadowScore } from "../services/shadowScoringService.js";
@@ -20,8 +20,19 @@ import SunCalc from "suncalc3";
 export const getAllTerrasen = async (req: Request, res: Response) => {
   try {
     const filter: any = { isDeleted: { $ne: true } };
+
+    const bbox = parseBboxFromQuery(req.query as any);
+    if (bbox) Object.assign(filter, buildBboxFilter(bbox));
+
     if (req.query) {
+      const reserved = new Set([
+        'north', 'south', 'east', 'west',
+        'lat', 'lng', 'radius',
+        'location',
+        'limit', 'skip', 'page', 'sort',
+      ]);
       Object.entries(req.query).forEach(([key, value]) => {
+        if (reserved.has(key)) return;
         if (key === 'name' && typeof value === 'string') {
           filter[key] = { $regex: value, $options: 'i' };
         } else {

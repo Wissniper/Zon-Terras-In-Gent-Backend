@@ -2,7 +2,7 @@ import Terras from "../models/terrasModel.js";
 import Restaurant from "../models/restaurantModel.js";
 import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
-import { buildGeoStage, buildSunDataLookup, buildRangeFilter } from "./baseController.js";
+import { buildGeoStage, buildSunDataLookup, buildRangeFilter, parseBboxFromQuery, buildBboxFilter } from "./baseController.js";
 import { toCollectionLd } from "../contexts/jsonld.js";
 import { recomputeIntensities } from "../services/intensityRefresher.js";
 
@@ -13,10 +13,12 @@ import { recomputeIntensities } from "../services/intensityRefresher.js";
  *   ?minIntensity=60           — minimum intensity
  *   ?maxIntensity=100          — maximum intensity
  *   ?lat=51.05&lng=3.72&radius=1  — binnen straal (km)
+ *   ?north=51.10&south=51.00&east=3.80&west=3.65  — viewport bbox
  */
 export const searchTerrasen = async (req: Request, res: Response) => {
   try {
     const { q, sunnyOnly, minIntensity, maxIntensity, lat, lng, radius } = req.query;
+    const bbox = parseBboxFromQuery(req.query);
 
     const pipeline: any[] = [];
 
@@ -25,6 +27,10 @@ export const searchTerrasen = async (req: Request, res: Response) => {
     }
 
     const match: any = { isDeleted: { $ne: true } };
+
+    if (bbox) {
+      Object.assign(match, buildBboxFilter(bbox));
+    }
 
     if (q) {
       match.name = { $regex: q as string, $options: "i" };
@@ -107,10 +113,12 @@ export const searchTerrasen = async (req: Request, res: Response) => {
  *   ?minIntensity=50           — minimum zonintensiteit
  *   ?maxIntensity=100          — maximum zonintensiteit
  *   ?lat=51.05&lng=3.72&radius=1  — binnen straal (km)
+ *   ?north=51.10&south=51.00&east=3.80&west=3.65  — viewport bbox
  */
 export const searchRestaurants = async (req: Request, res: Response) => {
   try {
     const { q, cuisine, minIntensity, maxIntensity, lat, lng, radius } = req.query;
+    const bbox = parseBboxFromQuery(req.query);
 
     const pipeline: any[] = [];
 
@@ -119,6 +127,10 @@ export const searchRestaurants = async (req: Request, res: Response) => {
     }
 
     const match: any = { isDeleted: { $ne: true } };
+
+    if (bbox) {
+      Object.assign(match, buildBboxFilter(bbox));
+    }
 
     if (q) {
       match.name = { $regex: q as string, $options: "i" };
@@ -170,10 +182,12 @@ export const searchRestaurants = async (req: Request, res: Response) => {
  *   ?q=jazz                    — zoek op titel
  *   ?date=2026-03-07           — events actief op deze datum
  *   ?lat=51.05&lng=3.72&radius=1  — binnen straal (km)
+ *   ?north=51.10&south=51.00&east=3.80&west=3.65  — viewport bbox
  */
 export const searchEvents = async (req: Request, res: Response) => {
   try {
     const { q, date, lat, lng, radius } = req.query;
+    const bbox = parseBboxFromQuery(req.query);
 
     const pipeline: any[] = [];
 
@@ -181,7 +195,11 @@ export const searchEvents = async (req: Request, res: Response) => {
       pipeline.push(buildGeoStage(lat as string, lng as string, radius as string));
     }
 
-    const match: any = {};
+    const match: any = { isDeleted: { $ne: true } };
+
+    if (bbox) {
+      Object.assign(match, buildBboxFilter(bbox));
+    }
 
     if (q) {
       match.title = { $regex: q as string, $options: "i" };
