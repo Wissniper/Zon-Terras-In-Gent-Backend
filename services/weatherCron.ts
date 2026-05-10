@@ -156,9 +156,11 @@ export function startWeatherCron(io?: import("socket.io").Server) {
   console.log("[Cron] Scheduled event data sync every day at 04:00");
 
   // Direct bij startup data ophalen als collecties leeg zijn.
-  // Gated: only runs when SYNC_ON_EMPTY=true. On a small VM this can stampede
-  // Overpass + Mongo for several minutes after every restart, so it's
-  // disabled by default — populate via the scheduled cron or manually.
+  // Gated by SYNC_ON_EMPTY=true (default off). On a small VM this can stampede
+  // Overpass + Mongo for several minutes after every restart, so a fresh
+  // deployment should set the env var explicitly when bootstrapping data —
+  // otherwise rely on the scheduled cron (Mon 03:00 / daily 04:00) or run
+  // a one-off sync manually.
   if (process.env.SYNC_ON_EMPTY !== "true") {
     return;
   }

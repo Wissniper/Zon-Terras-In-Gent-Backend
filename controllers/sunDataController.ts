@@ -10,8 +10,6 @@ import { getNearestShadowScore } from "../services/shadowScoringService.js";
 import { refreshShadowScores } from "../services/sunScoreService.js";
 import { loadRecentWeather, nearestCloudFactor } from "../services/intensityRefresher.js";
 
-const MAX_BATCH_SIZE = 100;
-
 function buildIdQuery(id: string | string[]) {
   const val = Array.isArray(id) ? id[0] : id;
   return isValidObjectId(val) ? { _id: val } : { uuid: val };
@@ -263,15 +261,16 @@ export const getCachedSunData = async (req: Request, res: Response) => {
  */
 export const getSunBatch = async (req: Request, res: Response) => {
   try {
+    // validateSunBatch already enforces shape, item types, and array size cap.
     const locations = req.body.locations as { lat: number; lng: number; time: string }[];
-    if (!Array.isArray(locations)) {
-      return res.status(400).json({ message: "Invalid request body. Expected { locations: [{ lat, lng, time }] }" });
-    }
-    if (locations.length > MAX_BATCH_SIZE) {
-      return res.status(400).json({ message: `Batch size exceeds limit of ${MAX_BATCH_SIZE}` });
-    }
+
     if (locations.length === 0) {
-      return res.status(200).json({ count: 0, results: [] });
+      const responseData = { count: 0, results: [] as object[] };
+      return res.format({
+        'application/json': () => res.status(200).json(responseData),
+        'text/html': () => res.render('sun/batch', responseData),
+        'default': () => res.status(406).send('Not Acceptable'),
+      });
     }
 
     // Bulk-load weather once, then nearest-neighbour lookup per location.

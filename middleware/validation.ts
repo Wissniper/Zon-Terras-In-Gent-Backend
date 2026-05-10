@@ -85,10 +85,11 @@ export const validateLocationType = [
     handleErrors
 ];
 
+export const SUN_BATCH_MAX_SIZE = 100;
+
 export const validateSunBatch = [
-  
-    body('locations').isArray().withMessage('Expected an array of locations'),
-    
+    body('locations').isArray({ max: SUN_BATCH_MAX_SIZE })
+        .withMessage(`Expected an array of locations (max ${SUN_BATCH_MAX_SIZE})`),
     body('locations.*.lat').isFloat({ min: -90, max: 90 }).withMessage('Invalid latitude'),
     body('locations.*.lng').isFloat({ min: -180, max: 180 }).withMessage('Invalid longitude'),
     body('locations.*.time').custom((value) => {
