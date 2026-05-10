@@ -114,4 +114,31 @@ it('searchNearby returns all 3 entity types in one response', async () => {
     expect(response.body.data.restaurants).toBeDefined();
     expect(response.body.data.events).toBeDefined();
   });
+
+  it('searchTerrasen honors limit and skip; count reflects unpaginated total', async () => {
+    const docs = Array.from({ length: 5 }, (_, i) => ({
+      uuid: `t-page-${i}`,
+      name: `Page ${i}`,
+      address: 'Gent',
+      intensity: 50 + i,
+      location: { type: 'Point', coordinates: [3.72, 51.05] },
+      isDeleted: false,
+    }));
+    await Terras.insertMany(docs);
+
+    const page1 = await request(app)
+      .get(`/api/search/terrasen?limit=2&skip=0&time=${FIXED_DAYTIME}`)
+      .set('Accept', 'application/json');
+
+    expect(page1.status).toBe(200);
+    expect(page1.body.count).toBe(5);
+    expect(page1.body.terrasen.length).toBe(2);
+
+    const page2 = await request(app)
+      .get(`/api/search/terrasen?limit=2&skip=2&time=${FIXED_DAYTIME}`)
+      .set('Accept', 'application/json');
+
+    expect(page2.body.terrasen.length).toBe(2);
+    expect(page2.body.terrasen[0].uuid).not.toBe(page1.body.terrasen[0].uuid);
+  });
 });

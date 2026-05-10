@@ -63,7 +63,7 @@ async function getOrCreateCache(
   return await SunData.findOneAndUpdate(
     { locationRef, locationType, dateTime: cacheDate },
     { $set: sunFields },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
   );
 }
 
@@ -238,8 +238,6 @@ export const getCachedSunData = async (req: Request, res: Response) => {
       locationRef: refId,
       locationType,
     }).sort({ dateTime: -1 });
-
-    const plural = locationType === "Terras" ? "terrasen" : locationType.toLowerCase() + 's';
 
     const responseData = {
       count: data.length,
