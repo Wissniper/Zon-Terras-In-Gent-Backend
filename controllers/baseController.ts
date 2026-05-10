@@ -16,6 +16,16 @@ const resourcePlurals: Record<string, string> = {
   sundata: "sun" ///api/sun
 };
 
+// Reserved query keys that must not be copied verbatim into the Mongo filter.
+// `location` is reserved because it's set by buildBboxFilter; `lat/lng/radius`
+// because they belong to the search-aggregation $geoNear stage.
+const RESERVED_QUERY_KEYS = new Set([
+  'north', 'south', 'east', 'west',
+  'lat', 'lng', 'radius',
+  'location',
+  'limit', 'skip', 'page', 'sort',
+]);
+
 // Factory: GET / — haal alle items op (filtert soft-deleted items uit)
 export function createGetAll<T extends Document>(
   model: Model<T>,
@@ -23,12 +33,15 @@ export function createGetAll<T extends Document>(
 ) {
   return async (req: Request, res: Response) => {
     try {
-    
+
       const filter: any = { isDeleted: { $ne: true } };
+
+      const bbox = parseBboxFromQuery(req.query as any);
+      if (bbox) Object.assign(filter, buildBboxFilter(bbox));
 
       if (req.query) {
         Object.entries(req.query).forEach(([key, value]) => {
-          // Als de query parameter 'name' is, gebruik dan een case-insensitive regex
+          if (RESERVED_QUERY_KEYS.has(key)) return;
           if (key === 'name' && typeof value === 'string') {
             filter[key] = { $regex: value, $options: 'i' };
           } else {
@@ -215,6 +228,44 @@ export function buildGeoStage(lat: string, lng: string, radius: string) {
       distanceField: "distance",
       maxDistance: Number(radius) * 1000,
       spherical: true,
+    },
+  };
+}
+
+// Helper: parse a viewport bounding-box from the request query.
+// Accepts north/south/east/west as numeric strings. Returns null if any
+// component is missing or non-numeric, or if the box is degenerate.
+export function parseBboxFromQuery(query: Record<string, any>): {
+  north: number; south: number; east: number; west: number;
+} | null {
+  const n = Number(query?.north);
+  const s = Number(query?.south);
+  const e = Number(query?.east);
+  const w = Number(query?.west);
+  if (!Number.isFinite(n) || !Number.isFinite(s) || !Number.isFinite(e) || !Number.isFinite(w)) return null;
+  if (n <= s || e <= w) return null;
+  if (n > 90 || s < -90 || e > 180 || w < -180) return null;
+  return { north: n, south: s, east: e, west: w };
+}
+
+// Helper: build a Mongo `$match` filter clause that constrains a 2dsphere
+// `location` field to the viewport bounding-box (lon/lat order, GeoJSON Polygon).
+export function buildBboxFilter(bbox: { north: number; south: number; east: number; west: number }) {
+  const { north, south, east, west } = bbox;
+  return {
+    location: {
+      $geoWithin: {
+        $geometry: {
+          type: "Polygon",
+          coordinates: [[
+            [west, south],
+            [east, south],
+            [east, north],
+            [west, north],
+            [west, south],
+          ]],
+        },
+      },
     },
   };
 }
