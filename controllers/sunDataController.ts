@@ -59,12 +59,14 @@ async function getOrCreateCache(
   // Keep the entity's own intensity field in sync with the freshly calculated value
   await entityModelMap[locationType].updateOne({ _id: locationRef }, { $set: { intensity: sun.intensity } });
 
-  if (cached) {
-    await SunData.updateOne({ _id: cached._id }, { $set: sunFields });
-    return { ...cached.toObject(), ...sunFields };
-  }
-
-  return await SunData.create(sunFields);
+  // Upsert atomically — avoids a TOCTOU race where two concurrent misses both
+  // try to insert and the second trips the unique index on
+  // (locationRef, locationType, dateTime).
+  return await SunData.findOneAndUpdate(
+    { locationRef, locationType, dateTime: cacheDate },
+    { $set: sunFields },
+    { upsert: true, new: true, setDefaultsOnInsert: true },
+  );
 }
 
 /**

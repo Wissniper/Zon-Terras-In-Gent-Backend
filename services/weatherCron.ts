@@ -125,20 +125,6 @@ export function startWeatherCron(io?: import("socket.io").Server) {
 
   console.log("[Cron] Scheduled weather + sun update every hour");
 
-  // Direct bij startup intensiteiten berekenen (zonder weer-API)
-  getUniqueLocations().then(async (locations) => {
-    if (locations.length === 0) return;
-    console.log(`[WeatherCron] Initialising intensity for ${locations.length} locations`);
-    for (const { lat, lng } of locations) {
-      try {
-        await updateIntensityForLocation(lat, lng);
-      } catch (err) {
-        console.error(`[WeatherCron] Initial intensity failed for ${lat},${lng}:`, err);
-      }
-    }
-    console.log("[WeatherCron] Initial intensities set");
-  }).catch((err) => console.error("[WeatherCron] Initial intensity init failed:", err));
-
   // Terras + restaurant sync: elke maandag om 03:00 's nachts
   cron.schedule("0 3 * * 1", async () => {
     try {

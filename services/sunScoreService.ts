@@ -58,5 +58,4 @@ export async function refreshShadowScores(): Promise<void> {
 export function startShadowScoreCron(): void {
   cron.schedule("0 */6 * * *", () => { refreshShadowScores(); });
   console.log("[Cron] Scheduled shadow score refresh every 6 hours");
-  refreshShadowScores();
 }
