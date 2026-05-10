@@ -4,6 +4,7 @@ import Event from "../models/eventModel.js";
 import { Request, Response } from "express";
 import { buildGeoStage, buildSunDataLookup, buildRangeFilter } from "./baseController.js";
 import { toCollectionLd } from "../contexts/jsonld.js";
+import { recomputeIntensities } from "../services/intensityRefresher.js";
 
 /**
  * GET /api/search/terrasen
@@ -29,12 +30,9 @@ export const searchTerrasen = async (req: Request, res: Response) => {
       match.name = { $regex: q as string, $options: "i" };
     }
 
-    if (sunnyOnly === "true") {
-      match.intensity = { $gt: 50 };
-    } else {
-      const intensityRange = buildRangeFilter(minIntensity as string, maxIntensity as string);
-      if (intensityRange) match.intensity = intensityRange;
-    }
+    // NOTE: intensity filters (sunnyOnly / minIntensity / maxIntensity) are
+    // applied AFTER recomputeIntensities() — filtering on the stored value
+    // here would filter on stale data.
 
     if (Object.keys(match).length > 0) {
       pipeline.push({ $match: match });
@@ -65,24 +63,33 @@ export const searchTerrasen = async (req: Request, res: Response) => {
         shadowScore: { $ifNull: [{ $arrayElemAt: ["$_shadow.score", 0] }, 1.0] },
       },
     });
-    pipeline.push({
-      $addFields: {
-        intensity: { $round: [{ $multiply: ["$intensity", "$shadowScore"] }, 0] },
-      },
-    });
     pipeline.push({ $project: { _shadow: 0 } });
-    pipeline.push({ $sort: { intensity: -1 } });
 
     const terrasen = await Terras.aggregate(pipeline);
 
+    // Replace the cached `intensity` with a fresh sin(altitude_now) × cloudFactor × shadowScore.
+    await recomputeIntensities(terrasen);
+
+    // Apply intensity filters now that values are fresh.
+    let filtered = terrasen;
+    if (sunnyOnly === "true") {
+      filtered = filtered.filter((t: any) => (t.intensity ?? 0) > 50);
+    } else {
+      const minI = minIntensity ? Number(minIntensity) : null;
+      const maxI = maxIntensity ? Number(maxIntensity) : null;
+      if (minI != null) filtered = filtered.filter((t: any) => (t.intensity ?? 0) >= minI);
+      if (maxI != null) filtered = filtered.filter((t: any) => (t.intensity ?? 0) <= maxI);
+    }
+    filtered.sort((a: any, b: any) => (b.intensity ?? 0) - (a.intensity ?? 0));
+
     const responseData = {
-      count: terrasen.length,
-      terrasen: terrasen,
+      count: filtered.length,
+      terrasen: filtered,
     };
 
     res.format({
       'application/ld+json': () => res.status(200).json(
-        toCollectionLd("terras", terrasen, req.originalUrl)
+        toCollectionLd("terras", filtered, req.originalUrl)
       ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('terrasen/list', responseData),
@@ -121,27 +128,33 @@ export const searchRestaurants = async (req: Request, res: Response) => {
       match.cuisine = { $regex: cuisine as string, $options: "i" };
     }
 
-    const intensityRange = buildRangeFilter(minIntensity as string, maxIntensity as string);
-    if (intensityRange) match.intensity = intensityRange;
+    // intensity filters applied post-recompute (see recomputeIntensities below).
 
     if (Object.keys(match).length > 0) {
       pipeline.push({ $match: match });
     }
 
     pipeline.push(...buildSunDataLookup("Restaurant"));
-    pipeline.push({ $sort: { intensity: -1 } });
 
     const restaurants = await Restaurant.aggregate(pipeline);
 
+    await recomputeIntensities(restaurants);
+
+    let filtered = restaurants;
+    const minI = minIntensity ? Number(minIntensity) : null;
+    const maxI = maxIntensity ? Number(maxIntensity) : null;
+    if (minI != null) filtered = filtered.filter((r: any) => (r.intensity ?? 0) >= minI);
+    if (maxI != null) filtered = filtered.filter((r: any) => (r.intensity ?? 0) <= maxI);
+    filtered.sort((a: any, b: any) => (b.intensity ?? 0) - (a.intensity ?? 0));
+
     const responseData = {
-      count: restaurants.length, 
-      restaurants: restaurants, 
-      
+      count: filtered.length,
+      restaurants: filtered,
     };
 
     res.format({
       'application/ld+json': () => res.status(200).json(
-        toCollectionLd("restaurant", restaurants, req.originalUrl)
+        toCollectionLd("restaurant", filtered, req.originalUrl)
       ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('restaurants/list', responseData),

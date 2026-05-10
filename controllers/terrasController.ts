@@ -7,6 +7,7 @@ import { createOne, updateOne, patchOne, softDelete } from "./baseController.js"
 import { toLd, toCollectionLd } from "../contexts/jsonld.js";
 import { isValidObjectId } from "mongoose";
 import { getNearestShadowScore } from "../services/shadowScoringService.js";
+import { calculateSunData, getCloudFactor } from "../services/sunService.js";
 // @ts-ignore
 import SunCalc from "suncalc3";
 
@@ -42,14 +43,31 @@ export const getAllTerrasen = async (req: Request, res: Response) => {
       scoreRows.map((r: any) => [r._id.toString(), r.score])
     );
 
-    const enriched = terrassen.map((t: any) => {
+    // Cache cloudFactor by ~111m grid so we don't hit the Weather collection
+    // hundreds of times for nearby terraces.
+    const cfCache = new Map<string, number | undefined>();
+    async function getCachedCloudFactor(lat: number, lng: number) {
+      const key = `${lat.toFixed(3)},${lng.toFixed(3)}`;
+      if (cfCache.has(key)) return cfCache.get(key);
+      const cf = await getCloudFactor(lat, lng);
+      cfCache.set(key, cf);
+      return cf;
+    }
+
+    const enriched = await Promise.all(terrassen.map(async (t: any) => {
       const obj = t.toObject();
       const shadowScore = scoreMap.get(t._id.toString()) ?? 1.0;
       const [lng, lat] = obj.location.coordinates;
-      const sunPos = (SunCalc as any).getPosition(now, lat, lng);
-      const isNight = sunPos.altitude <= 0;
-      const adjustedIntensity = isNight ? 0 : Math.round(obj.intensity * shadowScore);
+
+      // Compute baseIntensity FRESH (sin(altitude_now) × cloudFactor) instead
+      // of trusting the cached `obj.intensity`, which is only refreshed by
+      // the hourly weather cron and lazy per-entity sun fetches.
+      const cf = await getCachedCloudFactor(lat, lng);
+      const sun = calculateSunData(now, lat, lng, cf);
+      const isNight = sun.position.altitude <= 0;
+      const adjustedIntensity = isNight ? 0 : Math.round(sun.intensity * shadowScore);
       const shadowPct = isNight ? 100 : Math.round((1 - shadowScore) * 100);
+
       return {
         ...obj,
         intensity: adjustedIntensity,
@@ -62,7 +80,8 @@ export const getAllTerrasen = async (req: Request, res: Response) => {
           { rel: "sun", href: `/api/sun/terras/${obj.uuid}` },
         ],
       };
-    });
+    }));
+    enriched.sort((a, b) => (b.intensity ?? 0) - (a.intensity ?? 0));
 
     const responseData = { count: enriched.length, terrasen: enriched };
 
