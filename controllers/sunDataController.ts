@@ -8,7 +8,7 @@ import { calculateSunData, getCloudFactor } from "../services/sunService.js";
 import { SUNDATA_CONTEXT, toLd } from "../contexts/jsonld.js";
 import { getNearestShadowScore } from "../services/shadowScoringService.js";
 import { refreshShadowScores } from "../services/sunScoreService.js";
-import { loadRecentWeather, nearestCloudFactor } from "../services/intensityRefresher.js";
+import { loadRecentWeather, nearestCloudFactor, computeIntensity } from "../services/intensityRefresher.js";
 
 function buildIdQuery(id: string | string[]) {
   const val = Array.isArray(id) ? id[0] : id;
@@ -153,8 +153,12 @@ function createGetSunForEntity(config: {
         return res.status(400).json({ message: "Invalid time format" });
       }
 
+      // Cache write is a side-effect (kept so /api/sun/cache/* still works and
+      // SunData rows accumulate for the JSON-LD timeline). The RESPONSE
+      // intensity is computed via the same primitive that /api/search/* uses,
+      // so the leaderboard, discover list, popup and detail page can never
+      // disagree on the same (id, time) pair.
       const cached = await getOrCreateCache(entity._id, config.locationType, lat, lng, dateTime);
-      // Normalise to plain object — spreading a Mongoose document gives internal fields ($__, _doc)
       const cachedPlain = typeof (cached as any).toObject === "function"
         ? (cached as any).toObject()
         : cached;
@@ -163,11 +167,24 @@ function createGetSunForEntity(config: {
       if (config.locationType === "Terras") {
         shadowScore = await getNearestShadowScore(entity._id, dateTime);
       }
-      const adjustedIntensity = Math.round(cachedPlain.intensity * shadowScore);
+
+      const weatherPoints = await loadRecentWeather();
+      const live = computeIntensity(weatherPoints, lat, lng, dateTime, shadowScore);
+      const adjustedIntensity = live.intensity;
 
       const responseData = {
         [config.responseKey]: { uuid: entity.uuid, name: entity[config.nameField], address: entity.address, intensity: adjustedIntensity },
-        sunData: { ...cachedPlain, intensity: adjustedIntensity, shadowScore },
+        sunData: {
+          ...cachedPlain,
+          dateTime: dateTime.toISOString(),
+          intensity: adjustedIntensity,
+          shadowScore,
+          azimuth: live.sun.position.azimuth,
+          altitude: live.sun.position.altitude,
+          goldenHour: live.sun.goldenHour,
+          isNight: live.isNight,
+          cloudFactor: live.cloudFactor ?? null,
+        },
       };
 
       const selfHref = `${config.selfPrefix}${entity.uuid}`;

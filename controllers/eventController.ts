@@ -6,6 +6,7 @@ import Restaurant from "../models/restaurantModel.js";
 import { createGetAll, createOne, updateOne, patchOne, softDelete } from "./baseController.js";
 import { toLd } from "../contexts/jsonld.js";
 import { isValidObjectId } from "mongoose";
+import { recomputeIntensities } from "../services/intensityRefresher.js";
 
 export const getAllEvents = createGetAll(Event, { date_start: 1 });
 
@@ -15,7 +16,7 @@ export const getEventById = async (req: Request, res: Response) => {
     const id = req.params.id;
     const query = isValidObjectId(id) ? { _id: id } : { uuid: id };
     const event = await Event.findOne({ ...query, isDeleted: { $ne: true } });
-    
+
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
@@ -29,9 +30,19 @@ export const getEventById = async (req: Request, res: Response) => {
       }
     }
 
+    const targetTime = (() => {
+      const raw = req.query?.time;
+      if (typeof raw !== 'string' || !raw) return undefined;
+      const t = new Date(raw);
+      return Number.isNaN(t.getTime()) ? undefined : t;
+    })();
+    const when = targetTime ?? new Date();
+    const eventObj: any = event.toObject();
+    await recomputeIntensities([eventObj], when);
+
     const selfHref = `/api/events/${event.uuid}`;
     const responseData = {
-      event: event,
+      event: eventObj,
       venue: venue, // Bevat nu de naam, adres etc. van de plek
       links: [
         { rel: "self", href: selfHref },
@@ -42,7 +53,7 @@ export const getEventById = async (req: Request, res: Response) => {
 
     res.format({
       'application/ld+json': () => res.status(200).json(
-        toLd("event", event.toObject(), selfHref)
+        toLd("event", eventObj, selfHref)
       ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('events/detail', responseData),

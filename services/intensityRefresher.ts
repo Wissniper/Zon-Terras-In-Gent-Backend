@@ -60,6 +60,35 @@ export function nearestCloudFactor(points: WeatherPoint[], lat: number, lng: num
   return bestIdx >= 0 && bestDist < CLOUD_LOOKUP_RADIUS_M ? points[bestIdx].cloudFactor : undefined;
 }
 
+/**
+ * Single source of truth for intensity math. Every endpoint that returns an
+ * `intensity` to the frontend (leaderboard, discover list, terras detail,
+ * map popup, marker enrichment) MUST go through this function so the four
+ * surfaces never disagree.
+ *
+ * Formula: round(sin(altitude) * 100 * (1 - cloudFactor/100) * shadowScore),
+ * clamped to 0 when altitude <= 0 (night).
+ */
+export function computeIntensity(
+  weatherPoints: WeatherPoint[],
+  lat: number,
+  lng: number,
+  when: Date,
+  shadowScore: number = 1.0,
+): {
+  intensity: number;
+  shadowScore: number;
+  cloudFactor: number | undefined;
+  isNight: boolean;
+  sun: ReturnType<typeof calculateSunData>;
+} {
+  const cf = nearestCloudFactor(weatherPoints, lat, lng);
+  const sun = calculateSunData(when, lat, lng, cf);
+  const isNight = sun.position.altitude <= 0;
+  const intensity = isNight ? 0 : Math.round(sun.intensity * shadowScore);
+  return { intensity, shadowScore, cloudFactor: cf, isNight, sun };
+}
+
 export async function recomputeIntensities(items: any[], targetTime?: Date): Promise<void> {
   if (!items || items.length === 0) return;
   const when = targetTime ?? new Date();
@@ -71,13 +100,10 @@ export async function recomputeIntensities(items: any[], targetTime?: Date): Pro
 
     const lng = Number(coords[0]);
     const lat = Number(coords[1]);
-
-    const cf = nearestCloudFactor(weatherPoints, lat, lng);
-    const sun = calculateSunData(when, lat, lng, cf);
-    const isNight = sun.position.altitude <= 0;
     const shadowScore = typeof it.shadowScore === "number" ? it.shadowScore : 1.0;
 
-    it.intensity = isNight ? 0 : Math.round(sun.intensity * shadowScore);
-    if (isNight) it.isNight = true;
+    const r = computeIntensity(weatherPoints, lat, lng, when, shadowScore);
+    it.intensity = r.intensity;
+    if (r.isNight) it.isNight = true;
   }
 }

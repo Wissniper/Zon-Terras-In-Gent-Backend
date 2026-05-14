@@ -106,7 +106,7 @@ export const getTerrasById = async (req: Request, res: Response) => {
     const id = req.params.id;
     const query = isValidObjectId(id) ? { _id: id } : { uuid: id };
     const terras = await Terras.findOne({ ...query, isDeleted: { $ne: true } });
-    
+
     if (!terras) {
       return res.status(404).json({ message: "Terras not found" });
     }
@@ -118,16 +118,28 @@ export const getTerrasById = async (req: Request, res: Response) => {
       isDeleted: { $ne: true }
     }).sort({ date_start: 1 });
 
-    const now = new Date();
-    const [lng, lat] = terras.location.coordinates;
-    const sunPos = (SunCalc as any).getPosition(now, lat, lng);
-    const isNight = sunPos.altitude <= 0;
-    const shadowScore = await getNearestShadowScore(terras._id, now);
+    // Optional `?time=ISO8601` — same time-awareness contract as /search/* and
+    // /sun/terras/:id so the four frontend surfaces agree on the same number.
+    const targetTime = (() => {
+      const raw = req.query?.time;
+      if (typeof raw !== 'string' || !raw) return undefined;
+      const t = new Date(raw);
+      return Number.isNaN(t.getTime()) ? undefined : t;
+    })();
+    const when = targetTime ?? new Date();
+    const shadowScore = await getNearestShadowScore(terras._id, when);
+    // Mongoose docs don't have a shadowScore field — set it on a plain object
+    // copy so recomputeIntensities can read it. Mutation of `intensity` is
+    // applied to the same object we return below.
+    const terrasObj: any = terras.toObject();
+    terrasObj.shadowScore = shadowScore;
+    await recomputeIntensities([terrasObj], when);
+    const isNight = terrasObj.isNight === true;
     const shadowPct = isNight ? 100 : Math.round((1 - shadowScore) * 100);
 
     const selfHref = `/api/terrasen/${terras.uuid}`;
     const responseData = {
-      terras: terras,
+      terras: terrasObj,
       events: events,
       shadowScore,
       shadowPct,

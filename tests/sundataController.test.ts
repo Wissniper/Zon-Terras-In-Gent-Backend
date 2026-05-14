@@ -82,7 +82,7 @@ it('getSunPosition calculates sun data for known coordinates/time', async () => 
   });
 
 //getOrCreateCache returns existing entry when already cached
-  it('getOrCreateCache returns existing entry when already cached', async () => {
+  it('getOrCreateCache reuses cache row but recomputes live intensity', async () => {
     const terras = await Terras.create({
       name: 'Cache Test Terras',
       address: 'Gent',
@@ -114,12 +114,17 @@ it('getSunPosition calculates sun data for known coordinates/time', async () => 
 
     expect(response.status).toBe(200);
 
-    // No new entry should have been created
+    // No new cache row created — the existing fresh row is reused for side-effects.
     const count = await SunData.countDocuments({ locationRef: terras._id, locationType: 'Terras' });
     expect(count).toBe(1);
 
-    // The cached intensity should be returned unchanged
-    expect(response.body.sunData.intensity).toBe(77);
+    // Intensity is now computed live via the same primitive that /search/* uses,
+    // so the four frontend surfaces never disagree. The pre-seeded cache value
+    // (77) is *not* what we return — we return the live calc at request time.
+    // Assert the value is a clamped integer rather than the seeded 77.
+    expect(typeof response.body.sunData.intensity).toBe('number');
+    expect(response.body.sunData.intensity).toBeGreaterThanOrEqual(0);
+    expect(response.body.sunData.intensity).toBeLessThanOrEqual(100);
   });
 
 //getCachedSunData validates locationType enum

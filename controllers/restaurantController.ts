@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { createGetAll, createOne, updateOne, patchOne, softDelete } from "./baseController.js";
 import { toLd } from "../contexts/jsonld.js";
 import { isValidObjectId } from "mongoose";
+import { recomputeIntensities } from "../services/intensityRefresher.js";
 
 export const getAllRestaurants = createGetAll(Restaurant, { name: 1 });
 
@@ -13,21 +14,33 @@ export const getRestaurantById = async (req: Request, res: Response) => {
     const id = req.params.id;
     const query = isValidObjectId(id) ? { _id: id } : { uuid: id };
     const restaurant = await Restaurant.findOne({ ...query, isDeleted: { $ne: true } });
-    
+
     if (!restaurant) {
       return res.status(404).json({ message: "Restaurant not found" });
     }
 
     // Haal events op die aan dit restaurant gekoppeld zijn
-    const events = await Event.find({ 
-      locationRef: restaurant.uuid, 
+    const events = await Event.find({
+      locationRef: restaurant.uuid,
       locationType: "restaurant",
-      isDeleted: { $ne: true } 
+      isDeleted: { $ne: true }
     }).sort({ date_start: 1 });
+
+    // Same time-aware contract as /search/* and /sun/restaurant/:id so the
+    // detail page and popup never disagree.
+    const targetTime = (() => {
+      const raw = req.query?.time;
+      if (typeof raw !== 'string' || !raw) return undefined;
+      const t = new Date(raw);
+      return Number.isNaN(t.getTime()) ? undefined : t;
+    })();
+    const when = targetTime ?? new Date();
+    const restaurantObj: any = restaurant.toObject();
+    await recomputeIntensities([restaurantObj], when);
 
     const selfHref = `/api/restaurants/${restaurant.uuid}`;
     const responseData = {
-      restaurant: restaurant,
+      restaurant: restaurantObj,
       events: events,
       links: [
         { rel: "self", href: selfHref },
@@ -38,7 +51,7 @@ export const getRestaurantById = async (req: Request, res: Response) => {
 
     res.format({
       'application/ld+json': () => res.status(200).json(
-        toLd("restaurant", restaurant.toObject(), selfHref)
+        toLd("restaurant", restaurantObj, selfHref)
       ),
       'application/json': () => res.status(200).json(responseData),
       'text/html': () => res.render('restaurants/detail', responseData),
