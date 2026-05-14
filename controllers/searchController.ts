@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { buildGeoStage, buildSunDataLookup, buildRangeFilter, parseBboxFromQuery, buildBboxFilter } from "./baseController.js";
 import { toCollectionLd } from "../contexts/jsonld.js";
 import { recomputeIntensities } from "../services/intensityRefresher.js";
+import { getNearestShadowScoresBulk } from "../services/shadowScoringService.js";
 
 const MAX_LIMIT = 500;
 
@@ -64,32 +65,18 @@ export const searchTerrasen = async (req: Request, res: Response) => {
 
     pipeline.push(...buildSunDataLookup("Terras"));
 
-    // Attach the most recent shadow score (≤ targetTime) per terras so the
-    // map and Discover render shadow-adjusted intensity without N+1 lookups.
-    const shadowCutoff = targetTime ?? new Date();
-    pipeline.push({
-      $lookup: {
-        from: "shadowscores",
-        let: { terrasId: "$_id" },
-        pipeline: [
-          { $match: { $expr: { $and: [
-            { $eq: ["$terrasRef", "$$terrasId"] },
-            { $lte: ["$timestamp", shadowCutoff] },
-          ] } } },
-          { $sort: { timestamp: -1 } },
-          { $limit: 1 },
-        ],
-        as: "_shadow",
-      },
-    });
-    pipeline.push({
-      $addFields: {
-        shadowScore: { $ifNull: [{ $arrayElemAt: ["$_shadow.score", 0] }, 1.0] },
-      },
-    });
-    pipeline.push({ $project: { _shadow: 0 } });
-
     const terrasen = await Terras.aggregate(pipeline);
+
+    // Bracketing nearest shadow score per terras — matches getNearestShadowScore
+    // used by /api/sun/terras/:id, so search and the per-terras endpoint agree.
+    const shadowCutoff = targetTime ?? new Date();
+    const shadowMap = await getNearestShadowScoresBulk(
+      terrasen.map((t: any) => t._id),
+      shadowCutoff,
+    );
+    for (const t of terrasen) {
+      t.shadowScore = shadowMap.get(t._id.toString()) ?? 1.0;
+    }
 
     // Replace the cached `intensity` with a fresh sin(altitude) × cloudFactor × shadowScore.
     await recomputeIntensities(terrasen, targetTime);

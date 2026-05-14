@@ -1,5 +1,6 @@
 import { calculateSunData } from "./sunService.js";
 import Weather from "../models/weatherModel.js";
+import { haversineDistance } from "./geoUtils.js";
 
 /**
  * Recompute the `intensity` field on each item using the *current* sun
@@ -18,9 +19,11 @@ import Weather from "../models/weatherModel.js";
  * pick the nearest in memory per item — O(W × N) JS instead of N geo queries.
  */
 
-// Squared-degree distance below which we consider two points "co-located".
-// 0.009° ≈ 1 km, matches the previous `$near` $maxDistance: 1000 constraint.
-const ONE_KM_SQ_DEG = 0.009 ** 2;
+// Match getCloudFactor's `$near` $maxDistance — measured in metres, geodesic.
+// Degree-Euclidean was anisotropic at 51° lat (~630 m E-W, ~1000 m N-S) and
+// caused the list endpoint to silently drop cloud factor for terraces near
+// the threshold while /api/sun/* still found one via $near.
+const CLOUD_LOOKUP_RADIUS_M = 1000;
 
 interface WeatherPoint {
   lng: number;
@@ -45,18 +48,16 @@ export async function loadRecentWeather(): Promise<WeatherPoint[]> {
 
 export function nearestCloudFactor(points: WeatherPoint[], lat: number, lng: number): number | undefined {
   if (points.length === 0) return undefined;
-  let bestIdx = 0;
+  let bestIdx = -1;
   let bestDist = Infinity;
   for (let i = 0; i < points.length; i++) {
-    const dLng = points[i].lng - lng;
-    const dLat = points[i].lat - lat;
-    const d = dLng * dLng + dLat * dLat;
+    const d = haversineDistance(lat, lng, points[i].lat, points[i].lng);
     if (d < bestDist) {
       bestDist = d;
       bestIdx = i;
     }
   }
-  return bestDist < ONE_KM_SQ_DEG ? points[bestIdx].cloudFactor : undefined;
+  return bestIdx >= 0 && bestDist < CLOUD_LOOKUP_RADIUS_M ? points[bestIdx].cloudFactor : undefined;
 }
 
 export async function recomputeIntensities(items: any[], targetTime?: Date): Promise<void> {

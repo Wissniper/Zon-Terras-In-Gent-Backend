@@ -229,3 +229,53 @@ export async function getNearestShadowScore(
   const diffAfter = after.timestamp.getTime() - datetime.getTime();
   return diffBefore <= diffAfter ? before.score : after.score;
 }
+
+/**
+ * Batch version of getNearestShadowScore — picks the temporally nearest score
+ * (bracketing: before-or-after) per terras in two aggregations + an in-memory pick.
+ *
+ * Why: the list/search endpoints previously used a single `$lte` aggregation,
+ * which silently locks to the previous hour's score for the second half of every
+ * hour. The per-terras `getNearestShadowScore` brackets and picks the closer
+ * timestamp — this helper preserves that semantic across a batch.
+ */
+export async function getNearestShadowScoresBulk(
+  terrasIds: mongoose.Types.ObjectId[],
+  datetime: Date,
+): Promise<Map<string, number>> {
+  if (terrasIds.length === 0) return new Map();
+
+  const [beforeRows, afterRows] = await Promise.all([
+    ShadowScore.aggregate([
+      { $match: { terrasRef: { $in: terrasIds }, timestamp: { $lte: datetime } } },
+      { $sort: { timestamp: -1 } },
+      { $group: { _id: "$terrasRef", score: { $first: "$score" }, timestamp: { $first: "$timestamp" } } },
+    ]),
+    ShadowScore.aggregate([
+      { $match: { terrasRef: { $in: terrasIds }, timestamp: { $gt: datetime } } },
+      { $sort: { timestamp: 1 } },
+      { $group: { _id: "$terrasRef", score: { $first: "$score" }, timestamp: { $first: "$timestamp" } } },
+    ]),
+  ]);
+
+  type Row = { score: number; ts: number };
+  const beforeMap = new Map<string, Row>(
+    beforeRows.map((r: any) => [r._id.toString(), { score: r.score, ts: new Date(r.timestamp).getTime() }])
+  );
+  const afterMap = new Map<string, Row>(
+    afterRows.map((r: any) => [r._id.toString(), { score: r.score, ts: new Date(r.timestamp).getTime() }])
+  );
+
+  const t = datetime.getTime();
+  const out = new Map<string, number>();
+  for (const id of terrasIds) {
+    const key = id.toString();
+    const b = beforeMap.get(key);
+    const a = afterMap.get(key);
+    if (!b && !a) out.set(key, 1.0);
+    else if (!b) out.set(key, a!.score);
+    else if (!a) out.set(key, b.score);
+    else out.set(key, (t - b.ts) <= (a.ts - t) ? b.score : a.score);
+  }
+  return out;
+}

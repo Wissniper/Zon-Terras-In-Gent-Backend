@@ -1,12 +1,11 @@
 import Terras from "../models/terrasModel.js";
 import SunData from "../models/sunDataModel.js";
 import Event from "../models/eventModel.js";
-import ShadowScore from "../models/shadowScoreModel.js";
 import { Request, Response } from "express";
 import { createOne, updateOne, patchOne, softDelete, parseBboxFromQuery, buildBboxFilter } from "./baseController.js";
 import { toLd, toCollectionLd } from "../contexts/jsonld.js";
 import { isValidObjectId } from "mongoose";
-import { getNearestShadowScore } from "../services/shadowScoringService.js";
+import { getNearestShadowScore, getNearestShadowScoresBulk } from "../services/shadowScoringService.js";
 import { recomputeIntensities } from "../services/intensityRefresher.js";
 // @ts-ignore
 import SunCalc from "suncalc3";
@@ -42,7 +41,9 @@ export const getAllTerrasen = async (req: Request, res: Response) => {
       });
     }
 
-    const terrassen = await Terras.find(filter).sort({ intensity: -1 });
+    // Don't sort by cached `intensity` here — enriched.sort below overrides
+    // it after recompute, so the DB sort is wasted work on a stale field.
+    const terrassen = await Terras.find(filter);
 
     // Optional `?time=ISO8601` — recompute intensities at that moment.
     const targetTime = (() => {
@@ -53,15 +54,12 @@ export const getAllTerrasen = async (req: Request, res: Response) => {
     })();
     const cutoff = targetTime ?? new Date();
 
-    // One aggregation: latest score ≤ cutoff per terras
-    const scoreRows = await ShadowScore.aggregate([
-      { $match: { timestamp: { $lte: cutoff } } },
-      { $sort: { timestamp: -1 } },
-      { $group: { _id: "$terrasRef", score: { $first: "$score" }, timestamp: { $first: "$timestamp" } } },
-    ]);
-    const scoreMap = new Map<string, number>(
-      scoreRows.map((r: any) => [r._id.toString(), r.score])
-    );
+    // Bracketing nearest score per terras — same semantic as
+    // getNearestShadowScore used by /api/sun/terras/:id. The previous `$lte`-only
+    // aggregation locked to the prior hour's score for the second half of every
+    // hour, causing the list to disagree with the per-terras endpoint.
+    const terrasIds = terrassen.map((t: any) => t._id);
+    const scoreMap = await getNearestShadowScoresBulk(terrasIds, cutoff);
 
     const enriched = terrassen.map((t: any) => {
       const obj = t.toObject();
